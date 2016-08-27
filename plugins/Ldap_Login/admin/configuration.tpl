@@ -54,6 +54,11 @@
 			<br>
 			<input type="text" id="ld_attr" name="LD_ATTR" value="{$LD_ATTR}" />
 		</li>
+		<li>
+			<label for="groupdn">{'DN of group for membership-check (memberOf)'|@translate}</label>
+			<br>
+			<input size="70" type="text" id="ld_group" name="LD_GROUP" value="{$LD_GROUP}" />
+		</li>
 	</ul>
     </fieldset>
     
