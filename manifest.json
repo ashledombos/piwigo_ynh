@@ -1,16 +1,27 @@
 {
     "name": "Piwigo",
     "id": "piwigo",
+    "packaging_format": 1,
     "description": {
         "en": "photo gallery",
         "fr": "Gallerie photo"
     },
-    "developer": {
+    "url": "http://piwigo.org",
+    "license": "free",
+    "maintainer": {
         "name": "monsieur-a",
         "email": "simon@monsieur-a.fr",
         "url": "http://piwigo.org"
     },
+    "requirements": {
+    "yunohost": ">> 2.4.0"
+    },
     "multi_instance": "true",
+    "services": [
+        "nginx",
+        "php5-fpm",
+        "mysql"
+    ],
     "arguments": {
         "install" : [
             {
