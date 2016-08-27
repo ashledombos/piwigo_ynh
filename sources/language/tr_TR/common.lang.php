@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Türkçe [TR]
-Version: 2.7.0
+Version: 2.8.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=436
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -426,3 +426,4 @@ $lang['Album name, A &rarr; Z'] = 'Albüm adı, A &rarr; Z';
 $lang['Album name, Z &rarr; A'] = '
 Albüm adı, Z &rarr; A';
 $lang['Link: %s'] = 'Bağlantı: %s';
+$lang['Your authentication key is no longer valid.'] = 'Kimlik doğrulama anahtarınız artık geçerli değil.';

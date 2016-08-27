@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -185,7 +185,7 @@ $lang['Lock albums'] = 'Verrouiller les albums';
 $lang['Private'] = 'Album privé';
 $lang['Public'] = 'Album public';
 $lang['Find a new representant by random'] = "Trouver un nouveau représentant au hasard";
-$lang['Public / Private'] = "Publique / Privée";
+$lang['Public / Private'] = 'Public / Privé';
 $lang['Manage authorizations for selected albums'] = 'Gérer le type d\'accès pour les albums sélectionnés';
 $lang['Virtual album added'] = 'Album virtuel ajouté';
 $lang['Virtual album deleted'] = 'Album virtuel supprimé';
@@ -807,8 +807,8 @@ $lang['Send connection settings by email'] = 'Envoyer les identifiants par email
 $lang['Activate comments'] = 'Activer les commentaires';
 $lang['Default comments order'] = 'Ordre par défaut des commentaires';
 $lang['A locked gallery is only visible to administrators'] = 'Une galerie verrouillée n\'est visible que des administrateurs';
-$lang['Unlock gallery'] = 'Déverouiller la galerie';
-$lang['Gallery unlocked'] = 'Galerie déverouillée';
+$lang['Unlock gallery'] = 'Déverrouiller la galerie';
+$lang['Gallery unlocked'] = 'Galerie déverrouillée';
 $lang['Notify administrators when a comment is'] = 'Notifier les administrateurs lorsqu\'un commentaire est';
 $lang['modified'] = 'modifié';
 $lang['deleted'] = 'supprimé';
@@ -983,3 +983,12 @@ $lang['date & time'] = 'date et heure';
 $lang['width & height'] = 'largeur et hauteur';
 $lang['No and unlock sub-albums'] = 'Non, et déverrouiller les sous-albums';
 $lang['Upload in progress'] = 'Transfert en cours...';
+$lang['Orphans'] = 'Orphelines';
+$lang['Delete %d orphan photos'] = 'Supprimer les %d photos orphelines';
+$lang['Edit user'] = 'Éditer l\'utilisateur';
+$lang['Recipients'] = 'Destinataires';
+$lang['No recipient selected'] = 'Choisissez un destinataire';
+$lang['No user is permitted to see this private album'] = 'Aucun utilisateur n\'est autorisé à voir cet album privé';
+$lang['Each email sent will contain its own automatic authentication key on links, valid for %s.'] = 'Chaque email envoyé contiendra sa propre clef d\'identification automatique sur les liens, valide %s.';
+$lang['For security reason, authentication keys do not work for administrators.'] = 'Par mesure de sécurité les clefs d\'identification ne fonctionnent pas pour les administrateurs.';
+$lang['Y Repeat'] = 'Répétition Y';

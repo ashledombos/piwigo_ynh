@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -982,3 +982,12 @@ $lang['between %s and %s MB'] = 'између %s и %s MB';
 $lang['date & time'] = 'датум и време';
 $lang['file name'] = 'назив датотеке';
 $lang['width & height'] = 'ширина и висина';
+$lang['Y Repeat'] = 'Понављање по y';
+$lang['No user is permitted to see this private album'] = 'Ниједном кориснику није дозвољено да види овај лични албум';
+$lang['No recipient selected'] = 'Није одабран прималац';
+$lang['Edit user'] = 'Измени корисника';
+$lang['Delete %d orphan photos'] = 'Обриши %d слике без родитеља';
+$lang['Each email sent will contain its own automatic authentication key on links, valid for %s.'] = 'Свако послато е-писмо ће садржати сопствени кључ за пријаву на адресу, важи %s.';
+$lang['For security reason, authentication keys do not work for administrators.'] = 'Из безбедоносних разлога, кључеви за пријаву не раде за администраторе.';
+$lang['Orphans'] = 'Без родитеља';
+$lang['Recipients'] = 'Примаоци';

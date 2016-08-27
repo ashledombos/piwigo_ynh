@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: العربية [AR]
-Version: 2.7.0
+Version: 2.8.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=412
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -181,7 +181,7 @@ $lang['First'] = 'الأولى';
 $lang['The gallery is locked for maintenance. Please, come back later.'] = 'مغلق للصيانة و التحديث .. نرجوا إعادة الزيارة مرة أخرى.';
 $lang['Page generated in'] = 'صفحة أنشئت في ..';
 $lang['guest'] = 'ضيف';
-$lang['Hello'] = 'السلام عليكم ';
+$lang['Hello'] = 'مرحبا';
 $lang['available for administrators only'] = 'متاح للأدارين فقط';
 $lang['display this album'] = 'عرض  جميع صور هذا الألبوم';
 $lang['display last user comments'] = 'شاهد آخر التعليقات';
@@ -435,3 +435,4 @@ $lang['Link: %s'] = 'الرابط: %s';
 $lang['No results for'] = 'لا يوجد نتائج';
 $lang['Photo description'] = 'وصف الصورة';
 $lang['Photo title'] = 'عنوان الصورة';
+$lang['Your authentication key is no longer valid.'] = 'مفتاح المصادقة الخاصة بك لم يعد صالحا.';

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -621,6 +621,8 @@ class image_ext_imagick implements imageInterface
 
   function write($destination_filepath)
   {
+    global $logger;
+
     $this->add_command('interlace', 'line'); // progressive rendering
     // use 4:2:2 chroma subsampling (reduce file size by 20-30% with "almost" no human perception)
     //
@@ -648,13 +650,13 @@ class image_ext_imagick implements imageInterface
 
     $dest = pathinfo($destination_filepath);
     $exec .= ' "'.realpath($dest['dirname']).'/'.$dest['basename'].'" 2>&1';
+    $logger->debug($exec, 'i.php');
     @exec($exec, $returnarray);
 
-    if (function_exists('ilog')) ilog($exec);
     if (is_array($returnarray) && (count($returnarray)>0) )
     {
-      if (function_exists('ilog')) ilog('ERROR', $returnarray);
-      foreach($returnarray as $line)
+      $logger->error('', 'i.php', $returnarray);
+      foreach ($returnarray as $line)
         trigger_error($line, E_USER_WARNING);
     }
     return is_array($returnarray);

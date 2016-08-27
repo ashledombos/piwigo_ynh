@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: বাংলা[IN]
-Version: 2.5.0
+Version: 2.8.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=657
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -61,5 +61,24 @@ $lang['... or please deactivate this message, I will find my way by myself'] = '
 $lang['A comment on your site'] = 'আপনার সাইটে একটি মন্তব্য';
 $lang['About Piwigo'] = 'পিউইগো বিষয়ক';
 $lang['About'] = 'বিষয়ক';
-
+$lang['Date']      = 'তারিখ';
+$lang['day'][0]    = 'রবিবার';
+$lang['day'][1]    = 'সোমবার';
+$lang['day'][2]    = 'মঙ্গলবার';
+$lang['day'][3]    = 'বুধবার';
+$lang['day'][4]    = 'বৃহস্পতিবার';
+$lang['day'][5]    = 'শুক্রবার';
+$lang['day'][6]    = 'শনিবার';
+$lang['month'][10] = 'অক্টোবর';
+$lang['month'][11] = 'নভেম্বর';
+$lang['month'][12] = 'ডিসেম্বর';
+$lang['month'][1]  = 'জানুয়ারী';
+$lang['month'][2]  = 'ফেব্রুয়ারি';
+$lang['month'][3]  = 'মার্চ';
+$lang['month'][4]  = 'এপ্রিল';
+$lang['month'][5]  = 'মে';
+$lang['month'][6]  = 'জুন';
+$lang['month'][7]  = 'জুলাই';
+$lang['month'][8]  = 'অগাস্ট';
+$lang['month'][9]  = 'সেপ্টেম্বর';
 ?>

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Lëtzebuergesch [LU]
-Version: 2.7.0
+Version: 2.8.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=715
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -367,3 +367,18 @@ $lang['from %s to %s'] = 'vun %s bis %s';
 $lang['posted after %s (%s)'] = 'agesat nom %s (%s)';
 $lang['posted before %s (%s)'] = 'agesat virum  %s (%s)';
 $lang['posted on %s'] = 'agesat den %s';
+$lang['mail address must be like xxx@yyy.eee (example : jack@altern.org)'] = 'E-Mail-Adresse muss dem Muster xxx@yyy.eee (Beispiel: jack@altern.org) entspriechen';
+$lang['delete this photo from your favorites'] = 'Dës Foto aus de Favoritten läschen';
+$lang['delete all photos from your favorites'] = 'All Fotoen aus de Favoritten läschen';
+$lang['created before %s (%s)'] = 'erstallt virum %s (%s)';
+$lang['created between %s (%s) and %s (%s)'] = 'erstallt tëschent dem %s (%s) an dem %s (%s)';
+$lang['You will receive a link to create a new password via email.'] = 'Dir kritt e Link per E-mail fir e neit Passwuert ze erstellen';
+$lang['Your comment has been registered'] = 'Äre Kommentar ass gespäichert';
+$lang['created after %s (%s)'] = 'erstallt nom %s (%s)';
+$lang['Photo title'] = 'Bildtitel';
+$lang['Photo description'] = 'Bildbeschreiwung';
+$lang['Link: %s'] = 'Adress: %s';
+$lang['End-Date'] = 'Enddatum';
+$lang['Apply on properties'] = 'Eegenschaften iwerhuelen';
+$lang['Album name, Z &rarr; A'] = 'Albumnumm, Z &rarr; A';
+$lang['Album name, A &rarr; Z'] = 'Albumnumm, A &rarr; Z';

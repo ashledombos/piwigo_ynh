@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -20,9 +20,6 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
-
-
-
 
 $lang[' and %d virtual'] = " และ %d";
 $lang[' and %d virtuals'] = " และ %d";
@@ -960,3 +957,38 @@ $lang['Update user'] = 'อัพเดตผู้ใช้';
 $lang['Upload in progress'] = 'การอัปโหลดอยู่ในระหว่างดำเนินการ';
 $lang['Activate it now'] = 'เปิดใช้งานตอนนี้';
 $lang['Mail theme'] = 'รูปแบบธีมอีเมล';
+$lang['file name'] = 'ชื่อไฟล์';
+$lang['date & time'] = 'วันที่ และ เวลา';
+$lang['based on'] = 'พื้นฐานระบบรันบน';
+$lang['Impossible to deactivate the default theme.'] = 'เป็นไปไม่ได้ที่จะยกเลิกการใช้งานรูปแบบเริ่มต้น';
+$lang['Mail address is mandatory for registration'] = 'อีเมลนี้มีผลบังคับใช้สำหรับการลงทะเบียน';
+$lang['No and unlock sub-albums'] = 'ไม่มีและปลดล็อคอัลบั้มย่อย';
+$lang['No user selected of %d users'] = 'ไม่มีผู้ใช้งานที่ถูกเลือก %d ผู้ใช้งาน';
+$lang['No user selected, no action possible.'] = 'ไม่มีผู้ใช้งานที่ถูกเลือก, ไม่มีการดำเนินการใดที่เป็นไปได้';
+$lang['Registered on %s, %s.'] = 'ลงทะเบียนเมื่อ on %s, %s.';
+$lang['Select at least one tag'] = 'เลือกอย่างน้อ 1 แท็ก';
+$lang['The settings for the guest are from the %s user'] = 'การตั้งค่าสำหรับผู้มาเยี่ยมชม %s ผู้ใช้งาน';
+$lang['between %s and %s MB'] = 'ระหว่าง %s และ %s MB';
+$lang['on the %d selected users'] = 'จำนวน %d ผู้ใช้งานที่ถูกเลือก';
+$lang['No matching user found'] = 'ไม่ตรงกับผู้ใช้งานที่พบ';
+$lang['Empty caddie'] = 'ล้างแคดดี้';
+$lang['width & height'] = 'กว้าง & สูง';
+$lang['%d of %d users selected'] = 'ผู้ใช้งานจำนวน %d จาก %d คน ที่ถูกเลือก';
+$lang['User %s added'] = 'ผู้ใช้ %s ได้ถูกเพิ่ม';
+$lang['User %s updated'] = 'ผู้ใช้ %s ได้ถูกอัพเดต';
+$lang['Users modified'] = 'ผู้ใช้ได้รับการปรับปรุงแล้ว';
+$lang['Showing %s to %s of %s users'] = 'กำลังแสดง %s ถึง %s จาก %s ผู้ใช้งาน';
+$lang['Show %s users'] = 'แสดง %s ผู้ใช้งาน';
+$lang['Last visit on %s, %s.'] = 'เข้าเยี่ยมชมล่าสุดเมื่อ %s, %s.';
+$lang['Allow users to add a link to their website'] = 'อนุญาตให้ผู้ใช้งานเพิ่มลิ้งค์ที่เชื่อมโยงไปยังเว็บไซต์ของเขาเอง';
+$lang['All %d users are selected'] = 'ทั้งหมด %d คนที่ถูกเลือก';
+$lang['(filtered from %s total users)'] = '(ได้ถูกกรองจาก %s ผู้ใช้งานทั้งหมด)';
+$lang['Edit user'] = 'แก้ไขผู้ใช้งาน';
+$lang['No recipient selected'] = 'ไม่มีผู้รับที่คุณเลือก';
+$lang['No user is permitted to see this private album'] = 'ผู้ใช้ไม่ได้รับอนุญาตให้ดูอัลบั้มส่วนตัวนี้';
+$lang['Recipients'] = 'ผู้รับ';
+$lang['Y Repeat'] = 'ทำซ้ำในแนวตั้ง';
+$lang['Delete %d orphan photos'] = 'ลบ %d รูปออร์แฟนส์';
+$lang['Each email sent will contain its own automatic authentication key on links, valid for %s.'] = 'แต่ละอีเมลที่ส่งจะมีการตรวจสอบที่สำคัญของตัวเองโดยอัตโนมัติในการเชื่อมโยงที่ถูกต้อง,สำหรับ %s.';
+$lang['For security reason, authentication keys do not work for administrators.'] = 'ด้วยเหตุผลด้านความปลอดภัยปุ่มตรวจสอบไม่ทำงานสำหรับผู้ดูแลระบบ';
+$lang['Orphans'] = 'ออร์แฟนส์';

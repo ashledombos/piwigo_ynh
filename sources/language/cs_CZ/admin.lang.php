@@ -5,7 +5,7 @@
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2009     Pavel Budka & Petr Jirsa    http://pbudka.co.cc |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -987,3 +987,12 @@ $lang['Empty caddie'] = 'Vyprázdnit košík';
 $lang['No and unlock sub-albums'] = 'Ne a odemknout podalba';
 $lang['The settings for the guest are from the %s user'] = 'Nastavení pro hosta je od uživatele %s';
 $lang['based on'] = 'založeno na';
+$lang['No recipient selected'] = 'Žádní adresáti nevybráni';
+$lang['Recipients'] = 'Adresáti';
+$lang['Y Repeat'] = 'Y opakování';
+$lang['Orphans'] = 'Sirotci';
+$lang['No user is permitted to see this private album'] = 'Žádní uživatelé nejsou oprávněni vidět toto soukromé album';
+$lang['For security reason, authentication keys do not work for administrators.'] = 'Z bezpečnostních důvodů, ověřovací klíče nefungují pro administrátory.';
+$lang['Edit user'] = 'Upravit uživatele';
+$lang['Each email sent will contain its own automatic authentication key on links, valid for %s.'] = 'Každý odeslaný email bude obsahovat vlastní odkaz obsahující ověřovací klíč, který je platný po %s.';
+$lang['Delete %d orphan photos'] = 'Smazání %d fotografií bez rodiče';

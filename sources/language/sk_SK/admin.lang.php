@@ -5,7 +5,7 @@
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2009     Pavel Budka & Petr Jirsa    http://pbudka.co.cc |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -984,3 +984,12 @@ $lang['based on'] = 'na základe';
 $lang['The settings for the guest are from the %s user'] = 'Nastavenia pre hostí sú z %s používateľa';
 $lang['No and unlock sub-albums'] = 'Nie a odomknúť pod-albumy';
 $lang['Upload in progress'] = 'Prebieha nahrávanie';
+$lang['Each email sent will contain its own automatic authentication key on links, valid for %s.'] = 'Každý odoslaný mail bude obsahovať automatický autentifikačný kľúč na linkoch, platný pre %s.';
+$lang['For security reason, authentication keys do not work for administrators.'] = 'Z bezpečnostných dovodov autentifikačné kľúče nefungujú pre administrátorov.';
+$lang['Delete %d orphan photos'] = 'Vymazať %d osamotených fotiek';
+$lang['Edit user'] = 'Upraviť používateľa';
+$lang['No recipient selected'] = 'Nevybraný žiaden príjemca';
+$lang['No user is permitted to see this private album'] = 'Žiadny používateľ nemá prístup na prezeranie tohto súkroného albumu';
+$lang['Orphans'] = 'Osamotené';
+$lang['Recipients'] = 'Príjemcovia';
+$lang['Y Repeat'] = 'Y opakovaní';

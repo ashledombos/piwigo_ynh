@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Dansk [DK]
-Version: 2.7.1
+Version: 2.8.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=415
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -194,7 +194,7 @@ $lang['included'] = 'medtaget';
 $lang['Invalid password!'] = 'Forkert adgangskode!';
 $lang['Language']='Sprog';
 $lang['last %d days'] = 'seneste %d dage';
-$lang['Last'] = 'Seneste';
+$lang['Last'] = 'Sidste';
 $lang['Logout'] = 'Log af';
 $lang['obligatory'] = 'obligatorisk';
 $lang['display a calendar by creation date'] = 'viser en kalender over oprettelsesdatoer';
@@ -231,7 +231,7 @@ $lang['Click on the photo to see it in high definition'] = 'Klik på fotografiet
 $lang['Show file metadata'] = 'Vis fotografiets metadata';
 $lang['Powered by'] = 'Drives af';
 $lang['Preferences'] = 'Indstillinger';
-$lang['Previous'] = 'Tidligere';
+$lang['Previous'] = 'Forrige';
 $lang['Random photos'] = 'Tilfældige fotografier';
 $lang['display a set of random photos'] = 'vis et sæt tilfældigt valgte fotografier';
 $lang['Recent albums'] = 'Nyeste albummer';
@@ -428,3 +428,4 @@ $lang['Photo title'] = 'Fototitel';
 $lang['Album name, A &rarr; Z'] = 'Albumnavn, A &rarr; Å';
 $lang['Album name, Z &rarr; A'] = 'Albumnavn, Å &rarr; A';
 $lang['Link: %s'] = 'Link: %s';
+$lang['Your authentication key is no longer valid.'] = 'Din autentifikationsnøgle er ikke længere gyldig.';

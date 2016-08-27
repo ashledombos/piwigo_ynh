@@ -38,7 +38,9 @@ jQuery(function(){ {* <!-- onLoad needed to wait localization loads --> *}
 });
 
 {* <!-- THUMBNAILS --> *}
-jQuery("a.preview-box").colorbox();
+jQuery("a.preview-box").colorbox({
+	photo: true
+});
 }());
 {/footer_script}
 
@@ -61,6 +63,7 @@ jQuery("a.preview-box").colorbox();
             <li>{$INTRO.add_date}</li>
             <li>{$INTRO.added_by}</li>
             <li>{$INTRO.size}</li>
+            <li>{$INTRO.formats}</li>
             <li>{$INTRO.stats}</li>
             <li>{$INTRO.id}</li>
           </ul>

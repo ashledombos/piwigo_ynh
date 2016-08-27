@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -82,7 +82,7 @@ SELECT id
   FROM '.CATEGORIES_TABLE.'
   WHERE id IN ('.implode(',', $cat_ids).')
 ;';
-  $db_cat_ids = array_from_query($query, 'id');
+  $db_cat_ids = query2array($query, null, 'id');
 
   $unknown_cat_ids = array_diff($cat_ids, $db_cat_ids);
   if (count($unknown_cat_ids) != 0)
@@ -100,7 +100,7 @@ SELECT category_id
   FROM '.IMAGE_CATEGORY_TABLE.'
   WHERE image_id = '.$image_id.'
 ;';
-  $existing_cat_ids = array_from_query($query, 'category_id');
+  $existing_cat_ids = query2array($query, null, 'category_id');
 
   if ($replace_mode)
   {
@@ -133,7 +133,7 @@ SELECT category_id, MAX(rank) AS max_rank
     AND category_id IN ('.implode(',', $new_cat_ids).')
   GROUP BY category_id
 ;';
-    $current_rank_of = simple_hash_from_query(
+    $current_rank_of = query2array(
       $query,
       'category_id',
       'max_rank'
@@ -182,9 +182,9 @@ SELECT category_id, MAX(rank) AS max_rank
  */
 function merge_chunks($output_filepath, $original_sum, $type)
 {
-  global $conf;
+  global $conf, $logger;
 
-  ws_logfile('[merge_chunks] input parameter $output_filepath : '.$output_filepath);
+  $logger->debug('[merge_chunks] input parameter $output_filepath : '.$output_filepath, 'WS');
 
   if (is_file($output_filepath))
   {
@@ -206,7 +206,7 @@ function merge_chunks($output_filepath, $original_sum, $type)
     {
       if (preg_match($pattern, $file))
       {
-        ws_logfile($file);
+        $logger->debug($file, 'WS');
         $chunks[] = $upload_dir.'/'.$file;
       }
     }
@@ -216,7 +216,7 @@ function merge_chunks($output_filepath, $original_sum, $type)
   sort($chunks);
 
   if (function_exists('memory_get_usage')) {
-    ws_logfile('[merge_chunks] memory_get_usage before loading chunks: '.memory_get_usage());
+    $logger->debug('[merge_chunks] memory_get_usage before loading chunks: '.memory_get_usage(), 'WS');
   }
 
   $i = 0;
@@ -226,7 +226,7 @@ function merge_chunks($output_filepath, $original_sum, $type)
     $string = file_get_contents($chunk);
 
     if (function_exists('memory_get_usage')) {
-      ws_logfile('[merge_chunks] memory_get_usage on chunk '.++$i.': '.memory_get_usage());
+      $logger->debug('[merge_chunks] memory_get_usage on chunk '.++$i.': '.memory_get_usage(), 'WS');
     }
 
     if (!file_put_contents($output_filepath, $string, FILE_APPEND))
@@ -238,7 +238,7 @@ function merge_chunks($output_filepath, $original_sum, $type)
   }
 
   if (function_exists('memory_get_usage')) {
-    ws_logfile('[merge_chunks] memory_get_usage after loading chunks: '.memory_get_usage());
+    $logger->debug('[merge_chunks] memory_get_usage after loading chunks: '.memory_get_usage(), 'WS');
   }
 }
 
@@ -481,7 +481,7 @@ SELECT COUNT(id) AS nb_comments
   FROM '. COMMENTS_TABLE .'
   WHERE '. $where_comments .'
 ;';
-  list($nb_comments) = array_from_query($query, 'nb_comments');
+  list($nb_comments) = query2array($query, null, 'nb_comments');
   $nb_comments = (int)$nb_comments;
 
   if ($nb_comments>0 and $params['comments_per_page']>0)
@@ -740,7 +740,40 @@ UPDATE '. IMAGES_TABLE .'
  *    @option int rank
  */
 function ws_images_setRank($params, $service)
-{
+{  
+  if (count($params['image_id']) > 1)
+  {
+    include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+
+    save_images_order(
+      $params['category_id'],
+      $params['image_id']
+      );
+
+    $query = '
+SELECT
+    image_id
+  FROM '.IMAGE_CATEGORY_TABLE.'
+  WHERE category_id = '.$params['category_id'].'
+  ORDER BY rank ASC
+;';
+    $image_ids = query2array($query, null, 'image_id');
+
+    // return data for client
+    return array(
+      'image_id' => $image_ids,
+      'category_id' => $params['category_id'],
+      );
+  }
+
+  // turns image_id into a simple int instead of array
+  $params['image_id'] = array_shift($params['image_id']);
+
+  if (empty($params['rank']))
+  {
+    return new PwgError(WS_ERR_MISSING_PARAM, 'rank is missing');
+  }
+  
   // does the image really exist?
   $query = '
 SELECT COUNT(*)
@@ -824,7 +857,7 @@ UPDATE '. IMAGE_CATEGORY_TABLE .'
  */
 function ws_images_add_chunk($params, $service)
 {
-  global $conf;
+  global $conf, $logger;
 
   foreach ($params as $param_key => $param_value)
   {
@@ -832,13 +865,12 @@ function ws_images_add_chunk($params, $service)
     {
       continue;
     }
-    ws_logfile(
-      sprintf(
-        '[ws_images_add_chunk] input param "%s" : "%s"',
-        $param_key,
-        is_null($param_value) ? 'NULL' : $param_value
-        )
-      );
+
+    $logger->debug(sprintf(
+      '[ws_images_add_chunk] input param "%s" : "%s"',
+      $param_key,
+      is_null($param_value) ? 'NULL' : $param_value
+      ), 'WS');
   }
 
   $upload_dir = $conf['upload_dir'].'/buffer';
@@ -856,7 +888,7 @@ function ws_images_add_chunk($params, $service)
     $params['position']
     );
 
-  ws_logfile('[ws_images_add_chunk] data length : '.strlen($params['data']));
+  $logger->debug('[ws_images_add_chunk] data length : '.strlen($params['data']), 'WS');
 
   $bytes_written = file_put_contents(
     $upload_dir.'/'.$filename,
@@ -881,9 +913,9 @@ function ws_images_add_chunk($params, $service)
  */
 function ws_images_addFile($params, $service)
 {
-  ws_logfile(__FUNCTION__.', input :  '.var_export($params, true));
+  global $conf, $logger;
 
-  global $conf;
+  $logger->debug(__FUNCTION__, 'WS', $params);
 
   // what is the path and other infos about the photo?
   $query = '
@@ -974,17 +1006,15 @@ SELECT
  */
 function ws_images_add($params, $service)
 {
-  global $conf, $user;
+  global $conf, $user, $logger;
 
   foreach ($params as $param_key => $param_value)
   {
-    ws_logfile(
-      sprintf(
-        '[pwg.images.add] input param "%s" : "%s"',
-        $param_key,
-        is_null($param_value) ? 'NULL' : $param_value
-        )
-      );
+    $logger->debug(sprintf(
+      '[pwg.images.add] input param "%s" : "%s"',
+      $param_key,
+      is_null($param_value) ? 'NULL' : $param_value
+      ), 'WS');
   }
 
   if ($params['image_id'] > 0)
@@ -1269,7 +1299,7 @@ function ws_images_upload($params, $service)
   // {
   //   return new PwgError(405, 'The image (file) is missing');
   // }
-  
+
   // file_put_contents('/tmp/plupload.log', "[".date('c')."] ".__FUNCTION__."\n\n", FILE_APPEND);
   // file_put_contents('/tmp/plupload.log', '$_FILES = '.var_export($_FILES, true)."\n", FILE_APPEND);
   // file_put_contents('/tmp/plupload.log', '$_POST = '.var_export($_POST, true)."\n", FILE_APPEND);
@@ -1342,11 +1372,11 @@ function ws_images_upload($params, $service)
   // Check if file has been uploaded
   if (!$chunks || $chunk == $chunks - 1)
   {
-    // Strip the temp .part suffix off 
+    // Strip the temp .part suffix off
     rename("{$filePath}.part", $filePath);
-  
+
     include_once(PHPWG_ROOT_PATH.'admin/include/functions_upload.inc.php');
-    
+
     $image_id = add_uploaded_file(
       $filePath,
       stripslashes($params['name']), // function add_uploaded_file will secure before insert
@@ -1354,7 +1384,7 @@ function ws_images_upload($params, $service)
       $params['level'],
       null // image_id = not provided, this is a new photo
       );
-    
+
     $query = '
 SELECT
     id,
@@ -1375,7 +1405,7 @@ SELECT
     $category_infos = pwg_db_fetch_assoc(pwg_query($query));
 
     $category_name = get_cat_display_name_from_id($params['category'][0], null);
-    
+
     return array(
       'image_id' => $image_id,
       'src' => DerivativeImage::thumb_url($image_infos),
@@ -1398,9 +1428,9 @@ SELECT
  */
 function ws_images_exist($params, $service)
 {
-  ws_logfile(__FUNCTION__.' '.var_export($params, true));
+  global $conf, $logger;
 
-  global $conf;
+  $logger->debug(__FUNCTION__, 'WS', $params);
 
   $split_pattern = '/[\s,;\|]/';
   $result = array();
@@ -1420,7 +1450,7 @@ SELECT id, md5sum
   FROM '. IMAGES_TABLE .'
   WHERE md5sum IN (\''. implode("','", $md5sums) .'\')
 ;';
-    $id_of_md5 = simple_hash_from_query($query, 'md5sum', 'id');
+    $id_of_md5 = query2array($query, 'md5sum', 'id');
 
     foreach ($md5sums as $md5sum)
     {
@@ -1431,7 +1461,7 @@ SELECT id, md5sum
       }
     }
   }
-  else if ('filename' == $conf['uniqueness_mode'])
+  elseif ('filename' == $conf['uniqueness_mode'])
   {
     // search among photos the list of photos already added, based on
     // filename list
@@ -1447,7 +1477,7 @@ SELECT id, file
   FROM '.IMAGES_TABLE.'
   WHERE file IN (\''. implode("','", $filenames) .'\')
 ;';
-    $id_of_filename = simple_hash_from_query($query, 'file', 'id');
+    $id_of_filename = query2array($query, 'file', 'id');
 
     foreach ($filenames as $filename)
     {
@@ -1471,7 +1501,9 @@ SELECT id, file
  */
 function ws_images_checkFiles($params, $service)
 {
-  ws_logfile(__FUNCTION__.', input :  '.var_export($params, true));
+  global $logger;
+
+  $logger->debug(__FUNCTION__, 'WS', $params);
 
   $query = '
 SELECT path
@@ -1502,14 +1534,14 @@ SELECT path
     $ret['file'] = 'equals';
     $compare_type = 'high';
   }
-  else if (isset($params['file_sum']))
+  elseif (isset($params['file_sum']))
   {
     $compare_type = 'file';
   }
 
   if (isset($compare_type))
   {
-    ws_logfile(__FUNCTION__.', md5_file($path) = '.md5_file($path));
+    $logger->debug(__FUNCTION__.', md5_file($path) = '.md5_file($path), 'WS');
     if (md5_file($path) != $params[$compare_type.'_sum'])
     {
       $ret[$compare_type] = 'differs';
@@ -1520,7 +1552,7 @@ SELECT path
     }
   }
 
-  ws_logfile(__FUNCTION__.', output :  '.var_export($ret, true));
+  $logger->debug(__FUNCTION__, 'WS', $ret);
 
   return $ret;
 }

@@ -134,7 +134,13 @@ $(document).ready(function() {
 
   $("select[name=selectAction]").change(function () {
     $("[id^=action_]").hide();
-    $("#action_"+$(this).prop("value")).show();
+
+    var action = $(this).prop("value");
+    if (action == 'move') {
+      action = 'associate';
+    }
+
+    $("#action_"+action).show();
 
     if ($(this).val() != -1) {
       $("#applyActionBlock").show();
@@ -268,6 +274,7 @@ $(document).ready(function() {
   jQuery("select[name=filter_prefilter]").change(function() {
     jQuery("#empty_caddie").toggle(jQuery(this).val() == "caddie");
     jQuery("#duplicates_options").toggle(jQuery(this).val() == "duplicates");
+    jQuery("#delete_orphans").toggle(jQuery(this).val() == "no_album");
   });
 });
 
@@ -329,10 +336,15 @@ var sliders = {
         {'Predefined filter'|@translate}
         <select name="filter_prefilter">
           {foreach from=$prefilters item=prefilter}
-          <option value="{$prefilter.ID}" {if isset($filter.prefilter) && $filter.prefilter eq $prefilter.ID}selected="selected"{/if}>{$prefilter.NAME}</option>
+            {assign 'optionClass' ''}
+            {if $prefilter.ID eq 'no_album'}{assign 'optionClass' 'icon-heart-broken'}{/if}
+            {if $prefilter.ID eq 'caddie'}{assign 'optionClass' 'icon-flag'}{/if}
+
+          <option value="{$prefilter.ID}"  class="{$optionClass}" {if isset($filter.prefilter) && $filter.prefilter eq $prefilter.ID}selected="selected"{/if}>{$prefilter.NAME}</option>
           {/foreach}
         </select>
         <a id="empty_caddie" href="admin.php?page=batch_manager&amp;action=empty_caddie" style="{if !isset($filter.prefilter) or $filter.prefilter ne 'caddie'}display:none{/if}">{'Empty caddie'|translate}</a>
+        <a id="delete_orphans" href="admin.php?page=batch_manager&amp;action=delete_orphans" style="{if !isset($filter.prefilter) or $filter.prefilter ne 'no_album'}display:none{/if}">{'Delete %d orphan photos'|translate:$NB_ORPHANS}</a>
 
         <span id="duplicates_options" style="{if !isset($filter.prefilter) or $filter.prefilter ne 'duplicates'}display:none{/if}">
           {'based on'|translate}
@@ -584,20 +596,12 @@ UL.thumbnails SPAN.wrap2 {ldelim}
     <p><label><input type="checkbox" name="confirm_deletion" value="1"> {'Are you sure?'|@translate}</label></p>
     </div>
 
-    <!-- associate -->
+    <!-- associate -->{* also used for "move" action *}
     <div id="action_associate" class="bulkAction">
       <select data-selectize="categories" data-default="first" name="associate" style="width:600px"></select>
       <br>{'... or '|@translate}
       <a href="#" data-add-album="associate" title="{'create a new album'|@translate}">{'create a new album'|@translate}</a>
     </div>
-
-    <!-- move -->
-    <div id="action_move" class="bulkAction">
-      <select data-selectize="categories" data-default="first" name="move" style="width:600px"></select>
-      <br>{'... or '|@translate}
-      <a href="#" data-add-album="move" title="{'create a new album'|@translate}">{'create a new album'|@translate}</a>
-    </div>
-
 
     <!-- dissociate -->
     <div id="action_dissociate" class="bulkAction">
@@ -627,15 +631,13 @@ UL.thumbnails SPAN.wrap2 {ldelim}
     <!-- author -->
     <div id="action_author" class="bulkAction">
     <label><input type="checkbox" name="remove_author"> {'remove author'|@translate}</label><br>
-    {assign var='authorDefaultValue' value='Type here the author name'|@translate}
-<input type="text" class="large" name="author" value="{$authorDefaultValue}" onfocus="this.value=(this.value=='{$authorDefaultValue|@escape:javascript}') ? '' : this.value;" onblur="this.value=(this.value=='') ? '{$authorDefaultValue|@escape:javascript}' : this.value;">
+		<input type="text" class="large" name="author" placeholder="{'Type here the author name'|@translate}">
     </div>
 
     <!-- title -->
     <div id="action_title" class="bulkAction">
     <label><input type="checkbox" name="remove_title"> {'remove title'|@translate}</label><br>
-    {assign var='titleDefaultValue' value='Type here the title'|@translate}
-<input type="text" class="large" name="title" value="{$titleDefaultValue}" onfocus="this.value=(this.value=='{$titleDefaultValue|@escape:javascript}') ? '' : this.value;" onblur="this.value=(this.value=='') ? '{$titleDefaultValue|@escape:javascript}' : this.value;">
+		<input type="text" class="large" name="title" placeholder="{'Type here the title'|@translate}">
     </div>
 
     <!-- date_creation -->

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -986,3 +986,12 @@ $lang['width & height'] = 'latime & inaltime';
 $lang['file name'] = 'numele fisierului';
 $lang['date & time'] = 'data & ora';
 $lang['Upload in progress'] = 'Incarcare in desfasurare';
+$lang['Each email sent will contain its own automatic authentication key on links, valid for %s.'] = 'Fiecare email trimis va conține cheia de autentificare automată în link, valabilă pentru %s ';
+$lang['No user is permitted to see this private album'] = 'Niciunui utilizator nu îi este permis să vadă acest album';
+$lang['No recipient selected'] = 'Nu a fost selectat nici un destinatar';
+$lang['For security reason, authentication keys do not work for administrators.'] = 'Din motive de securitate, cheile de autentificare nu funcţionează pentru administratori';
+$lang['Recipients'] = 'Destinatari';
+$lang['Edit user'] = 'Editează utilizatorul';
+$lang['Y Repeat'] = 'Y Repetare';
+$lang['Delete %d orphan photos'] = 'Sterge %d fotografii orfane';
+$lang['Orphans'] = 'Orfane';

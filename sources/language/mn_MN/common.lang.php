@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Монгол [MN]
-Version: 2.7.2
+Version: 2.8.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=696
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -237,7 +237,7 @@ $lang['delete this photo from your favorites'] = 'энэ зургийг дурт
 $lang['display your favorites photos'] = 'дуртай зурагнуудаа харах';
 $lang['The number of photos per page must be a not null scalar'] = 'Нэг хуудсанд харуулах зургийн тоо 0-с их байх ёстой';
 $lang['I want to add photos'] = 'Би зураг оруулмаар байна';
-$lang['Number of photos per page'] = 'Нэг хуудасанд харагдах зургын тоо';
+$lang['Number of photos per page'] = 'Нэг хуудсанд харагдах зургын тоо';
 $lang['%d photo is also linked to current tags'] = '%d зураг энэ түлхүүр үгтэй холбоотой байна';
 $lang['%d photos are also linked to current tags'] = '%d зураг энэ түлхүүр үгтэй холбоотой байна';
 $lang['Update your rating'] = 'Үнэлгээгээ шинэчлэх';
@@ -415,7 +415,7 @@ $lang['Go back to the album'] = 'Цомог уруу буцах';
 $lang['Last Page'] = 'сүүлийн хуудас';
 $lang['Password is missing. Please enter the password.'] = 'Уучлаарай. Нууц үгээ оруулна уу.';
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Нууц үгээ баталгаажуулж давтан оруулна уу.';
-$lang['%d photos per page'] = 'Нэг хуудасанд %d зураг';
+$lang['%d photos per page'] = 'Нэг хуудсанд %d зураг';
 $lang['Theme'] = 'Загвар';
 $lang['Photo description'] = 'Зургийн тайлбар';
 $lang['Photo title'] = 'Зургийн нэр';
@@ -424,3 +424,4 @@ $lang['No results for'] = 'Ийм үр дүн олдсонгүй';
 $lang['Album name, A &rarr; Z'] = 'Цомогын нэр, A &rarr; Z';
 $lang['Album name, Z &rarr; A'] = 'Цомогын нэр, Z &rarr; A';
 $lang['Link: %s'] = 'Холбоос: %s';
+$lang['Your authentication key is no longer valid.'] = 'Хүчингүй болсон баталгаажуулах код байна';

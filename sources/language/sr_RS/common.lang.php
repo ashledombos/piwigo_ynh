@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Српски [SR]
-Version: 2.7.2
+Version: 2.8.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=458
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -427,3 +427,4 @@ $lang['Apply on properties'] = 'Примени на особине';
 $lang['Album name, A &rarr; Z'] = 'Назив албума, А &rarr; Ш';
 $lang['Album name, Z &rarr; A'] = 'Назив албума, Ш &rarr; А';
 $lang['Link: %s'] = 'Веза: %s';
+$lang['Your authentication key is no longer valid.'] = 'Ваш кључ за проверу идентитета није више важећи.';

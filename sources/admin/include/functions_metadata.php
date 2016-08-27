@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -68,20 +68,7 @@ function get_sync_iptc_data($file)
 
   if (isset($iptc['keywords']))
   {
-    // official keywords separator is the comma
-    $iptc['keywords'] = preg_replace('/[.;]/', ',', $iptc['keywords']);
-    $iptc['keywords'] = preg_replace('/,+/', ',', $iptc['keywords']);
-    $iptc['keywords'] = preg_replace('/^,+|,+$/', '', $iptc['keywords']);
-
-    $iptc['keywords'] = implode(
-      ',',
-      array_unique(
-        explode(
-          ',',
-          $iptc['keywords']
-          )
-        )
-      );
+    $iptc['keywords'] = metadata_normalize_keywords_string($iptc['keywords']);
   }
 
   foreach ($iptc as $pwg_key => $value)
@@ -122,6 +109,12 @@ function get_sync_exif_data($file)
         continue;
       }
     }
+
+    if (in_array($pwg_key, array('keywords', 'tags')))
+    {
+      $exif[$pwg_key] = metadata_normalize_keywords_string($exif[$pwg_key]);
+    }
+    
     $exif[$pwg_key] = addslashes($exif[$pwg_key]);
   }
 
@@ -180,8 +173,24 @@ function get_sync_metadata($infos)
 
   $infos['filesize'] = floor($fs/1024);
 
+  $is_tiff = false;
+
   if (isset($infos['representative_ext']))
   {
+    if ($image_size = @getimagesize($file))
+    {
+      $type = $image_size[2];
+
+      if (IMAGETYPE_TIFF_MM == $type or IMAGETYPE_TIFF_II == $type)
+      {
+        // in case of TIFF files, we want to use the original file and not
+        // the representative for EXIF/IPTC, but we need the representative
+        // for width/height (to compute the multiple size dimensions)
+        $is_tiff = true;
+      }
+
+    }
+
     $file = original_to_representative($file, $infos['representative_ext']);
   }
 
@@ -189,6 +198,12 @@ function get_sync_metadata($infos)
   {
     $infos['width'] = $image_size[0];
     $infos['height'] = $image_size[1];
+  }
+
+  if ($is_tiff)
+  {
+    // back to original file
+    $file = PHPWG_ROOT_PATH.$infos['path'];
   }
 
   if ($conf['use_exif'])
@@ -351,4 +366,31 @@ SELECT id, path, representative_ext
   return hash_from_query($query, 'id');
 }
 
+/**
+ * Returns the list of keywords (future tags) correctly separated with
+ * commas. Other separators are converted into commas.
+ *
+ * @param string $keywords_string
+ * @return string
+ */
+function metadata_normalize_keywords_string($keywords_string)
+{
+  global $conf;
+  
+  $keywords_string = preg_replace($conf['metadata_keyword_separator_regex'], ',', $keywords_string);
+  $keywords_string = preg_replace('/,+/', ',', $keywords_string);
+  $keywords_string = preg_replace('/^,+|,+$/', '', $keywords_string);
+      
+  $keywords_string = implode(
+    ',',
+    array_unique(
+      explode(
+        ',',
+        $keywords_string
+        )
+      )
+    );
+
+  return $keywords_string;
+}
 ?>

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -650,7 +650,7 @@ $lang['Error on file "%s" : %s'] = 'Error a l\'arxiu "%s": %s';
 $lang['automatic order'] = 'Ordre automàtic';
 $lang['manual order'] = 'ordre manual';
 $lang['Albums automatically sorted'] = 'Àlbums ordenats automàticament';
-$lang['Batch Manager'] = 'Gestor per lots';
+$lang['Batch Manager'] = 'Gestor de pocessamet per lots';
 $lang['include child albums'] = 'incloure els sub-àlbums';
 $lang['Selection'] = 'Selecció';
 $lang['Action'] = 'Acció';
@@ -771,7 +771,7 @@ $lang['Select an album'] = 'Seleccioneu un àlbum';
 $lang['By default, Piwigo will create a new websize from the HD (high definition) version of your photo.'] = 'Per defecte, Piwigo crearà una nova mida per a la web a partir de les vostres fotos en versió HD (high definition) ';
 $lang['If no HD is available and if the current websize is bigger than resize dimensions, Piwigo will move it as HD and create a downsized websize photo from it.'] = 'Si no està disponible en alta definició i la mida actual es més gran que les dimensions del canvi de mida, es considerarà \'alta definició\' (HD) tot i què finalment caldrà reduir la mida de la imatge.';
 $lang['An error has occured during upgrade.'] = 'S\'ha produït un error durant el procés d\'actualització.';
-$lang['An error has occured during extract. Please check files permissions of your piwigo installation.<br><a href="%s">Click here to show log error</a>.'] = 'S\'ha produït un error mentre l\'extracció. Reviseu els permisos dels fitxers de la instal·lació de piwigo. <br><a href="%s"> Cliqueu aquí per mostrar el registre de l\'error</a>.';
+$lang['An error has occured during extract. Please check files permissions of your piwigo installation.<br><a href="%s">Click here to show log error</a>.'] = 'S\'ha produït un error durant l\'extracció. Reviseu els permisos dels fitxers de l\'instal·lació de piwigo. <br><a href="%s"> Cliqueu aquí per mostrar el registre de l\'error</a>.';
 $lang['Piwigo cannot retrieve upgrade file from server'] = 'Piwigo no pot recuperar l\'arxiu d\'actualització del servidor';
 $lang['Updates'] = 'Actualitzacions';
 $lang['%s has been successfully updated.'] = '%s s\'ha actualitzat correctament.';
@@ -992,3 +992,12 @@ $lang['between %s and %s MB'] = 'entre %s i %s MB';
 $lang['date & time'] = 'data i hora';
 $lang['file name'] = 'nom del fitxer';
 $lang['width & height'] = 'amplada i alçada';
+$lang['Delete %d orphan photos'] = 'Eliminar %d fotos òrfenes';
+$lang['Each email sent will contain its own automatic authentication key on links, valid for %s.'] = 'Cada correu electrònic enviat contindrà la seva pròpia clau d\'autenticació en els enllaços, vàlida per %s';
+$lang['Edit user'] = 'Edita l\'usuari';
+$lang['For security reason, authentication keys do not work for administrators.'] = 'Per raons de seguretat, les claus d\'autenticació no funcionen amb els administradors';
+$lang['No recipient selected'] = 'No s\'ha indicat cap destinatari';
+$lang['No user is permitted to see this private album'] = 'No s\'ha indicat cap usuari per veure aquest àlbum privat';
+$lang['Orphans'] = 'Òrfenes';
+$lang['Recipients'] = 'Destinataris';
+$lang['Y Repeat'] = 'Repetició Y';

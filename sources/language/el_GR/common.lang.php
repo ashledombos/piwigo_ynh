@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Ελληνικά [GR]
-Version: 2.7.0
+Version: 2.8.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=508
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -426,3 +426,4 @@ $lang['Apply on properties'] = 'Εφαρμόστε σε ιδιότητες';
 $lang['Album name, Z &rarr; A'] = 'Όνομα Λευκώματος, Ω &rarr; Α';
 $lang['Album name, A &rarr; Z'] = 'Όνομα Λευκώματος, Α &rarr; Ω';
 $lang['Link: %s'] = 'Σύνδεσμος: %s';
+$lang['Your authentication key is no longer valid.'] = 'Το κλειδί ταυτοποίησης σας δεν είναι πλέον έγκυρο.';

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Argentina [AR]
-Version: 2.7.0
+Version: 2.8.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=418
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -421,4 +421,10 @@ $lang['%d photos per page'] = '%d fotos por página';
 $lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Falta confirmación de su contraseña. Por favor confirme la contraseña elegida.';
 $lang['Password is missing. Please enter the password.'] = 'Falta la contraseña. Por favor escriba su contraseña';
 $lang['Theme'] = 'Tema';
-?>
+$lang['Album name, A &rarr; Z'] = 'Nombre del álbum, A &rarr; Z';
+$lang['Album name, Z &rarr; A'] = 'Nombre del álbum, Z &rarr; A';
+$lang['Apply on properties'] = 'Aplicar a las propiedades';
+$lang['Link: %s'] = 'Enlace: %s';
+$lang['No results for'] = 'No hay resultados para';
+$lang['Photo description'] = 'Descripción de la foto';
+$lang['Photo title'] = 'Título de la foto';

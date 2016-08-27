@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -36,8 +36,6 @@ include_once( PHPWG_ROOT_PATH .'include/functions_url.inc.php' );
 include_once( PHPWG_ROOT_PATH .'include/derivative_params.inc.php');
 include_once( PHPWG_ROOT_PATH .'include/derivative_std_params.inc.php');
 include_once( PHPWG_ROOT_PATH .'include/derivative.inc.php');
-include_once( PHPWG_ROOT_PATH .'include/template.class.php');
-include_once( PHPWG_ROOT_PATH .'include/cache.class.php');
 
 
 /**
@@ -409,7 +407,7 @@ SELECT id, name
  * @param string $image_type
  * @return bool
  */
-function pwg_log($image_id = null, $image_type = null)
+function pwg_log($image_id = null, $image_type = null, $format_id = null)
 {
   global $conf, $user, $page;
 
@@ -436,6 +434,17 @@ function pwg_log($image_id = null, $image_type = null)
     $tags_string = implode(',', $page['tag_ids']);
   }
 
+  $ip = $_SERVER['REMOTE_ADDR'];
+  // In case of "too long" ipv6 address, we take only the 15 first chars.
+  //
+  // It would be "cleaner" to increase length of history.IP to 50 chars, but
+  // the alter table is very long on such a big table. We should plan this
+  // for a future version, once history table is kept "smaller".
+  if (strpos($ip,':') !== false and strlen($ip) > 15)
+  {
+    $ip = substr($ip, 0, 15);
+  }
+
   $query = '
 INSERT INTO '.HISTORY_TABLE.'
   (
@@ -447,6 +456,8 @@ INSERT INTO '.HISTORY_TABLE.'
     category_id,
     image_id,
     image_type,
+    format_id,
+    auth_key_id,
     tag_ids
   )
   VALUES
@@ -454,11 +465,13 @@ INSERT INTO '.HISTORY_TABLE.'
     CURRENT_DATE,
     CURRENT_TIME,
     '.$user['id'].',
-    \''.$_SERVER['REMOTE_ADDR'].'\',
+    \''.$ip.'\',
     '.(isset($page['section']) ? "'".$page['section']."'" : 'NULL').',
     '.(isset($page['category']['id']) ? $page['category']['id'] : 'NULL').',
     '.(isset($image_id) ? $image_id : 'NULL').',
     '.(isset($image_type) ? "'".$image_type."'" : 'NULL').',
+    '.(isset($format_id) ? $format_id : 'NULL').',
+    '.(isset($page['auth_key_id']) ? $page['auth_key_id'] : 'NULL').',
     '.(isset($tags_string) ? "'".$tags_string."'" : 'NULL').'
   )
 ;';
@@ -955,6 +968,21 @@ function original_to_representative($path, $representative_ext)
 }
 
 /**
+ * Transforms an original path to its format
+ *
+ * @param string $path
+ * @param string $format_ext
+ * @return string
+ */
+function original_to_format($path, $format_ext)
+{
+  $pos = strrpos($path, '/');
+  $path = substr_replace($path, 'pwg_format/', $pos+1, 0);
+  $pos = strrpos($path, '.');
+  return substr_replace($path, $format_ext, $pos+1);
+}
+
+/**
  * get the full path of an image
  *
  * @param array $element_info element information from db (at least 'path')
@@ -1142,9 +1170,7 @@ function l10n_args($key_args, $sep = "\n")
  */
 function get_themeconf($key)
 {
-  global $template;
-
-  return $template->get_themeconf($key);
+  return $GLOBALS['template']->get_themeconf($key);
 }
 
 /**
@@ -1278,6 +1304,27 @@ DELETE FROM '.CONFIG_TABLE.'
     unset($conf[$param]);
   }
 }
+
+/**
+ * Return a default value for a configuration parameter.
+ * @since 2.8
+ *
+ * @param string $param the configuration value to be extracted (if it exists)
+ * @param mixed $default_value the default value for the configuration value if it does not exist.
+ *
+ * @return mixed The configuration value if the variable exists, otherwise the default.
+ */
+function conf_get_param($param, $default_value=null)
+{
+  global $conf;
+  
+  if (isset($conf[$param]))
+  {
+    return $conf[$param];
+  }
+  return $default_value;
+}
+
 
 /**
  * Apply *unserialize* on a value only if it is a string
@@ -1633,7 +1680,7 @@ function convert_charset($str, $source_charset, $dest_charset)
   }
   if (function_exists('iconv'))
   {
-    return iconv($source_charset, $dest_charset, $str);
+    return iconv($source_charset, $dest_charset.'//TRANSLIT', $str);
   }
   if (function_exists('mb_convert_encoding'))
   {

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -25,25 +25,10 @@
 // | Photo selection                                                       |
 // +-----------------------------------------------------------------------+
 
-$upload_max_filesize = min(
-  get_ini_size('upload_max_filesize'),
-  get_ini_size('post_max_size')
-  );
-
-if ($upload_max_filesize == get_ini_size('upload_max_filesize'))
-{
-  $upload_max_filesize_shorthand = get_ini_size('upload_max_filesize', false);
-}
-else
-{
-  $upload_max_filesize_shorthand = get_ini_size('post_max_filesize', false);
-}
-
 $template->assign(
     array(
       'F_ADD_ACTION'=> PHOTOS_ADD_BASE_URL,
-      'upload_max_filesize' => $upload_max_filesize,
-      'upload_max_filesize_shorthand' => $upload_max_filesize_shorthand,
+      'chunk_size' => $conf['upload_form_chunk_size'],
     )
   );
 
@@ -221,6 +206,16 @@ if (!isset($_SESSION['upload_hide_warnings']))
       get_ini_size('post_max_size', false)
       );
   }
+
+  if (get_ini_size('upload_max_filesize') < $conf['upload_form_chunk_size']*1024)
+  {
+    $setup_warnings[] = sprintf(
+      'Piwigo setting upload_form_chunk_size (%ukB) should be smaller than PHP configuration setting upload_max_filesize (%ukB)',
+      $conf['upload_form_chunk_size'],
+      ceil(get_ini_size('upload_max_filesize') / 1024)
+      );
+  }
+
   $template->assign(
     array(
       'setup_warnings' => $setup_warnings,

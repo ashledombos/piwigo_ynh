@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Bahasa Indonesia [ID]
-Version: 2.7.0
+Version: 2.8.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=707
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -416,4 +416,15 @@ $lang['About'] = 'Tentang';
 $lang['About Piwigo'] = 'Tentang Piwigo';
 $lang['Accelerate diaporama speed'] = 'Tingkatkan kecepatan guliran gambar ';
 $lang['Add a comment'] = 'Tambahkan sebuah komentar';
-?>
+$lang['%d photos per page'] = '%d foto per halaman';
+$lang['Album name, A &rarr; Z'] = 'Nama album, A &arr; Z';
+$lang['Album name, Z &rarr; A'] = 'Nama album, Z &arr; A';
+$lang['Apply on properties'] = 'Terapkan ke properti';
+$lang['Link: %s'] = 'Tautan: %s';
+$lang['No results for'] = 'Tidak ada hasil untuk';
+$lang['Password confirmation is missing. Please confirm the chosen password.'] = 'Konfirmasi kata sandi terlewatkan. Harap konfirmasi kata sandi yang dipilih.';
+$lang['Password is missing. Please enter the password.'] = 'Kata sandi terlewat. Harap masukkan kata sandi.';
+$lang['Photo description'] = 'Deskripsi Foto';
+$lang['Photo title'] = 'Judul foto';
+$lang['Theme'] = 'Tema';
+$lang['Your authentication key is no longer valid.'] = 'Kunci otentikasi tidak lagi berlaku.';

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -110,11 +110,16 @@ function ws_tags_getImages($params, &$service)
     $where_clauses = implode(' AND ', $where_clauses);
   }
 
+  $order_by = ws_std_image_sql_order($params, 'i.');
+  if (!empty($order_by))
+  {
+    $order_by = 'ORDER BY '.$order_by;
+  }
   $image_ids = get_image_ids_for_tags(
     $tag_ids,
     $params['tag_mode_and'] ? 'AND' : 'OR',
     $where_clauses,
-    ws_std_image_sql_order($params)
+    $order_by
     );
 
   $count_set = count($image_ids);
@@ -136,7 +141,6 @@ SELECT image_id, GROUP_CONCAT(tag_id) AS tag_ids
     while ($row = pwg_db_fetch_assoc($result))
     {
       $row['image_id'] = (int)$row['image_id'];
-      $image_ids[] = $row['image_id'];
       $image_tag_map[ $row['image_id'] ] = explode(',', $row['tag_ids']);
     }
   }

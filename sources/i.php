@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // +-----------------------------------------------------------------------+
 // | This program is free software; you can redistribute it and/or modify  |
 // | it under the terms of the GNU General Public License as published by  |
@@ -29,6 +29,17 @@ defined('PWG_LOCAL_DIR') or define('PWG_LOCAL_DIR', 'local/');
 defined('PWG_DERIVATIVE_DIR') or define('PWG_DERIVATIVE_DIR', $conf['data_location'].'i/');
 
 @include(PHPWG_ROOT_PATH.PWG_LOCAL_DIR .'config/database.inc.php');
+
+include(PHPWG_ROOT_PATH . 'include/Logger.class.php');
+
+$logger = new Logger(array(
+  'directory' => PHPWG_ROOT_PATH . $conf['data_location'] . $conf['log_dir'],
+  'severity' => $conf['log_level'],
+  // we use an hashed filename to prevent direct file access, and we salt with
+  // the db_password instead of secret_key because the log must be usable in i.php
+  // (secret_key is in the database)
+  'filename' => 'log_' . date('Y-m-d') . '_' . sha1(date('Y-m-d') . $conf['db_password']) . '.txt',
+  ));
 
 
 function trigger_notify() {}
@@ -66,33 +77,9 @@ function mkgetdir($dir)
 
 // end fast bootstrap
 
-function ilog()
-{
-  global $conf;
-  if (!$conf['enable_i_log']) return;
-
-  $line = date("c");
-  foreach( func_get_args() as $arg)
-  {
-    $line .= ' ';
-    if (is_array($arg))
-    {
-      $line .= implode(' ', $arg);
-    }
-    else
-    {
-      $line .= $arg;
-    }
-  }
-	$file=PHPWG_ROOT_PATH.$conf['data_location'].'tmp/i.log';
-  if (false == file_put_contents($file, $line."\n", FILE_APPEND))
-	{
-		mkgetdir(dirname($file));
-	}
-}
-
 function ierror($msg, $code)
 {
+  global $logger;
   if ($code==301 || $code==302)
   {
     if (ob_get_length () !== FALSE)
@@ -101,10 +88,12 @@ function ierror($msg, $code)
     }
     // default url is on html format
     $url = html_entity_decode($msg);
+    $logger->debug($code . ' ' . $url, 'i.php', array(
+      'url' => $_SERVER['REQUEST_URI'],
+      ));
     header('Request-URI: '.$url);
     header('Content-Location: '.$url);
     header('Location: '.$url);
-    ilog('WARN', $code, $url, $_SERVER['REQUEST_URI']);
     exit;
   }
   if ($code>=400)
@@ -117,7 +106,9 @@ function ierror($msg, $code)
   }
   //todo improve
   echo $msg;
-  ilog('ERROR', $code, $msg, $_SERVER['REQUEST_URI']);
+  $logger->error($code . ' ' . $msg, 'i.php', array(
+      'url' => $_SERVER['REQUEST_URI'],
+      ));
   exit;
 }
 
@@ -322,6 +313,8 @@ function try_switch_source(DerivativeParams $params, $original_mtime)
     }
     else
     {
+      if ($use_watermark && $candidate->use_watermark)
+        continue; //a square that requires watermark should not be generated from a larger derivative with watermark, because if the watermark is not centered on the large image, it will be cropped.
       if ($candidate->sizing->max_crop!=0)
         continue; // this could be optimized
       if ($candidate_size[0] < $params->sizing->min_size[0] || $candidate_size[1] < $params->sizing->min_size[1] )
@@ -404,7 +397,7 @@ try
 }
 catch (Exception $e)
 {
-  ilog("db error", $e->getMessage());
+  $logger->error($e->getMessage(), 'i.php');
 }
 pwg_db_check_charset();
 
@@ -501,7 +494,7 @@ SELECT *
   }
   catch (Exception $e)
   {
-    ilog("db error", $e->getMessage());
+    $logger->error($e->getMessage(), 'i.php');
   }
 }
 else
@@ -582,17 +575,23 @@ if ($params->will_watermark($d_size))
   if ($image->compose($wm_image, $x, $y, $wm->opacity))
   {
     $changes++;
-    if ($wm->xrepeat)
+    if ($wm->xrepeat || $wm->yrepeat)
     {
-      // todo
-      $pad = $wm_size[0] + max(30, round($wm_size[0]/4));
+      $xpad = $wm_size[0] + max(30, round($wm_size[0]/4));
+      $ypad = $wm_size[1] + max(30, round($wm_size[1]/4));
+
       for($i=-$wm->xrepeat; $i<=$wm->xrepeat; $i++)
       {
-        if (!$i) continue;
-        $x2 = $x + $i * $pad;
-        if ($x2>=0 && $x2+$wm_size[0]<$d_size[0])
-          if (!$image->compose($wm_image, $x2, $y, $wm->opacity))
-            break;
+        for($j=-$wm->yrepeat; $j<=$wm->yrepeat; $j++)
+        {
+          if (!$i && !$j) continue;
+          $x2 = $x + $i * $xpad;
+          $y2 = $y + $j * $ypad;
+          if ($x2>=0 && $x2+$wm_size[0]<$d_size[0] &&
+              $y2>=0 && $y2+$wm_size[1]<$d_size[1] )
+            if (!$image->compose($wm_image, $x2, $y2, $wm->opacity))
+              break;
+        }
       }
     }
   }
@@ -621,10 +620,16 @@ $timing['save'] = time_step($step);
 send_derivative($expires);
 $timing['send'] = time_step($step);
 
-ilog('perf',
-  basename($page['src_path']), $o_size, $o_size[0]*$o_size[1],
-  basename($page['derivative_path']), $d_size, $d_size[0]*$d_size[1],
-  function_exists('memory_get_peak_usage') ? round( memory_get_peak_usage()/(1024*1024), 1) : '',
-  time_step($begin),
-  '|', $timing);
-?>
+$timing['total'] = time_step($begin);
+
+if ($logger->severity() >= Logger::DEBUG)
+{
+  $logger->debug('', 'i.php', array(
+    'src_path' => basename($page['src_path']),
+    'derivative_path' => basename($page['derivative_path']),
+    'o_size' => $o_size[0] . ' ' . $o_size[1] . ' ' . ($o_size[0]*$o_size[1]),
+    'd_size' => $d_size[0] . ' ' . $d_size[1] . ' ' . ($d_size[0]*$d_size[1]),
+    'mem_usage' => function_exists('memory_get_peak_usage') ? round( memory_get_peak_usage()/(1024*1024), 1) : '',
+    'timing' => $timing,
+    ));
+}

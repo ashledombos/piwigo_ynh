@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -24,7 +24,7 @@
 //----------------------------------------------------------- include
 define('PHPWG_ROOT_PATH','./');
 
-@set_magic_quotes_runtime(0); // Disable magic_quotes_runtime
+// @set_magic_quotes_runtime(0); // Disable magic_quotes_runtime
 //
 // addslashes to vars if magic_quotes_gpc is off this is a security
 // precaution to prevent someone trying to break out of a SQL statement.
@@ -110,6 +110,7 @@ include(PHPWG_ROOT_PATH . 'include/config_default.inc.php');
 defined('PWG_LOCAL_DIR') or define('PWG_LOCAL_DIR', 'local/');
 
 include(PHPWG_ROOT_PATH . 'include/functions.inc.php');
+include(PHPWG_ROOT_PATH . 'include/template.class.php');
 
 // download database config file if exists
 check_input_parameter('dl', $_GET, false, '/^[a-f0-9]{32}$/');
@@ -347,8 +348,12 @@ INSERT INTO '.$prefixeTable.'config (param,value,comment)
     pwg_query($query);
 
     conf_update_param('piwigo_db_version', get_branch_from_version(PHPWG_VERSION));
-    conf_update_param('gallery_title', l10n('Just another Piwigo gallery'));
-    conf_update_param('page_banner', '<h1>%gallery_title%</h1>'."\n\n<p>".l10n('Welcome to my photo gallery').'</p>');
+    conf_update_param('gallery_title', pwg_db_real_escape_string(l10n('Just another Piwigo gallery')));
+
+    conf_update_param(
+      'page_banner',
+      '<h1>%gallery_title%</h1>'."\n\n<p>".pwg_db_real_escape_string(l10n('Welcome to my photo gallery')).'</p>'
+      );
 
     // fill languages table
     foreach ($languages->fs_languages as $language_code => $fs_language)

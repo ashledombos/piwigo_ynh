@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -73,7 +73,7 @@ $lang['Deletions'] = 'Sletninger';
 $lang['Deny selected groups'] = 'Afvis valgte grupper';
 $lang['Deny selected users'] = 'Afvis valgte brugere';
 $lang['Description'] = 'Beskrivelse';
-$lang['Display options'] = 'Vis muligheder';
+$lang['Display options'] = 'Vis indstillinger';
 $lang['Dissociated'] = 'Tilknytning fjernet';
 $lang['Does not represent'] = 'er ikke miniaturebillede for';
 $lang['Edit selected tags'] = 'Rediger valgte tags';
@@ -113,7 +113,7 @@ $lang['Number of comments per page'] = 'Antal kommentarer pr. side';
 $lang['Number of rates'] = 'Antal bedømmelser';
 $lang['Only private albums are listed'] = 'Kun private albummer er opført';
 $lang['Operating system'] = 'Styresystem';
-$lang['Options'] = 'Valgmuligheder';
+$lang['Options'] = 'Indstillinger';
 $lang['Other private albums'] = 'Andre private albummer';
 $lang['Page banner'] = 'Sidebanner';
 $lang['Parent album'] = 'Overordnet album';
@@ -863,7 +863,7 @@ $lang['Multiple Size'] = 'Flere størrelser';
 $lang['%u users have automatic permission because they belong to a granted group.'] = '%u brugere har automatisk tilladelse, fordi de tilhører en gruppe med tilladelser.';
 $lang['<em>Piwigo for Android</em> application empowers you to connect your Android phone or table to your Piwigo gallery, create some albums and upload several photos at once.'] = 'App\'en <em>Piwigo for Android</em> giver dig mulighed for at forbinde en Android-mobiltelelfon eller -tablet med dit Piwigo-galleri, oprette albummer og uploade flere fotografier på én gang.';
 $lang['Adobe Photoshop Lightroom is a photography software designed to manage large quantities of digital images and doing post production work.'] = 'Adobe Photoshop Lightroom er et fotografiprogram beregnet til at håndtere store mængder digitale billeder og foretage efterbehandling.';
-$lang['Aperture is a powerful tool to refine images and manage massive libraries on Mac.'] = 'Aperture er et ydedygtigt værktøj til at forfine billeder og administrere store biblioteker på Mac.';
+$lang['Aperture is a powerful tool to refine images and manage massive libraries on Mac.'] = 'Aperture er et ydedygtigt værktøj til at forfine billeder og administrere store biblioteker på en Mac.';
 $lang['Aperture is designed for professional photographers with iPhoto simplicity.'] = 'Aperture er udviklet til professionelle fotografer med iPhoto-enkelhed.';
 $lang['By default, the center of interest is placed in the middle of the photo.'] = 'Som standard er fokusområdet placeret i midten af fotografiet';
 $lang['Center of interest'] = 'Fokusområde';
@@ -985,3 +985,12 @@ $lang['file name'] = 'filnavn';
 $lang['width & height'] = 'bredde og højde';
 $lang['No and unlock sub-albums'] = 'Nej, og lås underalbummer op';
 $lang['Upload in progress'] = 'Upload i gang';
+$lang['Delete %d orphan photos'] = 'Slettede %d forældreløse fotografier';
+$lang['Each email sent will contain its own automatic authentication key on links, valid for %s.'] = 'Hver afsendt mail indeholder sin egen automatiske autentifikationsnøgle i links, gyldig i %s.';
+$lang['Edit user'] = 'Rediger bruger';
+$lang['For security reason, authentication keys do not work for administrators.'] = 'Af sikkerhedsgrunde fungerer autentifikationsnøgler ikke for administratorer.';
+$lang['No recipient selected'] = 'Ingen modtager valgt';
+$lang['No user is permitted to see this private album'] = 'Ingen bruger har rettigheder til at se dette private album';
+$lang['Orphans'] = 'Forældreløse';
+$lang['Recipients'] = 'Modtagere';
+$lang['Y Repeat'] = 'Y-gentagelse';

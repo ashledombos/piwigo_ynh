@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -26,7 +26,7 @@ defined('PHPWG_ROOT_PATH') or trigger_error('Hacking attempt!', E_USER_ERROR);
 // determine the initial instant to indicate the generation time of this page
 $t2 = microtime(true);
 
-@set_magic_quotes_runtime(0); // Disable magic_quotes_runtime
+// @set_magic_quotes_runtime(0); // Disable magic_quotes_runtime
 
 //
 // addslashes to vars if magic_quotes_gpc is off this is a security
@@ -104,6 +104,9 @@ if(isset($conf['show_php_errors']) && !empty($conf['show_php_errors']))
 
 include(PHPWG_ROOT_PATH . 'include/constants.php');
 include(PHPWG_ROOT_PATH . 'include/functions.inc.php');
+include(PHPWG_ROOT_PATH . 'include/template.class.php');
+include(PHPWG_ROOT_PATH . 'include/cache.class.php');
+include(PHPWG_ROOT_PATH . 'include/Logger.class.php');
 
 $persistent_cache = new PersistentFileCache();
 
@@ -121,6 +124,17 @@ catch (Exception $e)
 pwg_db_check_charset();
 
 load_conf_from_db();
+
+$logger = new Logger(array(
+  'directory' => PHPWG_ROOT_PATH . $conf['data_location'] . $conf['log_dir'],
+  'severity' => $conf['log_level'],
+  // we use an hashed filename to prevent direct file access, and we salt with
+  // the db_password instead of secret_key because the log must be usable in i.php
+  // (secret_key is in the database)
+  'filename' => 'log_' . date('Y-m-d') . '_' . sha1(date('Y-m-d') . $conf['db_password']) . '.txt',
+  'globPattern' => 'log_*.txt',
+  'archiveDays' => $conf['log_archive_days'],
+  ));
 
 if (!$conf['check_upgrade_feed'])
 {
@@ -185,6 +199,16 @@ load_language('lang', PHPWG_ROOT_PATH.PWG_LOCAL_DIR, array('no_fallback'=>true, 
 if (is_a_guest())
 {
   $user['username'] = l10n('guest');
+}
+
+// in case an auth key was provided and is no longer valid, we must wait to
+// be here, with language loaded, to prepare the message
+if (isset($page['auth_key_invalid']) and $page['auth_key_invalid'])
+{
+  $page['errors'][] =
+    l10n('Your authentication key is no longer valid.')
+    .sprintf(' <a href="%s">%s</a>', get_root_url().'identification.php', l10n('Login'))
+    ;
 }
 
 // template instance

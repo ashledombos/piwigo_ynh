@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Nederlands [NL]
-Version: 2.7.1
+Version: 2.8.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=429
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -232,8 +232,8 @@ $lang['Show file metadata'] = 'Laat bestandsmetadata zien';
 $lang['Powered by'] = 'Mede mogelijk gemaakt door';
 $lang['Preferences'] = 'Voorkeuren';
 $lang['Previous'] = 'Vorige';
-$lang['Random photos'] = 'Onwillekeurige foto\'s';
-$lang['display a set of random photos'] = 'Geef een aantal onwillekeurig gekozen foto\'s weer';
+$lang['Random photos'] = 'Willekeurige foto\'s';
+$lang['display a set of random photos'] = 'Geef een aantal willekeurig gekozen foto\'s weer';
 $lang['Recent albums'] = 'Recente albums';
 $lang['display recently updated albums'] = 'geef recent bijgewerkte albums weer';
 $lang['Recent period'] = 'Recente periode';
@@ -391,14 +391,14 @@ $lang['File name, Z &rarr; A'] = 'Bestandsnaam, Z &rarr; A';
 $lang['Manual sort order'] = 'Handmatige sorteervolgorde';
 $lang['Numeric identifier, 1 &rarr; 9'] = 'Nummers, 1 &rarr; 9';
 $lang['Numeric identifier, 9 &rarr; 1'] = 'Nummers, 9 &rarr; 1';
-$lang['Photo title, A &rarr; Z'] = 'Fototitle, A &rarr; Z';
+$lang['Photo title, A &rarr; Z'] = 'Fototitel, A &rarr; Z';
 $lang['Photo title, Z &rarr; A'] = 'Fototitel, Z &rarr; A';
 $lang['Rating score, high &rarr; low'] = 'Waarderingsscore, hoog &rarr; laag';
 $lang['Rating score, low &rarr; high'] = 'Waarderingsscore, laag &rarr; hoog';
 $lang['Visits, high &rarr; low'] = 'Bezoeken, hoog &rarr; laag';
 $lang['Visits, low &rarr; high'] = 'Bezoeken, laag %rarr; hoog';
 $lang['xsmall'] = 'XS - extra klein';
-$lang['%d rate'] = '%d tarief';
+$lang['%d rate'] = '%d stem(men)';
 $lang['Bad request'] = 'Foutief verzoek';
 $lang['Forbidden'] = 'Verboden';
 $lang['Page not found'] = 'Pagina niet gevonden';
@@ -445,3 +445,4 @@ $lang['month']['6'] = 'Juni';
 $lang['month']['7'] = 'Juli';
 $lang['month']['8'] = 'Augustus';
 $lang['month']['9'] = 'September';
+$lang['Your authentication key is no longer valid.'] = 'Uw authenticatie sleutel is niet langer geldig.';

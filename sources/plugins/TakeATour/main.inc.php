@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Take A Tour of Your Piwigo
-Version: 2.7.4
+Version: 2.8.2
 Description: Visit your Piwigo to discover its features. This plugin has multiple thematic tours for beginners and advanced users.
 Plugin URI: http://piwigo.org/ext/extension_view.php?eid=776
 Author:Piwigo Team
@@ -29,7 +29,7 @@ elseif ( isset($_GET['tour_ended']) and defined('IN_ADMIN') and IN_ADMIN )
 /*
  * CHANGE FOR RELEASE
 $version_=str_replace('.','_',PHPWG_VERSION);*/
-$version_="2_7_0";
+$version_="2_8_0";
 /***/
 if (pwg_get_session_var('tour_to_launch')!='tours/'.$version_ and isset($_GET['page']) and $_GET['page']=="plugin-TakeATour")
 { 
@@ -42,6 +42,11 @@ elseif ( pwg_get_session_var('tour_to_launch') )
 
 function TAT_tour_setup()
 {
+  if (!is_admin())
+  {
+    return;
+  }
+
   global $template, $TAT_restart, $conf;
   $tour_to_launch=pwg_get_session_var('tour_to_launch');
   load_language('plugin.lang', PHPWG_PLUGINS_PATH .'TakeATour/', array('force_fallback'=>'en_UK'));
@@ -61,8 +66,15 @@ function TAT_tour_setup()
   $tat_path=str_replace(basename($_SERVER['SCRIPT_NAME']),'', $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME']);
   $template->assign('TAT_path', $tat_path);
   $template->assign('ABS_U_ADMIN', get_absolute_root_url());// absolute one due to public pages and $conf['question_mark_in_urls'] = false+$conf['php_extension_in_urls'] = false;
+
+  // some tours may need admin functions (like 2_8_0 needs get_orphans)
+  include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+
   include($tour_to_launch.'/config.inc.php');
   $template->set_filename('TAT_tour_tpl', $TOUR_PATH);
+
+  trigger_notify('TAT_before_parse_tour');
+
   $template->parse('TAT_tour_tpl');
 }
 

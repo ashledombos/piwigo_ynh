@@ -1,8 +1,9 @@
 {combine_script id='common' load='footer' path='admin/themes/default/js/common.js'}
+
 {combine_script id='jquery.jgrowl' load='footer' require='jquery' path='themes/default/js/plugins/jquery.jgrowl_minimized.js'}
+
 {combine_script id='jquery.plupload' load='footer' require='jquery' path='themes/default/js/plugins/plupload/plupload.full.min.js'}
 {combine_script id='jquery.plupload.queue' load='footer' require='jquery' path='themes/default/js/plugins/plupload/jquery.plupload.queue/jquery.plupload.queue.min.js'}
-{combine_script id='jquery.ui.progressbar' load='footer'}
 
 {combine_css path="themes/default/js/plugins/jquery.jgrowl.css"}
 {combine_css path="themes/default/js/plugins/plupload/jquery.plupload.queue/css/jquery.plupload.queue.css"}
@@ -19,6 +20,8 @@
 
 {combine_script id='jquery.selectize' load='footer' path='themes/default/js/plugins/selectize.min.js'}
 {combine_css id='jquery.selectize' path="themes/default/js/plugins/selectize.{$themeconf.colorscheme}.css"}
+
+{combine_script id='piecon' load='footer' path='themes/default/js/plugins/piecon.js'}
 
 {footer_script}
 {* <!-- CATEGORIES --> *}
@@ -42,6 +45,13 @@ jQuery('[data-add-album]').pwgAddAlbum({
   afterSelect: function() {
     jQuery("#albumSelection, .selectFiles, .showFieldset").show();
   }
+});
+
+Piecon.setOptions({
+  color: '#ff7700',
+  background: '#bbb',
+  shadow: '#fff',
+  fallback: 'force'
 });
 
 var pwg_token = '{$pwg_token}';
@@ -76,7 +86,7 @@ jQuery(document).ready(function(){
 		// url : '../upload.php',
 		url : 'ws.php?method=pwg.images.upload&format=json',
 		
-		chunk_size: '500kb',
+		chunk_size: '{/literal}{$chunk_size}{literal}kb',
 		
 		filters : {
 			// Maximum file size
@@ -118,6 +128,7 @@ jQuery(document).ready(function(){
       
       UploadProgress: function(up, file) {
         jQuery('#uploadingActions .progressbar').width(up.total.percent+'%');
+        Piecon.setProgress(up.total.percent);
       },
       
       BeforeUpload: function(up, file) {
@@ -173,6 +184,8 @@ jQuery(document).ready(function(){
       UploadComplete: function(up, files) {
         // Called when all files are either uploaded or failed
         //console.log('[UploadComplete]');
+        
+        Piecon.reset();
 
         jQuery(".selectAlbum, .selectFiles, #permissions, .showFieldset").hide();
 
@@ -215,7 +228,7 @@ jQuery(document).ready(function(){
 
 <div class="infos" style="display:none"></div>
 
-<p class="afterUploadActions" style="margin:10px; display:none;"><a class="batchLink"></a> | <a href="">{'Add another set of photos'|@translate}</a></p>
+<p class="afterUploadActions" style="margin:10px; display:none;"><a class="batchLink"></a> | <a href="admin.php?page=photos_add">{'Add another set of photos'|@translate}</a></p>
 
 {if count($setup_errors) > 0}
 <div class="errors">
@@ -269,10 +282,9 @@ jQuery(document).ready(function(){
       <p class="uploadInfo">{'The picture dimensions will be reduced to %dx%d pixels.'|@translate:$original_resize_maxwidth:$original_resize_maxheight}</p>
     {/if}
 
-      <p id="uploadWarningsSummary">{$upload_max_filesize_shorthand}B. {$upload_file_types}. {if isset($max_upload_resolution)}{$max_upload_resolution}Mpx{/if} <a class="icon-info-circled-1 showInfo" title="{'Learn more'|@translate}"></a></p>
+      <p id="uploadWarningsSummary">{$upload_file_types}. {if isset($max_upload_resolution)}{$max_upload_resolution}Mpx{/if} <a class="icon-info-circled-1 showInfo" title="{'Learn more'|@translate}"></a></p>
 
       <p id="uploadWarnings">
-        {'Maximum file size: %sB.'|@translate:$upload_max_filesize_shorthand}
         {'Allowed file types: %s.'|@translate:$upload_file_types}
       {if isset($max_upload_resolution)}
         {'Approximate maximum resolution: %dM pixels (that\'s %dx%d pixels).'|@translate:$max_upload_resolution:$max_upload_width:$max_upload_height}

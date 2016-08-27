@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -50,6 +50,7 @@ define('UPGRADES_PATH', PHPWG_ROOT_PATH.'install/db');
 
 include_once(PHPWG_ROOT_PATH.'include/functions.inc.php');
 include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+include_once(PHPWG_ROOT_PATH . 'include/template.class.php');
 
 // +-----------------------------------------------------------------------+
 // |                              functions                                |
@@ -341,6 +342,10 @@ else if (!in_array('nb_available_tags', $columns_of[PREFIX_TABLE.'user_cache']))
 {
   $current_release = '2.5.0';
 }
+else if (!in_array('activation_key_expire', $columns_of[PREFIX_TABLE.'user_infos']))
+{
+  $current_release = '2.6.0';
+}
 else
 {
   // retrieve already applied upgrades
@@ -350,9 +355,9 @@ SELECT id
 ;';
   $applied_upgrades = array_from_query($query, 'id');
 
-  if (!in_array(144, $applied_upgrades))
+  if (!in_array(148, $applied_upgrades))
   {
-    $current_release = '2.6.0';
+    $current_release = '2.7.0';
   }
   else
   {
@@ -475,7 +480,8 @@ REPLACE INTO '.PLUGINS_TABLE.'
         
         $template->assign(
           array(
-            'button_label' => l10n('2_7_0_descrp'), // TODO avoid to update it on each release
+            // TODO find a better way to do that, with a core string in English
+            'button_label' => str_replace('2.7', get_branch_from_version(PHPWG_VERSION), l10n('2_7_0_descrp')),
             'button_link' => 'admin.php?submited_tour_path=tours/'.$version_.'&amp;pwg_token='.get_pwg_token(),
             )
           );
@@ -485,9 +491,6 @@ REPLACE INTO '.PLUGINS_TABLE.'
     // Delete cache data
     invalidate_user_cache(true);
     $template->delete_compiled_templates();
-
-    // Tables Maintenance
-    do_maintenance_all_tables();
 
     // Restore $page['infos'] in order to hide informations messages from functions calles
     // errors messages are not hide

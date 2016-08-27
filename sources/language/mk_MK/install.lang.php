@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -31,6 +31,5 @@ $lang['Hope to see you back soon.'] = 'Се надеваме дека ќе се 
 $lang['Installation'] = 'Инсталација';
 $lang['Sorry!'] = 'Извини !';
 $lang['Start Install'] = 'Стартувај ја инсталацијата';
-$lang['Try to configure PHP 5'] = 'Пробај да го сетираш PHP 5';
+$lang['Try to configure PHP 5'] = 'Пробај да го сетираш PHP 5.2';
 $lang['User'] = 'Корисник';
-?>

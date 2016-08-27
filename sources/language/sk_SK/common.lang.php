@@ -5,7 +5,7 @@
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2009     Pavel Budka & Petr Jirsa    http://pbudka.co.cc |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -25,7 +25,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Slovensky [SK]
-Version: 2.7.0
+Version: 2.8.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=452
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -435,3 +435,4 @@ $lang['Photo title'] = 'Názov fotky';
 $lang['Album name, Z &rarr; A'] = 'Názov albumu, Z &rarr; A';
 $lang['Album name, A &rarr; Z'] = 'Názov albumu, A &rarr; Z';
 $lang['Link: %s'] = 'Link: %s';
+$lang['Your authentication key is no longer valid.'] = 'Váš autentifikačný kľúč nie je viac platný.';

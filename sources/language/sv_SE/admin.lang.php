@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -982,3 +982,12 @@ $lang['Activate it now'] = 'Aktivera den nu';
 $lang['Allow users to add a link to their website'] = 'Tillåter användare att länka till sin egen hemsida';
 $lang['Empty caddie'] = 'Töm korgen';
 $lang['Impossible to deactivate the default theme.'] = 'Det går inte att inaktivera standardtema. Gör först ett annat tema till standardtema.';
+$lang['Y Repeat'] = 'Y Upprepa';
+$lang['Recipients'] = 'Mottagare';
+$lang['Orphans'] = 'Övergivet';
+$lang['No user is permitted to see this private album'] = 'Ingen användare tillåts se detta privata album';
+$lang['No recipient selected'] = 'Ingen mottagare vald';
+$lang['For security reason, authentication keys do not work for administrators.'] = 'Av säkerhetsskäl fungerar inte autentiseringsnycklar för administratörer.';
+$lang['Edit user'] = 'Ändra användare';
+$lang['Each email sent will contain its own automatic authentication key on links, valid for %s.'] = 'Varje epost som sänds kommer att innehålla sina egna automatiska autentiseringsnycklar som länkar, giltiga i %s.';
+$lang['Delete %d orphan photos'] = 'Radera %d övergivna foton';

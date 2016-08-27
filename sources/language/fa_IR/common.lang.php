@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: پارسی [IR]
-Version: 2.7.1
+Version: 2.8.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=419
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -432,3 +432,4 @@ $lang['Album name, A &rarr; Z'] = 'نام آلبوم، به ترتیب حروف 
 $lang['Album name, Z &rarr; A'] = 'نام آلبوم، برعکسِ حروف الفبا';
 $lang['Apply on properties'] = 'تایید مشخصات';
 $lang['Link: %s'] = 'لینک: %s';
+$lang['Your authentication key is no longer valid.'] = 'کلید احراز هویت شما نامعتبر بوده و باید دوباره ارسال شود.';

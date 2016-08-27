@@ -5,7 +5,7 @@
 // +-----------------------------------------------------------------------+
 // | Copyright(C) 2009     Pavel Budka & Petr Jirsa    http://pbudka.co.cc |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -25,7 +25,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Česky [CZ]
-Version: 2.7.1
+Version: 2.8.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=414
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -432,3 +432,4 @@ $lang['Album name, Z &rarr; A'] = 'Název alba, Z &rarr; A';
 $lang['Apply on properties'] = 'Aplikovat na vlastnosti';
 $lang['Link: %s'] = 'Odkaz: %s';
 $lang['No results for'] = 'Žádné výsledky pro';
+$lang['Your authentication key is no longer valid.'] = 'Váš autorizační klíč není nadále platný.';

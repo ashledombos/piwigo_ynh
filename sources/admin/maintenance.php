@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -109,6 +109,46 @@ DELETE
   case 'sessions' :
   {
     pwg_session_gc();
+
+    // delete all sessions associated to invalid user ids (it should never happen)
+    $query = '
+SELECT
+    id,
+    data
+  FROM '.SESSIONS_TABLE.'
+;';
+    $sessions = query2array($query);
+
+    $query = '
+SELECT
+    '.$conf['user_fields']['id'].' AS id
+  FROM '.USERS_TABLE.'
+;';
+    $all_user_ids = query2array($query, 'id', null);
+
+    $sessions_to_delete = array();
+
+    foreach ($sessions as $session)
+    {
+      if (preg_match('/pwg_uid\|i:(\d+);/', $session['data'], $matches))
+      {
+        if (!isset($all_user_ids[ $matches[1] ]))
+        {
+          $sessions_to_delete[] = $session['id'];
+        }
+      }
+    }
+
+    if (count($sessions_to_delete) > 0)
+    {
+      $query = '
+DELETE
+  FROM '.SESSIONS_TABLE.'
+  WHERE id IN (\''.implode("','", $sessions_to_delete).'\')
+;';
+      pwg_query($query);
+    }
+
     break;
   }
   case 'feeds' :

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -62,6 +62,13 @@ $conf['file_ext'] = array_merge(
   $conf['picture_ext'],
   array('tiff', 'tif', 'mpg','zip','avi','mp3','ogg','pdf')
   );
+
+// enable_formats: should Piwigo search for multiple formats?
+$conf['enable_formats'] = false;
+
+// format_ext : file extensions for formats, ie additional versions of a
+// photo (or nay other file). Formats are in sub-directory pwg_format.
+$conf['format_ext'] = array('cr2', 'tif', 'tiff', 'nef', 'dng', 'ai', 'psd');
 
 // top_number : number of element to display for "best rated" and "most
 // visited" categories
@@ -371,6 +378,10 @@ $conf['use_exif_mapping'] = array(
 // javascript)
 $conf['allow_html_in_metadata'] = false;
 
+// decide which characters can be used as keyword separators (works in EXIF
+// and IPTC). Coma "," cannot be removed from this list.
+$conf['metadata_keyword_separator_regex'] = '/[.,;]/';
+
 // +-----------------------------------------------------------------------+
 // |                               sessions                                |
 // +-----------------------------------------------------------------------+
@@ -458,8 +469,6 @@ $conf['template_combine_files'] = true;
 // gives an empty value '' to deactivate
 $conf['show_php_errors'] = E_ALL;
 
-// enable log for i derivative script
-$conf['enable_i_log'] = false;
 
 // +-----------------------------------------------------------------------+
 // |                            authentication                             |
@@ -637,6 +646,10 @@ $conf['recent_post_dates'] = array(
 // the author shown in the RSS feed <author> element
 $conf['rss_feed_author'] = 'Piwigo notifier';
 
+// how long does the authentication key stays valid, in seconds. 3 days by
+// default. 0 to disable.
+$conf['auth_key_duration'] = 3*24*60*60;
+
 // +-----------------------------------------------------------------------+
 // | Set admin layout                                                      |
 // +-----------------------------------------------------------------------+
@@ -648,12 +661,6 @@ $conf['enable_plugins']=true;
 
 // Web services are allowed (true) or completely forbidden (false)
 $conf['allow_web_services'] = true;
-
-// enable log for web services
-$conf['ws_enable_log'] = false;
-
-// web services log file path
-$conf['ws_log_filepath'] = '/tmp/piwigo_ws.log';
 
 // Maximum number of images to be returned foreach call to the web service
 $conf['ws_max_images_per_page'] = 500;
@@ -804,8 +811,39 @@ $conf['tiff_representative_ext'] = 'png';
 // (TIFF, videos, PDF)
 $conf['upload_form_all_types'] = false;
 
+// Size of chunks, in kilobytes. Fast connections will have better
+// performances with high values, such as 5000.
+$conf['upload_form_chunk_size'] = 500;
+
 // If we try to generate a pwg_representative for a video we use ffmpeg. If
 // "ffmpeg" is not visible by the web user, you can define the full path of
 // the directory where "ffmpeg" executable is.
 $conf['ffmpeg_dir'] = '';
+
+// +-----------------------------------------------------------------------+
+// |                                 log                                   |
+// +-----------------------------------------------------------------------+
+// Logs directory, relative to $conf['data_location']
+$conf['log_dir'] = '/logs';
+
+// Log level (OFF, CRITICAL, ERROR, WARNING, NOTICE, INFO, DEBUG)
+// development = DEBUG, production = ERROR
+$conf['log_level'] = 'ERROR';
+
+// Keep logs file during X days
+$conf['log_archive_days'] = 30;
+
+// +-----------------------------------------------------------------------+
+// | Proxy Settings                                                        |
+// +-----------------------------------------------------------------------+
+
+// If piwigo needs a http-proxy to connect to the internet, set this to true
+$conf['use_proxy'] = false;
+
+// Connection string of the proxy
+$conf['proxy_server'] = 'proxy.domain.org:port';
+
+// If the http-proxy requires authentication, set username and password here
+// e.g. username:password
+$conf['proxy_auth'] = '';
 ?>

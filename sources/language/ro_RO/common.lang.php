@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Română [RO]
-Version: 2.7.0
+Version: 2.8.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=433
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -427,3 +427,5 @@ $lang['No results for'] = 'Nici un rezultat pentru';
 $lang['Apply on properties'] = 'Aplica la proprietati';
 $lang['Album name, A &rarr; Z'] = 'Nume album, A & rarr; Z';
 $lang['Link: %s'] = 'Legatura: %s';
+$lang['Your authentication key is no longer valid.'] = '
+Cheia dvs. de autentificare nu mai este valabilă.';

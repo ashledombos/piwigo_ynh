@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -978,3 +978,12 @@ $lang['width & height'] = 'platums&augstums';
 $lang['file name'] = 'faila nosaukums';
 $lang['date & time'] = 'datums&laiks';
 $lang['Upload in progress'] = 'Notiek augšupielāde';
+$lang['Each email sent will contain its own automatic authentication key on links, valid for %s.'] = 'Katram nosūtītajam e-pastam būs sava automātiskā autentifikācijas atslēga saitēm, derīga %s.';
+$lang['For security reason, authentication keys do not work for administrators.'] = 'Drošības apsvērumu dēļ, autentifikācijas atslēgas nestrādā administratoriem.';
+$lang['No user is permitted to see this private album'] = 'Nevienam lietotājam nav atļauts redzēt šo privāto albumu';
+$lang['Y Repeat'] = 'YAtkārtojumi';
+$lang['Recipients'] = 'Saņēmēji';
+$lang['Orphans'] = 'Nezināmie';
+$lang['No recipient selected'] = 'Nav izvēlēts neviens saņēmējs';
+$lang['Edit user'] = 'Rediģēt lietotāju';
+$lang['Delete %d orphan photos'] = 'Dzēst %d nezināmos foto ';

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -103,9 +103,16 @@ function get_cat_display_name($cat_informations, $url='')
 function get_cat_display_name_cache($uppercats,
                                     $url = '',
                                     $single_link = false,
-                                    $link_class = null)
+                                    $link_class = null,
+                                    $auth_key=null)
 {
   global $cache, $conf;
+
+  $add_url_params = array();
+  if (isset($auth_key))
+  {
+    $add_url_params['auth'] = $auth_key;
+  }
 
   if (!isset($cache['cat_names']))
   {
@@ -119,7 +126,7 @@ SELECT id, name, permalink
   $output = '';
   if ($single_link)
   {
-    $single_url = get_root_url().$url.array_pop(explode(',', $uppercats));
+    $single_url = add_url_params(get_root_url().$url.array_pop(explode(',', $uppercats)), $add_url_params);
     $output.= '<a href="'.$single_url.'"';
     if (isset($link_class))
     {
@@ -155,10 +162,13 @@ SELECT id, name, permalink
     {
       $output.= '
 <a href="'
-      .make_index_url(
+      .add_url_params(
+        make_index_url(
           array(
             'category' => $cat,
             )
+          ),
+        $add_url_params
         )
       .'">'.$cat['name'].'</a>';
     }
@@ -263,21 +273,26 @@ function tag_alpha_compare($a, $b)
  */
 function access_denied()
 {
-  global $user;
+  global $user, $conf;
 
   $login_url =
       get_root_url().'identification.php?redirect='
       .urlencode(urlencode($_SERVER['REQUEST_URI']));
 
-  set_status_header(401);
   if ( isset($user) and !is_a_guest() )
   {
+    set_status_header(401);
+
     echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
     echo '<div style="text-align:center;">'.l10n('You are not authorized to access the requested page').'<br>';
     echo '<a href="'.get_root_url().'identification.php">'.l10n('Identification').'</a>&nbsp;';
     echo '<a href="'.make_index_url().'">'.l10n('Home').'</a></div>';
     echo str_repeat( ' ', 512); //IE6 doesn't error output if below a size
     exit();
+  }
+  elseif (!$conf['guest_access'] and is_a_guest())
+  {
+    redirect_http($login_url);
   }
   else
   {

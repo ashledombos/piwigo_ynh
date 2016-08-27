@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -193,7 +193,7 @@ function ws_std_get_image_xml_attributes()
 function ws_std_get_category_xml_attributes()
 {
   return array(
-    'id', 'url', 'nb_images', 'total_nb_images', 'nb_categories', 'date_last', 'max_date_last',
+    'id', 'url', 'nb_images', 'total_nb_images', 'nb_categories', 'date_last', 'max_date_last', 'status',
     );
 }
 
@@ -201,25 +201,6 @@ function ws_std_get_tag_xml_attributes()
 {
   return array(
     'id', 'name', 'url_name', 'counter', 'url', 'page_url',
-    );
-}
-
-/**
- * Writes info to the log file
- */
-function ws_logfile($string)
-{
-  global $conf;
-
-  if (!$conf['ws_enable_log'])
-  {
-    return true;
-  }
-
-  file_put_contents(
-    $conf['ws_log_filepath'],
-    '['.date('c').'] '.$string."\n",
-    FILE_APPEND
     );
 }
 

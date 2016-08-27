@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -50,7 +50,7 @@ else
   $page['start'] = 0;
 }
 
-$types = array('none', 'picture', 'high', 'other');
+$types = array_merge(array('none'), get_enums(HISTORY_TABLE, 'image_type'));
 
 $display_thumbnails = array('no_display_thumbnail' => l10n('No display'),
                             'display_thumbnail_classic' => l10n('Classic display'),

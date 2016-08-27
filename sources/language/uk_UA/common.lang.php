@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Українська [UA]
-Version: 2.7.0
+Version: 2.8.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=523
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -427,3 +427,4 @@ $lang['Photo title'] = 'Назва фотографії';
 $lang['Album name, A &rarr; Z'] = 'Назва альбому, А &rarr; Я';
 $lang['Album name, Z &rarr; A'] = 'Назва альбому, Я &rarr; А';
 $lang['Link: %s'] = 'Посилання: %s';
+$lang['Your authentication key is no longer valid.'] = 'Ваш ключ аутентифікації більше не дійсний.';

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -193,6 +193,10 @@ function ws_addDefaultMethods( $arr )
                                 'type'=>WS_TYPE_BOOL),
         'fullname' =>     array('default'=>false,
                                 'type'=>WS_TYPE_BOOL),
+        'thumbnail_size' => array(
+          'default' => IMG_THUMB,
+          'info' => 'square, thumb, 2small, xsmall, small, medium, large, xlarge, xxlarge'
+          ),
         ),
       'Returns a list of categories.',
       $ws_functions_root . 'pwg.categories.php'
@@ -293,11 +297,16 @@ function ws_addDefaultMethods( $arr )
       'pwg.images.setRank',
       'ws_images_setRank',
       array(
-        'image_id'    => array('type'=>WS_TYPE_ID),
+        'image_id'    => array('type'=>WS_TYPE_ID,'flags'=>WS_PARAM_FORCE_ARRAY),
         'category_id' => array('type'=>WS_TYPE_ID),
-        'rank'        => array('type'=>WS_TYPE_INT|WS_TYPE_POSITIVE|WS_TYPE_NOTNULL)
+        'rank'        => array('type'=>WS_TYPE_INT|WS_TYPE_POSITIVE|WS_TYPE_NOTNULL, 'default'=>null)
         ),
-      'Sets the rank of a photo for a given album.',
+      'Sets the rank of a photo for a given album.
+<br><br>If you provide a list for image_id:
+<ul>
+<li>rank becomes useless, only the order of the image_id list matters</li>
+<li>you are supposed to provide the list of all image_ids belonging to the album.
+</ul>',
       $ws_functions_root . 'pwg.images.php',
       array('admin_only'=>true, 'post_only'=>true)
     );
@@ -570,6 +579,28 @@ function ws_addDefaultMethods( $arr )
       $ws_functions_root . 'pwg.categories.php',
       array('admin_only'=>true, 'post_only'=>true)
     );
+  
+  $service->addMethod(
+      'pwg.categories.deleteRepresentative',
+      'ws_categories_deleteRepresentative',
+      array(
+        'category_id' =>  array('type'=>WS_TYPE_ID),
+        ),
+      'Deletes the album thumbnail. Only possible if $conf[\'allow_random_representative\']',
+      $ws_functions_root . 'pwg.categories.php',
+      array('admin_only'=>true, 'post_only'=>true)
+    );
+
+  $service->addMethod(
+      'pwg.categories.refreshRepresentative',
+      'ws_categories_refreshRepresentative',
+      array(
+        'category_id' =>  array('type'=>WS_TYPE_ID),
+        ),
+      'Find a new album thumbnail.',
+      $ws_functions_root . 'pwg.categories.php',
+      array('admin_only'=>true, 'post_only'=>true)
+    );
 
   $service->addMethod(
       'pwg.tags.getAdminList',
@@ -661,6 +692,8 @@ function ws_addDefaultMethods( $arr )
         'category_id' =>  array('type'=>WS_TYPE_ID),
         'name' =>         array('default'=>null),
         'comment' =>      array('default'=>null),
+        'status' =>       array('default'=>null,
+                                'info'=>'public, private'),
         ),
       'Changes properties of an album.',
       $ws_functions_root . 'pwg.categories.php',

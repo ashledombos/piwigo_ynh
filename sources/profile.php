@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -207,6 +207,8 @@ function save_profile_from_post($userdata, &$errors)
         $fields[] = $conf['user_fields']['password'];
         // password is hashed with function $conf['password_hash']
         $data{$conf['user_fields']['password']} = $conf['password_hash']($_POST['use_new_pwd']);
+
+        deactivate_user_auth_keys($userdata['id']);
       }
       
       // username is updated only if allowed

@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -181,6 +181,11 @@ function ws_categories_getList($params, &$service)
 {
   global $user, $conf;
 
+  if (!in_array($params['thumbnail_size'], array_keys(ImageStdParams::get_defined_type_map())))
+  {
+    return new PwgError(WS_ERR_INVALID_PARAM, "Invalid thumbnail_size");
+  }
+
   $where = array('1=1');
   $join_type = 'INNER';
   $join_user = $user['id'];
@@ -226,7 +231,7 @@ function ws_categories_getList($params, &$service)
 
   $query = '
 SELECT
-    id, name, comment, permalink,
+    id, name, comment, permalink, status,
     uppercats, global_rank, id_uppercat,
     nb_images, count_images AS total_nb_images,
     representative_picture_id, user_representative_picture_id, count_images, count_categories,
@@ -366,7 +371,7 @@ SELECT id, path, representative_ext, level
     {
       if ($row['level'] <= $user['level'])
       {
-        $thumbnail_src_of[$row['id']] = DerivativeImage::thumb_url($row);
+        $thumbnail_src_of[$row['id']] = DerivativeImage::url($params['thumbnail_size'], $row);
       }
       else
       {
@@ -411,7 +416,7 @@ SELECT id, path, representative_ext
 
       while ($row = pwg_db_fetch_assoc($result))
       {
-        $thumbnail_src_of[ $row['id'] ] = DerivativeImage::thumb_url($row);
+        $thumbnail_src_of[ $row['id'] ] = DerivativeImage::url($params['thumbnail_size'], $row);
       }
     }
   }
@@ -489,7 +494,7 @@ SELECT category_id, COUNT(*) AS counter
   $nb_images_of = query2array($query, 'category_id', 'counter');
 
   $query = '
-SELECT id, name, comment, uppercats, global_rank, dir
+SELECT id, name, comment, uppercats, global_rank, dir, status
   FROM '. CATEGORIES_TABLE .'
 ;';
   $result = pwg_query($query);
@@ -529,7 +534,7 @@ SELECT id, name, comment, uppercats, global_rank, dir
     'categories' => new PwgNamedArray(
       $cats,
       'category',
-      array('id', 'nb_images', 'name', 'uppercats', 'global_rank')
+      array('id', 'nb_images', 'name', 'uppercats', 'global_rank', 'status')
       )
     );
 }
@@ -586,6 +591,34 @@ function ws_categories_add($params, &$service)
  */
 function ws_categories_setInfo($params, &$service)
 {
+  // does the category really exist?
+  $query = '
+SELECT *
+  FROM '.CATEGORIES_TABLE.'
+  WHERE id = '.$params['category_id'].'
+;';
+  $categories = query2array($query);
+  if (count($categories) == 0)
+  {
+    return new PwgError(404, 'category_id not found');
+  }
+
+  $category = $categories[0];
+
+  if (!empty($params['status']))
+  {
+    if (!in_array($params['status'], array('private','public')))
+    {
+      return new PwgError(WS_ERR_INVALID_PARAM, "Invalid status, only public/private");
+    }
+
+    if ($params['status'] != $category['status'])
+    {
+      include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+      set_cat_status(array($params['category_id']), $params['status']);
+    }
+  }
+
   $update = array(
     'id' => $params['category_id'],
     );
@@ -659,6 +692,98 @@ UPDATE '. USER_CACHE_CATEGORIES_TABLE .'
   WHERE cat_id = '. $params['category_id'] .'
 ;';
   pwg_query($query);
+}
+
+/**
+ * API method
+ *
+ * Deletes the album thumbnail. Only possible if
+ * $conf['allow_random_representative']
+ *
+ * @param mixed[] $params
+ *    @option int category_id
+ */
+function ws_categories_deleteRepresentative($params, &$service)
+{
+  global $conf;
+  
+  // does the category really exist?
+  $query = '
+SELECT id
+  FROM '. CATEGORIES_TABLE .'
+  WHERE id = '. $params['category_id'] .'
+;';
+  $result = pwg_query($query);
+  if (pwg_db_num_rows($result) == 0)
+  {
+    return new PwgError(404, 'category_id not found');
+  }
+
+  if (!$conf['allow_random_representative'])
+  {
+    return new PwgError(401, 'not permitted');
+  }
+
+  $query = '
+UPDATE '.CATEGORIES_TABLE.'
+  SET representative_picture_id = NULL
+  WHERE id = '.$params['category_id'].'
+;';
+  pwg_query($query);
+}
+
+/**
+ * API method
+ *
+ * Find a new album thumbnail.
+ *
+ * @param mixed[] $params
+ *    @option int category_id
+ */
+function ws_categories_refreshRepresentative($params, &$service)
+{
+  global $conf;
+  
+  // does the category really exist?
+  $query = '
+SELECT id
+  FROM '. CATEGORIES_TABLE .'
+  WHERE id = '. $params['category_id'] .'
+;';
+  $result = pwg_query($query);
+  if (pwg_db_num_rows($result) == 0)
+  {
+    return new PwgError(404, 'category_id not found');
+  }
+
+  $query = '
+SELECT
+    DISTINCT category_id
+  FROM '.IMAGE_CATEGORY_TABLE.'
+  WHERE category_id = '.$params['category_id'].'
+  LIMIT 1
+;';
+  $result = pwg_query($query);
+  $has_images = pwg_db_num_rows($result) > 0 ? true : false;
+
+  if (!$has_images)
+  {
+    return new PwgError(401, 'not permitted');
+  }
+
+  include_once(PHPWG_ROOT_PATH.'admin/include/functions.php');
+  
+  set_random_representant(array($params['category_id']));
+
+  // return url of the new representative
+  $query = '
+SELECT *
+  FROM '.CATEGORIES_TABLE.'
+  WHERE id = '.$params['category_id'].'
+;';
+  $category = pwg_db_fetch_assoc(pwg_query($query));
+
+  return get_category_representant_properties($category['representative_picture_id']);
 }
 
 /**

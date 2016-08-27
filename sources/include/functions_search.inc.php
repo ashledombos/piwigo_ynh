@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -90,7 +90,7 @@ function get_sql_search_clause($search)
     }
   }
 
-  if (isset($search['fields']['allwords']))
+  if (isset($search['fields']['allwords']) and count($search['fields']['allwords']['fields']) > 0)
   {
     $fields = array('file', 'name', 'comment');
 
@@ -98,7 +98,7 @@ function get_sql_search_clause($search)
     {
       $fields = array_intersect($fields, $search['fields']['allwords']['fields']);
     }
-    
+
     // in the OR mode, request bust be :
     // ((field1 LIKE '%word1%' OR field2 LIKE '%word1%')
     // OR (field1 LIKE '%word2%' OR field2 LIKE '%word2%'))
@@ -199,7 +199,10 @@ function get_sql_search_clause($search)
  */
 function get_regular_search_results($search, $images_where='')
 {
-  global $conf;
+  global $conf, $logger;
+
+  $logger->debug(__FUNCTION__, 'search', $search);
+  
   $forbidden = get_sql_condition_FandF(
         array
           (
@@ -213,12 +216,35 @@ function get_regular_search_results($search, $images_where='')
   $items = array();
   $tag_items = array();
 
+  if (isset($search['fields']['search_in_tags']))
+  {
+    $word_clauses = array();
+    foreach ($search['fields']['allwords']['words'] as $word)
+    {
+      $word_clauses[] = "name LIKE '%".$word."%'";
+    }
+
+    $query = '
+SELECT
+    id
+  FROM '.TAGS_TABLE.'
+  WHERE '.implode(' OR ', $word_clauses).'
+;';
+    $tag_ids = query2array($query, null, 'id');
+
+    $search_in_tags_items = get_image_ids_for_tags($tag_ids, 'OR');
+
+    $logger->debug(__FUNCTION__.' '.count($search_in_tags_items).' items in $search_in_tags_items');
+  }
+  
   if (isset($search['fields']['tags']))
   {
     $tag_items = get_image_ids_for_tags(
       $search['fields']['tags']['words'],
       $search['fields']['tags']['mode']
       );
+    
+    $logger->debug(__FUNCTION__.' '.count($tag_items).' items in $tag_items');
   }
 
   $search_clause = get_sql_search_clause($search);
@@ -237,6 +263,18 @@ SELECT DISTINCT(id)
     $query .= $forbidden.'
   '.$conf['order_by'];
     $items = array_from_query($query, 'id');
+    
+    $logger->debug(__FUNCTION__.' '.count($items).' items in $items');
+  }
+
+  if (isset($search_in_tags_items))
+  {
+    $items = array_unique(
+      array_merge(
+        $items,
+        $search_in_tags_items
+        )
+      );
   }
 
   if ( !empty($tag_items) )
@@ -244,7 +282,7 @@ SELECT DISTINCT(id)
     switch ($search['mode'])
     {
       case 'AND':
-        if (empty($search_clause))
+        if (empty($search_clause) and !isset($search_in_tags_items))
         {
           $items = $tag_items;
         }
@@ -254,7 +292,6 @@ SELECT DISTINCT(id)
         }
         break;
       case 'OR':
-        $before_count = count($items);
         $items = array_unique(
           array_merge(
             $items,
@@ -938,6 +975,14 @@ function qsearch_get_images(QExpression $expr, QResults $qsr)
       case 'file':
         $clauses[] = $file_like;
         break;
+      case 'author':
+        if ( strlen($token->term) )
+          $clauses = array_merge($clauses, qsearch_get_text_token_search_sql($token, array('author')));
+        elseif ($token->modifier & QST_WILDCARD)
+          $clauses[] = 'author IS NOT NULL';
+        else
+          $clauses[] = 'author IS NULL';
+        break;
       case 'width':
       case 'height':
         $clauses[] = $token->scope->get_sql($scope_id, $token);
@@ -1178,6 +1223,7 @@ function get_quick_search_results_no_cache($q, $options)
   $scopes[] = new QSearchScope('tag', array('tags'));
   $scopes[] = new QSearchScope('photo', array('photos'));
   $scopes[] = new QSearchScope('file', array('filename'));
+  $scopes[] = new QSearchScope('author', array(), true);
   $scopes[] = new QNumericRangeScope('width', array());
   $scopes[] = new QNumericRangeScope('height', array());
   $scopes[] = new QNumericRangeScope('ratio', array(), false, 0.001);

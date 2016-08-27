@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -259,6 +259,8 @@ function reset_password()
       ),
     array('user_id' => $user_id)
     );
+
+  deactivate_user_auth_keys($user_id);
 
   $page['infos'][] = l10n('Your password has been reset');
   $page['infos'][] = '<a href="'.get_root_url().'identification.php">'.l10n('Login').'</a>';

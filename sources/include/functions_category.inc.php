@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -335,7 +335,7 @@ SELECT DISTINCT(id)
   }
   $query.= '
 ;';
-  return array_from_query($query, 'id');
+  return query2array($query, null, 'id');
 }
 
 /**
@@ -491,6 +491,7 @@ SELECT image_id
 function get_computed_categories(&$userdata, $filter_days=null)
 {
   $query = 'SELECT c.id AS cat_id, id_uppercat';
+  $query.= ', global_rank';
   // Count by date_available to avoid count null
   $query .= ',
   MAX(date_available) AS date_last, COUNT(date_available) AS nb_images
@@ -533,6 +534,11 @@ FROM '.CATEGORIES_TABLE.' as c
     $cats[$row['cat_id']] = $row;
   }
 
+  // it is important to logically sort the albums because some operations
+  // (like removal) rely on this logical order. Child album doesn't always
+  // have a bigger id than its parent (if it was moved afterwards).
+  uasort($cats, 'global_rank_compare');
+
   foreach ($cats as $cat)
   {
     if ( !isset( $cat['id_uppercat'] ) )
@@ -541,7 +547,7 @@ FROM '.CATEGORIES_TABLE.' as c
     // Piwigo before 2.5.3 may have generated inconsistent permissions, ie
     // private album A1/A2 permitted to user U1 but private album A1 not
     // permitted to U1.
-    // 
+    //
     // TODO 2.7: add an upgrade script to repair permissions and remove this
     // test
     if ( !isset($cats[ $cat['id_uppercat'] ]))

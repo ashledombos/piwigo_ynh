@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -44,7 +44,6 @@ trigger_notify('loc_begin_element_set_global');
 
 check_input_parameter('del_tags', $_POST, true, PATTERN_ID);
 check_input_parameter('associate', $_POST, false, PATTERN_ID);
-check_input_parameter('move', $_POST, false, PATTERN_ID);
 check_input_parameter('dissociate', $_POST, false, PATTERN_ID);
 
 // +-----------------------------------------------------------------------+
@@ -173,7 +172,7 @@ DELETE
 
   else if ('move' == $action)
   {
-    move_images_to_categories($collection, array($_POST['move']));
+    move_images_to_categories($collection, array($_POST['associate']));
 
     $_SESSION['page_infos'] = array(
       l10n('Information data registered in database')
@@ -187,7 +186,7 @@ DELETE
 
     else if ('no_virtual_album' == $page['prefilter'])
     {
-      $category_info = get_cat_info($_POST['move']);
+      $category_info = get_cat_info($_POST['associate']);
       if (empty($category_info['dir']))
       {
         $redirect = true;
@@ -430,7 +429,7 @@ $prefilters = array(
   array('ID' => 'caddie', 'NAME' => l10n('Caddie')),
   array('ID' => 'favorites', 'NAME' => l10n('Your favorites')),
   array('ID' => 'last_import', 'NAME' => l10n('Last import')),
-  array('ID' => 'no_album', 'NAME' => l10n('With no album')),
+  array('ID' => 'no_album', 'NAME' => l10n('With no album').' ('.l10n('Orphans').')'),
   array('ID' => 'no_tag', 'NAME' => l10n('With no tag')),
   array('ID' => 'duplicates', 'NAME' => l10n('Duplicates')),
   array('ID' => 'all_photos', 'NAME' => l10n('All'))

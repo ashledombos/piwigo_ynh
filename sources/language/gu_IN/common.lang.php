@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: ગુજરાતી[IN]
-Version: 2.6.0
+Version: 2.8.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=767
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -83,3 +83,13 @@ $lang['this email address is already in use'] = 'આ ઈમેલ અડ્ર�
 $lang['this login is already used'] = 'આ લોગિન પેહલા થી વપરાશ મા છે';
 $lang['today'] = 'આજે';
 $lang['wrong date'] = 'ખોટી તારીખ';
+$lang['set as album representative'] = 'થંબનેલ ની જેમ મુકો ';
+$lang['thumb'] = 'થંબનેલ';
+$lang['slideshow'] = 'સ્લાઇડ શો';
+$lang['small'] = 'નાનું';
+$lang['stop the slideshow'] = 'સ્લાઇડ શો બંધ કરો';
+$lang['xsmall'] = 'વધારે નાનું';
+$lang['xxlarge'] = 'વિશાળ';
+$lang['xlarge'] = 'વધારે મોટું';
+$lang['useful when password forgotten'] = 'કામ નુ અગર પાસવર્ડ ભૂલી ગયા હોઇ તો';
+$lang['the username must be given'] = 'યૂજ઼ર નેમ નાખવુ જરૂરી છે';

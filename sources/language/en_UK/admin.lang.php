@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -435,7 +435,7 @@ $lang['Installed Themes'] = "Installed Themes";
 $lang['Instructions to use Piwigo'] = "Instructions to use Piwigo";
 $lang['Invert'] = 'Invert';
 $lang['IP'] = "IP";
-$lang['iPhoto is the default photo manager on MacOSX. The Piwigo export plugin let you create new albums and export your photos directly from iPhoto to your Piwigo photo gallery.'] = 'iPhoto is the default photo manager on MacOSX. The Piwigo export plugin let you create new albums and export your photos directly from iPhoto to your Piwigo photo gallery.';
+$lang['iPhoto is the default photo manager on MacOSX. The Piwigo export plugin let you create new albums and export your photos directly from iPhoto to your Piwigo photo gallery.'] = 'iPhoto is the default photo manager on MacOSX. The Piwigo export plugin lets you create new albums and export your photos directly from iPhoto to your Piwigo photo gallery.';
 $lang['jump to album'] = "jump to album";
 $lang['jump to photo'] = "jump to photo";
 $lang['Keep in touch with Piwigo project, subscribe to Piwigo Announcement Newsletter. You will receive emails when a new release is available (sometimes including a security bug fix, it\'s important to know and upgrade) and when major events happen to the project. Only a few emails a year.'] = "Keep in touch with Piwigo project, subscribe to Piwigo Announcement Newsletter. You will be sent emails when a new release is available (sometimes including a security bug fix, it is important to know and upgrade) and when major events happen to the project. Only a few emails a year.";
@@ -931,6 +931,7 @@ $lang['wrong filename'] = "wrong filename";
 $lang['X Position'] = 'X Position';
 $lang['X Repeat'] = 'X Repeat';
 $lang['Y Position'] = 'Y Position';
+$lang['Y Repeat'] = 'Y Repeat';
 $lang['Year'] = "Year";
 $lang['You are running on development sources, no check possible.'] = "You are running on development sources, no check possible.";
 $lang['You are running the latest version of Piwigo.'] = "You are running Piwigo latest version.";
@@ -981,3 +982,11 @@ $lang['file name'] = 'file name';
 $lang['date & time'] = 'date & time';
 $lang['width & height'] = 'width & height';
 $lang['Upload in progress'] = 'Upload in progress';
+$lang['Orphans'] = 'Orphans';
+$lang['Delete %d orphan photos'] = 'Delete %d orphan photos';
+$lang['Edit user'] = 'Edit user';
+$lang['Recipients'] = 'Recipients';
+$lang['No recipient selected'] = 'No recipient selected';
+$lang['No user is permitted to see this private album'] = 'No user is permitted to see this private album';
+$lang['Each email sent will contain its own automatic authentication key on links, valid for %s.'] = 'Each email sent will contain its own automatic authentication key on links, valid for %s.';
+$lang['For security reason, authentication keys do not work for administrators.'] = 'For security reason, authentication keys do not work for administrators.';

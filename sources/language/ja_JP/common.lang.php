@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: 日本語 [JP]
-Version: 2.7.2
+Version: 2.8.2
 Language URI: http://piwigo.org/ext/extension_view.php?eid=425
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -54,7 +54,7 @@ $lang['About'] = 'About';
 $lang['All tags'] = 'すべてのタグ';
 $lang['Any tag'] = 'すべてのtag';
 $lang['At least one listed rule must be satisfied.'] = '少なくともリスト記載ルール1つを満たす必要があります。';
-$lang['Author'] = '撮影者';
+$lang['Author'] = '作成者';
 $lang['Albums'] = 'アルバム';
 $lang['Album'] = 'アルバム';
 $lang['Close this window'] = 'このウィンドウを閉じる';
@@ -425,3 +425,4 @@ $lang['Link: %s'] = 'リンク: %s';
 $lang['No results for'] = 'みつかりませんでした。';
 $lang['Photo description'] = '写真の説明';
 $lang['Photo title'] = '写真のタイトル';
+$lang['Your authentication key is no longer valid.'] = 'あなたの認証キーは既に有効ではありません。';

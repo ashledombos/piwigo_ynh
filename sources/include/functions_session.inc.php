@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2014 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -62,32 +62,27 @@ if (isset($conf['session_save_handler'])
  */
 function generate_key($size)
 {
-  if (
-    is_callable('openssl_random_pseudo_bytes')
-    and !(version_compare(PHP_VERSION, '5.3.4') < 0 and defined('PHP_WINDOWS_VERSION_MAJOR'))
-    )
+  include_once(PHPWG_ROOT_PATH.'include/random_compat/random.php');
+
+  try
   {
-    return substr(
-      str_replace(
-        array('+', '/'),
-        '',
-        base64_encode(openssl_random_pseudo_bytes($size))
-        ),
-      0,
-      $size
-      );
+    $bytes = random_bytes($size+10);
   }
-  else
+  catch (Exception $ex)
   {
-    $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    $l = strlen($alphabet)-1;
-    $key = '';
-    for ($i=0; $i<$size; $i++)
-    {
-      $key.= $alphabet[mt_rand(0, $l)];
-    }
-    return $key;
+    include_once(PHPWG_ROOT_PATH.'include/srand.php');
+    $bytes = secure_random_bytes($size+10);
   }
+
+  return substr(
+    str_replace(
+      array('+', '/'),
+      '',
+      base64_encode($bytes)
+      ),
+    0,
+    $size
+    );
 }
 
 /**
@@ -260,4 +255,20 @@ function pwg_unset_session_var($var)
   return true;
 }
 
+/**
+ * delete all sessions for a given user (certainly deleted)
+ *
+ * @since 2.8
+ * @param int $user_id
+ * @return null
+ */
+function delete_user_sessions($user_id)
+{
+  $query = '
+DELETE
+  FROM '.SESSIONS_TABLE.'
+  WHERE data LIKE \'%pwg_uid|i:'.(int)$user_id.';%\'
+;';
+  pwg_query($query);
+}
 ?>
