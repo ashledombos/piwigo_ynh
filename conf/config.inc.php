@@ -1,8 +1,10 @@
 <?php
 
-/* Dans cette fenêtre, écrivez les informations pour configurer votre galerie Piwigo. */
-
+// Use HTTP authentication
 $conf['apache_authentication'] = true;
+
+// Use external authentication
+$conf['external_authentification'] = true;
 
 
 ?>
