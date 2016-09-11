@@ -1,15 +1,28 @@
 #!/bin/bash
 
-db_user=piwigo
-db_name=piwigo
-root_pwd=$(sudo cat /etc/yunohost/mysql)
-domain=$(sudo yunohost app setting piwigo domain)
+# See comments in install script
+app=$YNH_APP_INSTANCE_NAME
 
-mysql -u root -p$root_pwd -e "DROP DATABASE $db_name ; DROP USER $db_user@localhost ;"
+# Source YunoHost helpers
+source /usr/share/yunohost/helpers
 
-sudo rm -rf /var/www/piwigo
-sudo rm -f /etc/nginx/conf.d/$domain.d/piwigo.conf
-sudo rm -rf /home/yunohost.app/piwigo
+# Retrieve app settings
+domain=$(ynh_app_setting_get "$app" domain)
 
+# Remove sources
+sudo rm -rf /var/www/$app
+
+# Remove nginx configuration file
+sudo rm -f /etc/nginx/conf.d/$domain.d/$app.conf
+sudo rm -rf /home/yunohost.app/$app
+
+# Drop MySQL database and user
+dbname=$app
+dbuser=$app
+ynh_mysql_drop_db "$dbname" || true
+ynh_mysql_drop_user "$dbuser" || true
+
+# Reload nginx service
 sudo service nginx reload
+
 
