@@ -1,0 +1,56 @@
+#!/bin/bash
+# =====================
+# TODO
+# =====================
+
+# Exit on command errors and treat unset variables as an error
+set -eu
+
+app=$YNH_APP_INSTANCE_NAME
+
+# Source YunoHost helpers
+source /usr/share/yunohost/helpers
+
+# Retrieve app settings
+domain=$(ynh_app_setting_get "$app" domain)
+path=$(ynh_app_setting_get "$app" path)
+admin=$(ynh_app_setting_get "$app" admin)
+is_public=$(ynh_app_setting_get "$app" is_public)
+language=$(ynh_app_setting_get "$app" language)
+
+# Remove trailing "/" for next commands
+path=${path%/}
+
+# Copy source files
+src_path=/var/www/$app
+sudo mkdir -p $src_path
+sudo cp -Raf ../sources/. $src_path
+
+datapath=/home/yunohost.app/$app
+
+sudo chown -R www-data:www-data $src_path
+sudo chown -R www-data:www-data $datapath
+sudo chmod 777 $src_path/_data
+sudo chmod 777 $src_path/upload
+sudo chmod 755 -R $src_path/galleries
+
+# Modify Nginx configuration file and copy it to Nginx conf directory
+nginx_conf=../conf/nginx.conf
+sed -i "s@YNH_WWW_PATH@$path@g" $nginx_conf
+sed -i "s@YNH_WWW_ALIAS@$src_path/@g" $nginx_conf
+sudo cp $nginx_conf /etc/nginx/conf.d/$domain.d/$app.conf
+
+# Set permissions and reload nginx (needed at this stage for the PHP piwigo installation process)
+sudo service nginx reload
+sudo yunohost app setting "$app" unprotected_uris -v "/"
+sudo yunohost app ssowatconf
+
+#activate ldap plugin
+#mysql -u $dbuser -p$dbpass $dbname -e "INSERT INTO plugins (id,state,version) VALUES ('Ldap_Login','active','1.1');"
+
+#protect URIs if private
+if [ $is_public -eq 0 ];
+then
+  sudo yunohost app setting "$app" -d unprotected_uris
+  sudo yunohost app setting "$app" protected_uris -v "/"
+fi

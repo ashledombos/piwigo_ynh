@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Afrikaans [ZA]
-Version: 2.8.2
+Version: 2.8.3
 Language URI: http://piwigo.org/ext/extension_view.php?eid=572
 Author: Marius Loots and Mignon Smit
 Author URI: http://piwigo.org

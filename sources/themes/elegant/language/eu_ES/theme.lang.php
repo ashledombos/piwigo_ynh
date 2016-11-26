@@ -2,7 +2,7 @@
 // +-----------------------------------------------------------------------+
 // | Piwigo - a PHP based photo gallery                                    |
 // +-----------------------------------------------------------------------+
-// | Copyright(C) 2008-2013 Piwigo Team                  http://piwigo.org |
+// | Copyright(C) 2008-2016 Piwigo Team                  http://piwigo.org |
 // | Copyright(C) 2003-2008 PhpWebGallery Team    http://phpwebgallery.net |
 // | Copyright(C) 2002-2003 Pierrick LE GALL   http://le-gall.net/pierrick |
 // +-----------------------------------------------------------------------+
@@ -20,20 +20,12 @@
 // | Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, |
 // | USA.                                                                  |
 // +-----------------------------------------------------------------------+
-$lang['Combine JS&CSS'] = 'Kombiner JS&amp;CSS';
-$lang['Debug languages'] = 'Feilsøkingspråk';
-$lang['Debug template'] = 'Feilsøking tema';
-$lang['Properties page'] = 'Egenskapssiden';
-$lang['Quick edit'] = 'Hurtigredigering';
-$lang['Revert'] = 'Omgjøre';
-$lang['Save'] = 'Lagre';
-$lang['Save visit in history'] = 'Lagre besøkshistorie';
-$lang['Saved'] = 'Lagret';
-$lang['Show SQL queries'] = 'Vis SQL spørringer';
-$lang['View as'] = 'Se som';
-$lang['Viewing as <b>%s</b>.'] = 'Se som <b>%s</b>.';
-$lang['Closed icon position'] = 'Låst ikonposisjon';
-$lang['Give access to quick edit to photo owners even if they are not admin'] = 'Gi tilgang til bildets eier for hurtigredigering, selv om de ikke er admin';
-$lang['Open toolbar by default'] = 'Åpne verktøy automatisk';
-$lang['left'] = 'venstre';
-$lang['right'] = 'høyre';
+$lang['Comments Panel'] = 'Iruzkinen Panela';
+$lang['Photo Description Panel'] = 'Argazkien Deskribapenen Panela';
+$lang['Panels options'] = 'Panelen aukerak';
+$lang['Displayed'] = 'Bistaratuta';
+$lang['Main Menu Panel'] = 'Menu Nagusiaren Panela';
+$lang['Hidden'] = 'Ezkutatuta';
+$lang['Elegant, Configuration Page'] = 'Elegant, Konfigurazio Orria';
+$lang['Disable the animation'] = 'Ezgaitu animazioa';
+$lang['Choose what should be the default state for each panel, or disable the animation:'] = 'Aukeratu zein izan beharko litzateke panel bakoitzeko lehenetsitako estatua, edo ezgaitu animazioa:';

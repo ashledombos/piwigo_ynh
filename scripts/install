@@ -39,7 +39,7 @@ fi
 
 # Copy source files
 src_path=/var/www/$app
-sudo mkdir -p $src_path
+sudo mkdir -p $src_path/upload
 sudo cp -a ../sources/. $src_path
 
 datapath=/home/yunohost.app/$app
@@ -104,5 +104,4 @@ if [ $is_public -eq 0 ];
 then
   sudo yunohost app setting "$app" -d unprotected_uris
   sudo yunohost app setting "$app" protected_uris -v "/"
-#  sudo yunohost app ssowatconf
 fi

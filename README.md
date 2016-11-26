@@ -5,7 +5,7 @@ Piwigo for YunoHost
 
 Extensions make Piwigo easily customizable. Icing on the cake, Piwigo is free and opensource.
 
-**Shipped version:** 2.8.2
+**Shipped version:** 2.8.3
 
 ![](http://piwigo.org/screenshots/homepage/piwigo-batch-manager.png)
 
@@ -29,6 +29,6 @@ Upgrade scripts to be designed/updated when a new Piwigo release comes up.
 
 ## Links
 
- * Report a bug: https://github.com/JimboJoe/piwigo_ynh/issues
+ * Report a bug: https://github.com/YunoHost-Apps/piwigo_ynh/issues
  * Piwigo website: http://piwigo.org/
  * YunoHost website: https://yunohost.org/

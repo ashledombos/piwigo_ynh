@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: العربية (مصر) [EG]
-Version: 2.8.2
+Version: 2.8.3
 Language URI: http://piwigo.org/ext/extension_view.php?eid=779
 Author: Piwigo team
 Author URI: http://piwigo.org
@@ -427,3 +427,4 @@ $lang['chronology_monthly_list'] = 'القائمة الشهرية';
 $lang['chronology_weekly_list'] = 'القائمة الأسبوعية';
 $lang['cloud'] = 'سحاب';
 $lang['comment date'] = 'تاريخ التعليق';
+$lang['Your authentication key is no longer valid.'] = '.مفتاح المصادقة الخاصة بك لم يعد صالحا';

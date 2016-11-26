@@ -22,7 +22,7 @@
 // +-----------------------------------------------------------------------+
 /*
 Language Name: Srpski [SR]
-Version: 2.8.2
+Version: 2.8.3
 Language URI: http://piwigo.org/ext/extension_view.php?eid=435
 Author: Piwigo team
 Author URI: http://piwigo.org
