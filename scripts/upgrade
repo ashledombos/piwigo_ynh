@@ -21,10 +21,16 @@ language=$(ynh_app_setting_get "$app" language)
 # Remove trailing "/" for next commands
 path=${path%/}
 
+# Download sources 
+sudo wget -q http://piwigo.org/download/dlcounter.php?code=2.8.3 -O piwigo.zip
+
+# Uncompress
+sudo unzip -qq piwigo.zip -d ../
+
 # Copy source files
 src_path=/var/www/$app
 sudo mkdir -p $src_path
-sudo cp -Raf ../sources/. $src_path
+sudo cp -Raf ../piwigo/. $src_path
 
 datapath=/home/yunohost.app/$app
 

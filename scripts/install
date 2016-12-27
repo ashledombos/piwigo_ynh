@@ -37,10 +37,16 @@ if [[ ! $? -eq 0 ]]; then
     exit 1
 fi
 
+# Download sources 
+sudo wget -q http://piwigo.org/download/dlcounter.php?code=2.8.3 -O piwigo.zip
+
+# Uncompress
+sudo unzip -qq piwigo.zip -d ..
+
 # Copy source files
 src_path=/var/www/$app
 sudo mkdir -p $src_path/upload
-sudo cp -a ../sources/. $src_path
+sudo cp -a ../piwigo/. $src_path
 
 datapath=/home/yunohost.app/$app
 sudo mkdir -p $datapath
