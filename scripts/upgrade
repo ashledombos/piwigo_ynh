@@ -48,7 +48,7 @@ sudo cp $nginx_conf /etc/nginx/conf.d/$domain.d/$app.conf
 
 # Set permissions and reload nginx (needed at this stage for the PHP piwigo installation process)
 sudo service nginx reload
-sudo yunohost app setting "$app" unprotected_uris -v "/"
+ynh_app_setting_set "$app" unprotected_uris "/"
 sudo yunohost app ssowatconf
 
 #activate ldap plugin
@@ -57,6 +57,6 @@ sudo yunohost app ssowatconf
 #protect URIs if private
 if [ $is_public -eq 0 ];
 then
-  sudo yunohost app setting "$app" -d unprotected_uris
-  sudo yunohost app setting "$app" protected_uris -v "/"
+  ynh_app_setting_delete "$app" unprotected_uris
+  ynh_app_setting_set "$app" protected_uris "/"
 fi

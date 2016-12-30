@@ -30,13 +30,6 @@ ynh_app_setting_set "$app" language "$language"
 sudo yunohost app checkurl "${domain}${path}" -a "$app" \
     || ynh_die "Path not available: ${domain}${path}"
 
-# Check user parameter
-sudo yunohost user list --json | grep -qi "\"username\": \"$admin\""
-if [[ ! $? -eq 0 ]]; then
-    echo "Wrong user"
-    exit 1
-fi
-
 # Download sources 
 sudo wget -q http://piwigo.org/download/dlcounter.php?code=2.8.3 -O piwigo.zip
 
@@ -79,7 +72,7 @@ sudo cp $nginx_conf /etc/nginx/conf.d/$domain.d/$app.conf
 
 # Set permissions and reload nginx (needed at this stage for the PHP piwigo installation process)
 sudo service nginx reload
-sudo yunohost app setting "$app" unprotected_uris -v "/"
+ynh_app_setting_set "$app" unprotected_uris "/"
 sudo yunohost app ssowatconf
 
 # Generate random password for admin
@@ -108,6 +101,6 @@ mysql -u $dbuser -p$dbpass $dbname -e "INSERT INTO plugins (id,state,version) VA
 #protect URIs if private
 if [ $is_public -eq 0 ];
 then
-  sudo yunohost app setting "$app" -d unprotected_uris
-  sudo yunohost app setting "$app" protected_uris -v "/"
+  ynh_app_setting_delete "$app" unprotected_uris
+  ynh_app_setting_set "$app" protected_uris "/"
 fi
