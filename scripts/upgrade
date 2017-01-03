@@ -1,12 +1,14 @@
 #!/bin/bash
-# =====================
-# TODO
-# =====================
 
 # Exit on command errors and treat unset variables as an error
 set -eu
 
+shopt -s extglob  # sets extended pattern matching options in the bash shell
+
 app=$YNH_APP_INSTANCE_NAME
+
+# Source local helpers
+source ./_common.sh
 
 # Source YunoHost helpers
 source /usr/share/yunohost/helpers
@@ -21,16 +23,13 @@ language=$(ynh_app_setting_get "$app" language)
 # Remove trailing "/" for next commands
 path=${path%/}
 
-# Download sources 
-sudo wget -q http://piwigo.org/download/dlcounter.php?code=2.8.3 -O piwigo.zip
-
-# Uncompress
-sudo unzip -qq piwigo.zip -d ../
+# Download and extract application 
+extract_application ..
 
 # Copy source files
 src_path=/var/www/$app
 sudo mkdir -p $src_path
-sudo cp -Raf ../piwigo/. $src_path
+sudo cp -Raf ../piwigo/!(upload) $src_path
 
 datapath=/home/yunohost.app/$app
 

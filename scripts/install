@@ -5,6 +5,9 @@ set -eu
 
 app=$YNH_APP_INSTANCE_NAME
 
+# Source local helpers
+source ./_common.sh
+
 # Retrieve arguments
 domain=$YNH_APP_ARG_DOMAIN
 path=$YNH_APP_ARG_PATH
@@ -30,11 +33,8 @@ ynh_app_setting_set "$app" language "$language"
 sudo yunohost app checkurl "${domain}${path}" -a "$app" \
     || ynh_die "Path not available: ${domain}${path}"
 
-# Download sources 
-sudo wget -q http://piwigo.org/download/dlcounter.php?code=2.8.3 -O piwigo.zip
-
-# Uncompress
-sudo unzip -qq piwigo.zip -d ..
+# Download and extract application 
+extract_application ..
 
 # Copy source files
 src_path=/var/www/$app
