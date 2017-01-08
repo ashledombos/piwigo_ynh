@@ -20,9 +20,6 @@ admin=$(ynh_app_setting_get "$app" admin)
 is_public=$(ynh_app_setting_get "$app" is_public)
 language=$(ynh_app_setting_get "$app" language)
 
-# Remove trailing "/" for next commands
-path=${path%/}
-
 # Download and extract application 
 extract_application ..
 
