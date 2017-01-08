@@ -29,7 +29,8 @@ extract_application ..
 # Copy source files
 src_path=/var/www/$app
 sudo mkdir -p $src_path
-sudo cp -Raf ../piwigo/!(upload) $src_path
+sudo cp -Raf ../!(upload|galleries) $src_path
+sudo cp -Rap ../galleries/* $src_path/galleries/
 
 datapath=/home/yunohost.app/$app
 

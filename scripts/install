@@ -3,6 +3,8 @@
 # Exit on command errors and treat unset variables as an error
 set -eu
 
+shopt -s extglob  # sets extended pattern matching options in the bash shell
+
 app=$YNH_APP_INSTANCE_NAME
 
 # Source local helpers
@@ -38,16 +40,17 @@ extract_application ..
 
 # Copy source files
 src_path=/var/www/$app
-sudo mkdir -p $src_path/upload
-sudo cp -a ../piwigo/. $src_path
+sudo mkdir $src_path
+sudo cp -a ../!(upload|galleries) $src_path
 
 datapath=/home/yunohost.app/$app
 sudo mkdir -p $datapath
 sudo mkdir -p $datapath/galleries
 sudo mkdir -p $datapath/upload
+
 sudo ln -sd $datapath/galleries $src_path/galleries
+sudo cp -a ../galleries/* $src_path/galleries/
 sudo ln -sd $datapath/upload $src_path/upload
-sudo cp ../conf/index.php $src_path/galleries/index.php
 
 sudo cp -R ../plugins/Ldap_Login $src_path/plugins/Ldap_Login
 
