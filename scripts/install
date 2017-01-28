@@ -32,12 +32,7 @@ ynh_app_setting_set "$app" is_public "$is_public"
 ynh_app_setting_set "$app" language "$language"
 
 # Fix path if needed
-if [ "${path:0:1}" != "/" ] && [ ${#path} -gt 0 ]; then
-       path="/$path"
-fi
-if [ "${path:${#path}-1}" == "/" ] && [ ${#path} -gt 1 ]; then
-       path="${path:0:${#path}-1}"
-fi
+path=$(fix_path $path)
 
 # Check domain/path availability
 sudo yunohost app checkurl "${domain}${path}" -a "$app" \
