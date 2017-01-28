@@ -1,9 +1,10 @@
+#!/bin/bash
 #
 # Common variables
 #
 
 # Application version
-VERSION="2.8.5"
+VERSION="2.8.6"
 
 # Remote URL to fetch application source archive
 APPLICATION_SOURCE_URL="http://piwigo.org/download/dlcounter.php?code=${VERSION}"

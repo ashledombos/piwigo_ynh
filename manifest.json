@@ -4,7 +4,7 @@
     "packaging_format": 1,
     "description": {
         "en": "photo gallery",
-        "fr": "Gallerie photo"
+        "fr": "Galerie photo"
     },
     "url": "http://piwigo.org",
     "license": "free",
