@@ -50,5 +50,9 @@ ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ./dump.sql
 # Restore NGINX configuration
 sudo cp -a ./nginx.conf "/etc/nginx/conf.d/${domain}.d/${app}.conf"
 
+# Copy PHP-FPM pool configuration and reload the service
+sudo cp -a ./php-fpm.conf "/etc/php5/fpm/pool.d/${app}.conf"
+sudo service php5-fpm reload
+
 # Restart webserver
 sudo service nginx reload

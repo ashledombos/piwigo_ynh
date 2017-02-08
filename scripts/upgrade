@@ -46,6 +46,15 @@ sed -i "s@YNH_WWW_PATH@${path}@g" $nginx_conf
 sed -i "s@YNH_WWW_ALIAS@$src_path/@g" $nginx_conf
 sudo cp $nginx_conf /etc/nginx/conf.d/$domain.d/$app.conf
 
+# Modify PHP-FPM pool configuration and copy it to the pool directory
+sed -i "s@YNH_WWW_APP@$app@g" ../conf/php-fpm.conf
+sed -i "s@YNH_WWW_ALIAS@$src_path/@g" ../conf/php-fpm.conf
+finalphpconf=/etc/php5/fpm/pool.d/$app.conf
+sudo cp ../conf/php-fpm.conf $finalphpconf
+sudo chown root: $finalphpconf
+sudo chmod 644 $finalphpconf
+sudo service php5-fpm reload
+
 # Set permissions and reload nginx (needed at this stage for the PHP piwigo installation process)
 sudo service nginx reload
 ynh_app_setting_set "$app" unprotected_uris "/"

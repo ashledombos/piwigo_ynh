@@ -25,3 +25,6 @@ mysqldump -u "$dbuser" -p"$dbpass" --no-create-db "$dbname" > ./dump.sql
 # Copy NGINX configuration
 domain=$(ynh_app_setting_get "$app" domain)
 ynh_backup "/etc/nginx/conf.d/${domain}.d/${app}.conf" "nginx.conf"
+
+# Copy PHP-FPM pool configuration
+ynh_backup "/etc/php5/fpm/pool.d/${app}.conf" "php-fpm.conf"
