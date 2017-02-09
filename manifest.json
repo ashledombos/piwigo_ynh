@@ -7,7 +7,7 @@
         "fr": "Galerie photo"
     },
     "url": "http://piwigo.org",
-    "license": "free",
+    "license": "GPL-2.0",
     "maintainer": {
         "name": "JimboJoe",
         "email": "jimmy@monin.net",
