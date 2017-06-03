@@ -24,8 +24,8 @@ this package:
 ## Limitations
 
 No limitation known.
-Upgrade scripts to be designed/updated when a new Piwigo release comes up.
 
+It has been tested on x86_64 and ARM.
 
 ## Links
 

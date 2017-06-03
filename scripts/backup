@@ -3,28 +3,66 @@
 # Exit on command errors and treat unset variables as an error
 set -eu
 
-app=$YNH_APP_INSTANCE_NAME
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
 
-# Source YunoHost helpers
+if [ ! -e _common.sh ]; then
+	# Fetch helpers file if not in current directory
+	sudo cp ../settings/scripts/_common.sh ./_common.sh
+	sudo chmod a+rx _common.sh
+fi
+source _common.sh
 source /usr/share/yunohost/helpers
 
-# Backup sources & data
-# Note: the last argument is where to save this path, see the restore script.
-ynh_backup "/var/www/${app}" "sources"
+#=================================================
+# LOAD SETTINGS
+#=================================================
+
+app=$YNH_APP_INSTANCE_NAME
+
+domain=$(ynh_app_setting_get $app domain)
+final_path="/var/www/${app}"
+db_name=$(ynh_app_setting_get $app db_name)
+
+#=================================================
+# STANDARD BACKUP STEPS
+#=================================================
+# BACKUP APP MAIN DIR
+#=================================================
+
+CHECK_SIZE "$final_path"
+ynh_backup "$final_path" "sources"
+
+
 
 # Copy the data directory
-DATADIR="/home/yunohost.app/${app}"
-ynh_backup "$DATADIR" "data"
+backup_core_only=$(ynh_app_setting_get "$app" backup_core_only)
+if [ -z $backup_core_only ]	# If backup_core_only setting set, don't backup data directory
+then
+	DATADIR="/home/yunohost.app/${app}"
+  CHECK_SIZE "$DATADIR"
+  ynh_backup "$DATADIR" "data" 1
+else
+	echo "Data dir won't be saved, because backup_core_only is set." >&2
+fi
 
-# Dump the database
-dbname=$app
-dbuser=$app
-dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
-mysqldump -u "$dbuser" -p"$dbpass" --no-create-db "$dbname" > ./dump.sql
+#=================================================
+# BACKUP NGINX CONFIGURATION
+#=================================================
 
-# Copy NGINX configuration
-domain=$(ynh_app_setting_get "$app" domain)
-ynh_backup "/etc/nginx/conf.d/${domain}.d/${app}.conf" "nginx.conf"
+ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf" "nginx.conf"
 
-# Copy PHP-FPM pool configuration
-ynh_backup "/etc/php5/fpm/pool.d/${app}.conf" "php-fpm.conf"
+#=================================================
+# BACKUP PHP-FPM CONFIGURATION
+#=================================================
+
+ynh_backup "/etc/php5/fpm/pool.d/$app.conf" "php-fpm.conf"
+
+#=================================================
+# BACKUP MYSQL DB
+#=================================================
+
+ynh_mysql_dump_db "$db_name" > dump.sql
+CHECK_SIZE "dump.sql"
+ynh_backup "dump.sql" "db.sql"

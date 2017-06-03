@@ -1,18 +1,36 @@
 #!/bin/bash
-
-# Exit on command errors and treat unset variables as an error
-set -eu
-
 shopt -s extglob  # sets extended pattern matching options in the bash shell
 
-app=$YNH_APP_INSTANCE_NAME
+#=================================================
+# GENERIC STARTING
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
 
-# Source local helpers
-source ./_common.sh
+source _common.sh
+source /usr/share/yunohost/helpers
+
+#=================================================
+# MANAGE SCRIPT FAILURE
+#=================================================
+
+ynh_abort_if_errors	# Stop script if an error is detected
+
+ynh_clean_setup () {                      # <============================================= TODO
+    log=$(sudo cat /var/log/nginx/$domain-error.log)
+    echo $log
+}
+
+#=================================================
+# RETRIEVE ARGUMENTS FROM THE MANIFEST
+#=================================================
+
+# Retrieve app id
+app=$YNH_APP_INSTANCE_NAME
 
 # Retrieve arguments
 domain=$YNH_APP_ARG_DOMAIN
-path=$YNH_APP_ARG_PATH
+path_url=$YNH_APP_ARG_PATH
 admin=$YNH_APP_ARG_ADMIN
 is_public=$YNH_APP_ARG_IS_PUBLIC
 language=$YNH_APP_ARG_LANGUAGE
@@ -23,99 +41,124 @@ else
   applanguage="en_UK"
 fi
 
-# Source YunoHost helpers
-source /usr/share/yunohost/helpers
+#=================================================
+# CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
+#=================================================
 
-# Save app settings
-ynh_app_setting_set "$app" admin "$admin"
-ynh_app_setting_set "$app" is_public "$is_public"
-ynh_app_setting_set "$app" language "$language"
+path_url=$(ynh_normalize_url_path $path_url)	# Check and normalize path
+CHECK_DOMAINPATH	# Check domain and path availability
+CHECK_FINALPATH # Check if destination directory is not already in use
 
-# Fix path if needed
-path=$(fix_path $path)
+#=================================================
+# STORE SETTINGS FROM MANIFEST
+#=================================================
 
-# Check domain/path availability
-sudo yunohost app checkurl "${domain}${path}" -a "$app" \
-    || ynh_die "Path not available: ${domain}${path}"
+ynh_app_setting_set $app domain "$domain"
+ynh_app_setting_set $app path_url "$path_url"
+ynh_app_setting_set $app admin "$admin"
+ynh_app_setting_set $app is_public "$is_public"
+ynh_app_setting_set $app language "$language"
 
-# Download and extract application 
-extract_application ..
+#=================================================
+# STANDARD MODIFICATIONS
+#=================================================
 
-# Copy source files
-src_path=/var/www/$app
-sudo mkdir $src_path
-sudo cp -a ../!(upload|galleries) $src_path
+#=================================================
+# CREATE A MYSQL DB
+#=================================================
+
+db_name=$(ynh_sanitize_dbid $app)
+db_user="$db_name"
+ynh_app_setting_set "$app" db_name "$db_name"
+
+# Initialize database
+ynh_mysql_setup_db "$db_user" "$db_name"
+
+#=================================================
+# DOWNLOAD, CHECK AND UNPACK SOURCE
+#=================================================
+
+ynh_app_setting_set $app final_path "$final_path"
+# Create tmp directory and fetch app inside
+TMPDIR=$(mktemp -d)
+ynh_setup_source "$TMPDIR"
+
+#=================================================
+# CREATE DEDICATED USER
+#=================================================
+
+ynh_system_user_create $app	# Create a dedicated system user
+
+#=================================================
+# SPECIFIC SETUP
+#=================================================
+
+# Install files and set permissions
+sudo mkdir $final_path
+sudo cp -a $TMPDIR/!(upload|galleries) $final_path
 
 datapath=/home/yunohost.app/$app
 sudo mkdir -p $datapath
 sudo mkdir -p $datapath/galleries
 sudo mkdir -p $datapath/upload
 
-sudo ln -sd $datapath/galleries $src_path/galleries
-sudo cp -a ../galleries/* $src_path/galleries/
-sudo ln -sd $datapath/upload $src_path/upload
+sudo ln -sd $datapath/galleries $final_path/galleries
+sudo cp -a $TMPDIR/galleries/* $final_path/galleries/
+sudo ln -sd $datapath/upload $final_path/upload
 
-sudo cp -R ../plugins/Ldap_Login $src_path/plugins/Ldap_Login
+sudo cp -R ../plugins/Ldap_Login $final_path/plugins/Ldap_Login
 
-sudo chown -R www-data:www-data $src_path
-sudo chown -R www-data:www-data $datapath
-sudo chmod 777 $src_path/_data
-sudo chmod 777 $src_path/upload
-sudo chmod 755 -R $src_path/galleries
+sudo chown -R $app: $final_path
+sudo chown -R $app: $datapath
+sudo chmod 755 -R $final_path/galleries
 
-# Generate MySQL password and create database
-dbuser=$app
-dbname=$app
-dbpass=$(ynh_string_random 12)
-ynh_app_setting_set "$app" mysqlpwd "$dbpass"
-ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
 
-# Modify Nginx configuration file and copy it to Nginx conf directory
-nginx_conf=../conf/nginx.conf
-sed -i "s@YNH_WWW_PATH@$path@g" $nginx_conf
-sed -i "s@YNH_WWW_ALIAS@$src_path/@g" $nginx_conf
-sudo cp $nginx_conf /etc/nginx/conf.d/$domain.d/$app.conf
+ynh_add_nginx_config
+ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
 
-# Modify PHP-FPM pool configuration and copy it to the pool directory
-sed -i "s@YNH_WWW_APP@$app@g" ../conf/php-fpm.conf
-sed -i "s@YNH_WWW_ALIAS@$src_path/@g" ../conf/php-fpm.conf
-finalphpconf=/etc/php5/fpm/pool.d/$app.conf
-sudo cp ../conf/php-fpm.conf $finalphpconf
-sudo chown root: $finalphpconf
-sudo chmod 644 $finalphpconf
-sudo service php5-fpm reload
+# Copy and set php-fpm configuration
+ynh_add_fpm_config
 
 # Set permissions and reload nginx (needed at this stage for the PHP piwigo installation process)
-sudo service nginx reload
+sudo systemctl reload nginx
+sleep 5s
+sudo systemctl reload php5-fpm
 ynh_app_setting_set "$app" unprotected_uris "/"
 sudo yunohost app ssowatconf
 
 # Generate random password for admin
 
 adm_pwd=$(dd if=/dev/urandom bs=1 count=200 2> /dev/null | tr -c -d 'A-Za-z0-9' | sed -n 's/\(.\{24\}\).*/\1/p')
+ynh_app_setting_set $app admin_pwd "$adm_pwd"
 
-#configure piwigo via curl
-sleep 2
-curl --resolve $domain:443:127.0.0.1 -kL -X POST https://$domain$path/install.php?language=$applanguage --data "install=true&dbuser=$dbuser&dbpasswd=$dbpass&dbname=$dbname&admin_name=$admin&admin_pass1=$adm_pwd&admin_pass2=$adm_pwd&admin_mail=$admin@$domain" > /tmp/piwigo-install.log 2>&1
+# Configure piwigo via curl
+sleep 5s
+ynh_local_curl "/install.php?language=$applanguage" "install=true" "dbuser=$db_user" "dbpasswd=$db_pwd" "dbname=$db_name" "admin_name=$admin" "admin_pass1=$adm_pwd" "admin_pass2=$adm_pwd" "admin_mail=$admin@$domain"
 
-#Change local config
-sudo cp ../conf/config.inc.php $src_path/local/config/
+# Change local config
+sudo cp ../conf/config.inc.php $final_path/local/config/
 
-#change variable in local/config/database.inc.php
+# Setup database in local/config/database.inc.php
+ynh_replace_string "DBTOCHANGE" "$db_name" ../conf/database.inc.php
+ynh_replace_string "USERTOCHANGE" "$db_user" ../conf/database.inc.php
+ynh_replace_string "PASSTOCHANGE" "$db_pwd" ../conf/database.inc.php
+sudo cp ../conf/database.inc.php $final_path/local/config/database.inc.php
 
-sudo sed -i "s@DBTOCHANGE@$dbname@g" ../conf/database.inc.php
-sudo sed -i "s@USERTOCHANGE@$dbuser@g" ../conf/database.inc.php
-sudo sed -i "s@PASSTOCHANGE@$dbpass@g" ../conf/database.inc.php
+# Activate ldap plugin
+ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "INSERT INTO plugins (id,state,version) VALUES ('Ldap_Login','active','1.1');"
 
-sudo cp ../conf/database.inc.php $src_path/local/config/database.inc.php
-
-#activate ldap plugin
-
-mysql -u $dbuser -p$dbpass $dbname -e "INSERT INTO plugins (id,state,version) VALUES ('Ldap_Login','active','1.1');"
-
-#protect URIs if private
+# Protect URIs if private
 if [ $is_public -eq 0 ];
 then
   ynh_app_setting_delete "$app" unprotected_uris
   ynh_app_setting_set "$app" protected_uris "/"
 fi
+
+#=================================================
+# RELOAD NGINX
+#=================================================
+sudo systemctl restart php5-fpm
+sudo systemctl reload nginx
