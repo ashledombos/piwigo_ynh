@@ -6,12 +6,13 @@
         "en": "photo gallery",
         "fr": "Galerie photo"
     },
+    "version": "2.9.0",
     "url": "http://piwigo.org",
     "license": "GPL-2.0",
     "maintainer": {
         "name": "JimboJoe",
         "email": "jimmy@monin.net",
-        "url": "http://piwigo.org"
+        "url": ""
     },
     "requirements": {
     "yunohost": ">> 2.4.0"

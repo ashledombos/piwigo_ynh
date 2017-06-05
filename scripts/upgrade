@@ -1,71 +1,161 @@
 #!/bin/bash
+shopt -s extglob  # sets extended pattern matching options in the bash shell
 
 # Exit on command errors and treat unset variables as an error
 set -eu
+#=================================================
+# GENERIC STARTING
+#=================================================
+# IMPORT GENERIC HELPERS
+#=================================================
 
-shopt -s extglob  # sets extended pattern matching options in the bash shell
-
-app=$YNH_APP_INSTANCE_NAME
-
-# Source local helpers
-source ./_common.sh
-
-# Source YunoHost helpers
+source _common.sh
 source /usr/share/yunohost/helpers
 
-# Retrieve app settings
+#=================================================
+# LOAD SETTINGS
+#=================================================
+# Set app specific variables
+app=$YNH_APP_INSTANCE_NAME
+
+# Check destination directory
+DESTDIR="/var/www/$app"
+[[ ! -d $DESTDIR ]] && ynh_die \
+"The destination directory '$DESTDIR' does not exist.\
+ The app is not correctly installed, you should remove it first."
+
+# Retrieve arguments
 domain=$(ynh_app_setting_get "$app" domain)
-path=$(ynh_app_setting_get "$app" path)
+path_url=$(ynh_app_setting_get "$app" path_url)
+# Compatibility with previous version
+if [ -z "$path_url" ] ; then
+  path_url=$(ynh_app_setting_get "$app" path)
+  ynh_app_setting_set $app path_url "$path_url"
+fi
+path_url=$(ynh_normalize_url_path $path_url)
+final_path=$(ynh_app_setting_get "$app" final_path)
+# Compatibility with previous version
+if [ -z "$final_path" ] ; then
+  final_path="/var/www/$app"
+  ynh_app_setting_set $app final_path "$final_path"
+fi
+db_name=$(ynh_app_setting_get "$app" db_name)
+# Compatibility with previous version
+if [ -z "$db_name" ] ; then
+  db_name=$app
+  ynh_app_setting_set "$app" db_name "$db_name"
+fi
+db_user="$db_name"
+db_pwd=$(ynh_app_setting_get "$app" mysqlpwd)
 admin=$(ynh_app_setting_get "$app" admin)
-is_public=$(ynh_app_setting_get "$app" is_public)
+admin_pwd=$(ynh_app_setting_get "$app" admin_pwd)
+# Compatibility with previous version; password not set
+if [ -z "$admin_pwd" ] ; then
+  # Generate a new password
+  admin_pwd=$(dd if=/dev/urandom bs=1 count=200 2> /dev/null | tr -c -d 'A-Za-z0-9' | sed -n 's/\(.\{24\}\).*/\1/p')
+  # Compute password hash with the Piwigo function
+  sudo cp ../conf/hash_password.php $final_path
+  hashed_password=$(cd $final_path ; php hash_password.php $admin_pwd)
+  # Update password hash in database
+  ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "UPDATE users SET password='$hashed_password' WHERE username='$admin';"
+  ynh_app_setting_set $app admin_pwd "$admin_pwd"
+  ynh_secure_remove "$final_path/hash_password.php"
+fi
 language=$(ynh_app_setting_get "$app" language)
+if [ "$language" = "fr" ] ; then
+  applanguage="fr_FR"
+else
+  applanguage="en_UK"
+fi
 
-# Fix path if needed
-path=$(fix_path $path)
 
-# Download and extract application 
-extract_application ..
 
-# Copy source files
-src_path=/var/www/$app
-sudo mkdir -p $src_path
-sudo cp -Raf ../!(upload|galleries) $src_path
-sudo cp -Rap ../galleries/* $src_path/galleries/
+is_public=$(ynh_app_setting_get "$app" is_public)
+#=================================================
+# MANAGE SCRIPT FAILURE
+#=================================================
 
-datapath=/home/yunohost.app/$app
+# Use prior backup and restore on error only if backup feature
+# exists on installed instance
+if [ -f "/etc/yunohost/apps/$app/scripts/backup" ] ; then
+  ynh_backup_before_upgrade # Backup the current version of the app
+  ynh_clean_setup () {
+      ynh_backup_after_failed_upgrade
+  }
+  ynh_abort_if_errors	# Stop script if an error is detected
+fi
 
-sudo chown -R www-data:www-data $src_path
-sudo chown -R www-data:www-data $datapath
-sudo chmod 777 $src_path/_data
-sudo chmod 777 $src_path/upload
-sudo chmod 755 -R $src_path/galleries
+#=================================================
+# DOWNLOAD, CHECK AND UNPACK SOURCE
+#=================================================
 
-# Modify Nginx configuration file and copy it to Nginx conf directory
-nginx_conf=../conf/nginx.conf
-sed -i "s@YNH_WWW_PATH@${path}@g" $nginx_conf
-sed -i "s@YNH_WWW_ALIAS@$src_path/@g" $nginx_conf
-sudo cp $nginx_conf /etc/nginx/conf.d/$domain.d/$app.conf
+# Create tmp directory and fetch app inside
+TMPDIR=$(ynh_mkdir_tmp)
+ynh_setup_source "$TMPDIR"
 
-# Modify PHP-FPM pool configuration and copy it to the pool directory
-sed -i "s@YNH_WWW_APP@$app@g" ../conf/php-fpm.conf
-sed -i "s@YNH_WWW_ALIAS@$src_path/@g" ../conf/php-fpm.conf
-finalphpconf=/etc/php5/fpm/pool.d/$app.conf
-sudo cp ../conf/php-fpm.conf $finalphpconf
-sudo chown root: $finalphpconf
-sudo chmod 644 $finalphpconf
-sudo service php5-fpm reload
+#=================================================
+# CREATE DEDICATED USER
+#=================================================
+
+ynh_system_user_create $app # Create dedicated user if not existing
+
+#=================================================
+# SPECIFIC SETUP
+#=================================================
+
+# Install files and set permissions
+sudo cp -a $TMPDIR/!(upload|galleries) $final_path
+
+sudo cp -a $TMPDIR/galleries/* $final_path/galleries/
+
+sudo cp -R ../plugins/Ldap_Login/* $final_path/plugins/Ldap_Login
+
+sudo chown -R $app: $final_path
+sudo chown -R $app: /home/yunohost.app/$app
+sudo chmod 755 -R $final_path/galleries
+
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+
+ynh_add_nginx_config
+ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
+
+# Copy and set php-fpm configuration
+ynh_add_fpm_config
 
 # Set permissions and reload nginx (needed at this stage for the PHP piwigo installation process)
-sudo service nginx reload
+sudo systemctl reload nginx
+sleep 5s
+sudo systemctl reload php5-fpm
 ynh_app_setting_set "$app" unprotected_uris "/"
 sudo yunohost app ssowatconf
 
-#activate ldap plugin
-#mysql -u $dbuser -p$dbpass $dbname -e "INSERT INTO plugins (id,state,version) VALUES ('Ldap_Login','active','1.1');"
+# Configure piwigo via curl
+sleep 5s
+ynh_local_curl "/upgrade.php?language=$applanguage&now=true" "language=$applanguage" "username=$admin" "password=$admin_pwd"
 
-#protect URIs if private
+# Change local config
+sudo cp ../conf/config.inc.php $final_path/local/config/
+
+# Setup database in local/config/database.inc.php
+ynh_replace_string "DBTOCHANGE" "$db_name" ../conf/database.inc.php
+ynh_replace_string "USERTOCHANGE" "$db_user" ../conf/database.inc.php
+ynh_replace_string "PASSTOCHANGE" "$db_pwd" ../conf/database.inc.php
+sudo cp ../conf/database.inc.php $final_path/local/config/database.inc.php
+
+# Activate ldap plugin
+ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "UPDATE plugins SET state='active' WHERE id='Ldap_Login';"
+
+# Protect URIs if private
 if [ $is_public -eq 0 ];
 then
   ynh_app_setting_delete "$app" unprotected_uris
   ynh_app_setting_set "$app" protected_uris "/"
 fi
+
+#=================================================
+# RELOAD NGINX
+#=================================================
+sudo systemctl restart php5-fpm
+sudo systemctl reload nginx
