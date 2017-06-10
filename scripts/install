@@ -106,8 +106,6 @@ sudo ln -sd $datapath/galleries $final_path/galleries
 sudo cp -a $TMPDIR/galleries/* $final_path/galleries/
 sudo ln -sd $datapath/upload $final_path/upload
 
-sudo cp -R ../plugins/Ldap_Login $final_path/plugins/Ldap_Login
-
 sudo chown -R $app: $final_path
 sudo chown -R $app: $datapath
 sudo chmod 755 -R $final_path/galleries

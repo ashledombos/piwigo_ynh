@@ -108,8 +108,6 @@ sudo cp -a $TMPDIR/!(upload|galleries) $final_path
 
 sudo cp -a $TMPDIR/galleries/* $final_path/galleries/
 
-sudo cp -R ../plugins/Ldap_Login/* $final_path/plugins/Ldap_Login
-
 sudo chown -R $app: $final_path
 sudo chown -R $app: /home/yunohost.app/$app
 sudo chmod 755 -R $final_path/galleries
