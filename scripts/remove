@@ -39,6 +39,12 @@ ynh_secure_remove "/var/www/$app"
 ynh_secure_remove "/home/yunohost.app/$app"
 
 #=================================================
+# REMOVE FAIL2BAN CONFIGURATION
+#=================================================
+
+ynh_remove_fail2ban_config
+
+#=================================================
 # REMOVE NGINX AND PHP-FPM CONFIGURATION
 #=================================================
 
