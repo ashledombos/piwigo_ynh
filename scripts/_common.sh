@@ -597,7 +597,7 @@ ynh_add_fail2ban_config () {
 	ynh_backup_if_checksum_is_different "$finalfail2banjailconf" 1
 	ynh_backup_if_checksum_is_different "$finalfail2banfilterconf" 1
   
-  echo | sudo tee $finalfail2banjailconf <<EOF
+  sudo tee $finalfail2banjailconf <<EOF
 [$app]
 enabled = true
 port = $ports
@@ -606,7 +606,7 @@ logpath = $logpath
 maxretry = $max_retry" 
 EOF
 
-  echo | sudo tee $finalfail2banfilterconf <<EOF
+  sudo tee $finalfail2banfilterconf <<EOF
 [INCLUDES]
 before = common.conf
 [Definition]
