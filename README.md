@@ -1,6 +1,10 @@
 Piwigo for YunoHost
 ---------------------
 
+[![Install Piwigo with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=piwigo)
+
+[![Integration level](https://dash.yunohost.org/integration/piwigo.svg)](https://ci-apps.yunohost.org/jenkins/job/piwigo%20%28Community%29/lastBuild/consoleFull)  
+
 [Piwigo](http://piwigo.org) is a photo gallery software for the web, built by an active community of users and developers.
 
 Extensions make Piwigo easily customizable. Icing on the cake, Piwigo is free and opensource.
