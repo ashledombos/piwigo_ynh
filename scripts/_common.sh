@@ -575,6 +575,8 @@ ynh_local_curl () {
 	curl --silent --show-error -kL -H "Host: $domain" -X POST --resolve $domain:443:127.0.0.1 $POST_data "$full_page_url"
 }
 
+# ============= FUTURE YUNOHOST HELPERS =============
+
 # Create a dedicated fail2ban config (jail and filter conf files)
 #
 # usage: ynh_add_fail2ban_config log_file filter [max_retry [ports]]
@@ -627,4 +629,15 @@ ynh_remove_fail2ban_config () {
 	ynh_secure_remove "/etc/fail2ban/jail.d/$app.conf"
   ynh_secure_remove "/etc/fail2ban/filter.d/$app.conf"
 	sudo systemctl restart fail2ban
+}
+
+# Delete a file checksum from the app settings
+#
+# $app should be defined when calling this helper
+#
+# usage: ynh_remove_file_checksum file
+# | arg: file - The file for which the checksum will be deleted
+ynh_delete_file_checksum () {
+	local checksum_setting_name=checksum_${1//[\/ ]/_}	# Replace all '/' and ' ' by '_'
+	ynh_app_setting_delete $app $checksum_setting_name
 }
