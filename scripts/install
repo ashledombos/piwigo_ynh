@@ -41,8 +41,14 @@ fi
 #=================================================
 
 path_url=$(ynh_normalize_url_path $path_url)	# Check and normalize path
-CHECK_DOMAINPATH	# Check domain and path availability
-CHECK_FINALPATH # Check if destination directory is not already in use
+
+final_path=/var/www/$app
+test ! -e "$final_path" || ynh_die "This path already contains a folder"
+
+# Check web path availability
+ynh_webpath_available $domain $path_url
+# Register (book) web path
+ynh_webpath_register $app $domain $path_url
 
 #=================================================
 # STORE SETTINGS FROM MANIFEST
@@ -91,21 +97,21 @@ ynh_system_user_create $app	# Create a dedicated system user
 #=================================================
 
 # Install files and set permissions
-sudo mkdir $final_path
-sudo cp -a $TMPDIR/!(upload|galleries) $final_path
+mkdir $final_path
+cp -a $TMPDIR/!(upload|galleries) $final_path
 
 datapath=/home/yunohost.app/$app
-sudo mkdir -p $datapath
-sudo mkdir -p $datapath/galleries
-sudo mkdir -p $datapath/upload
+mkdir -p $datapath
+mkdir -p $datapath/galleries
+mkdir -p $datapath/upload
 
-sudo ln -sd $datapath/galleries $final_path/galleries
-sudo cp -a $TMPDIR/galleries/* $final_path/galleries/
-sudo ln -sd $datapath/upload $final_path/upload
+ln -sd $datapath/galleries $final_path/galleries
+cp -a $TMPDIR/galleries/* $final_path/galleries/
+ln -sd $datapath/upload $final_path/upload
 
-sudo chown -R $app: $final_path
-sudo chown -R $app: $datapath
-sudo chmod 755 -R $final_path/galleries
+chown -R $app: $final_path
+chown -R $app: $datapath
+chmod 755 -R $final_path/galleries
 
 #=================================================
 # NGINX CONFIGURATION
@@ -118,11 +124,11 @@ ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
 ynh_add_fpm_config
 
 # Set permissions and reload nginx (needed at this stage for the PHP piwigo installation process)
-sudo systemctl reload nginx
+systemctl reload nginx
 sleep 5s
-sudo systemctl reload php5-fpm
+systemctl reload php5-fpm
 ynh_app_setting_set "$app" unprotected_uris "/"
-sudo yunohost app ssowatconf
+yunohost app ssowatconf
 
 # Generate random password for admin
 
@@ -135,13 +141,17 @@ mail="$(ynh_user_get_info $admin mail)"
 ynh_local_curl "/install.php?language=$applanguage" "install=true" "dbuser=$db_user" "dbpasswd=$db_pwd" "dbname=$db_name" "admin_name=$admin" "admin_pass1=$adm_pwd" "admin_pass2=$adm_pwd" "admin_mail=$mail"
 
 # Change local config
-sudo cp ../conf/config.inc.php $final_path/local/config/
+cp ../conf/config.inc.php $final_path/local/config/
+# Calculate and store the config file checksum
+ynh_store_file_checksum "$final_path/local/config/config.inc.php"
 
 # Setup database in local/config/database.inc.php
 ynh_replace_string "DBTOCHANGE" "$db_name" ../conf/database.inc.php
 ynh_replace_string "USERTOCHANGE" "$db_user" ../conf/database.inc.php
 ynh_replace_string "PASSTOCHANGE" "$db_pwd" ../conf/database.inc.php
-sudo cp ../conf/database.inc.php $final_path/local/config/database.inc.php
+cp ../conf/database.inc.php $final_path/local/config/database.inc.php
+# Calculate and store the database config file checksum
+ynh_store_file_checksum "$final_path/local/config/database.inc.php"
 
 # Activate LDAP plugin
 ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "INSERT INTO plugins (id,state,version) VALUES ('Ldap_Login','active','1.1');"
@@ -149,8 +159,8 @@ ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "INSERT INTO plugins (id,stat
 # Configure and activate log_failed_logins plugin
 ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "INSERT INTO plugins (id,state,version) VALUES ('log_failed_logins','active','1.2');"
 ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "INSERT INTO config (param, value) VALUES ('logFailedLoginsFilename','/var/log/${app}FailedLogins.log');"
-sudo touch "/var/log/${app}FailedLogins.log"
-sudo chown $app: "/var/log/${app}FailedLogins.log"
+touch "/var/log/${app}FailedLogins.log"
+chown $app: "/var/log/${app}FailedLogins.log"
 
 # Set-up fail2ban
 ynh_add_fail2ban_config "/var/log/${app}FailedLogins.log" "ip=<HOST>" 6
@@ -165,5 +175,4 @@ fi
 #=================================================
 # RELOAD NGINX
 #=================================================
-sudo systemctl restart php5-fpm
-sudo systemctl reload nginx
+systemctl reload nginx

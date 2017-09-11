@@ -9,8 +9,8 @@ set -eu
 
 if [ ! -e _common.sh ]; then
 	# Fetch helpers file if not in current directory
-	sudo cp ../settings/scripts/_common.sh ./_common.sh
-	sudo chmod a+rx _common.sh
+	cp ../settings/scripts/_common.sh ./_common.sh
+	chmod a+rx _common.sh
 fi
 source _common.sh
 source /usr/share/yunohost/helpers
@@ -31,18 +31,14 @@ db_name=$(ynh_app_setting_get $app db_name)
 # BACKUP APP MAIN DIR
 #=================================================
 
-CHECK_SIZE "$final_path"
-ynh_backup "$final_path" "sources"
-
-
+ynh_backup "$final_path"
 
 # Copy the data directory
 backup_core_only=$(ynh_app_setting_get "$app" backup_core_only)
 if [ -z $backup_core_only ]	# If backup_core_only setting set, don't backup data directory
 then
 	DATADIR="/home/yunohost.app/${app}"
-  CHECK_SIZE "$DATADIR"
-  ynh_backup "$DATADIR" "data" 1
+  ynh_backup "$DATADIR"
 else
 	echo "Data dir won't be saved, because backup_core_only is set." >&2
 fi
@@ -50,25 +46,23 @@ fi
 #=================================================
 # BACKUP FAIL2BAN CONFIGURATION
 #=================================================
-ynh_backup "/etc/fail2ban/jail.d/$app.conf" "jaild.conf"
-ynh_backup "/etc/fail2ban/filter.d/$app.conf" "filterd.conf"
+ynh_backup "/etc/fail2ban/jail.d/$app.conf"
+ynh_backup "/etc/fail2ban/filter.d/$app.conf"
 
 #=================================================
 # BACKUP NGINX CONFIGURATION
 #=================================================
 
-ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf" "nginx.conf"
+ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 #=================================================
 # BACKUP PHP-FPM CONFIGURATION
 #=================================================
 
-ynh_backup "/etc/php5/fpm/pool.d/$app.conf" "php-fpm.conf"
+ynh_backup "/etc/php5/fpm/pool.d/$app.conf"
 
 #=================================================
 # BACKUP MYSQL DB
 #=================================================
 
-ynh_mysql_dump_db "$db_name" > dump.sql
-CHECK_SIZE "dump.sql"
-ynh_backup "dump.sql" "db.sql"
+ynh_mysql_dump_db "$db_name" > db.sql

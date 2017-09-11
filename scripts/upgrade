@@ -54,7 +54,7 @@ if [ -z "$admin_pwd" ] ; then
   # Generate a new password
   admin_pwd=$(dd if=/dev/urandom bs=1 count=200 2> /dev/null | tr -c -d 'A-Za-z0-9' | sed -n 's/\(.\{24\}\).*/\1/p')
   # Compute password hash with the Piwigo function
-  sudo cp ../conf/hash_password.php $final_path
+  cp ../conf/hash_password.php $final_path
   hashed_password=$(cd $final_path ; php hash_password.php $admin_pwd)
   # Update password hash in database
   ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "UPDATE users SET password='$hashed_password' WHERE username='$admin';"
@@ -106,13 +106,13 @@ ynh_system_user_create $app # Create dedicated user if not existing
 #=================================================
 
 # Install files and set permissions
-sudo cp -a $TMPDIR/!(upload|galleries) $final_path
+cp -a $TMPDIR/!(upload|galleries) $final_path
 
-sudo cp -a $TMPDIR/galleries/* $final_path/galleries/
+cp -a $TMPDIR/galleries/* $final_path/galleries/
 
-sudo chown -R $app: $final_path
-sudo chown -R $app: /home/yunohost.app/$app
-sudo chmod 755 -R $final_path/galleries
+chown -R $app: $final_path
+chown -R $app: /home/yunohost.app/$app
+chmod 755 -R $final_path/galleries
 
 #=================================================
 # NGINX CONFIGURATION
@@ -125,24 +125,32 @@ ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
 ynh_add_fpm_config
 
 # Set permissions and reload nginx (needed at this stage for the PHP piwigo installation process)
-sudo systemctl reload nginx
+systemctl reload nginx
 sleep 5s
-sudo systemctl reload php5-fpm
+systemctl reload php5-fpm
 ynh_app_setting_set "$app" unprotected_uris "/"
-sudo yunohost app ssowatconf
+yunohost app ssowatconf
 
 # Configure piwigo via curl
 sleep 5s
 ynh_local_curl "/upgrade.php?language=$applanguage&now=true" "language=$applanguage" "username=$admin" "password=$admin_pwd"
 
+# Make a backup of the original config file if modified
+ynh_backup_if_checksum_is_different "$final_path/local/config/config.inc.php"
 # Change local config
-sudo cp ../conf/config.inc.php $final_path/local/config/
+cp ../conf/config.inc.php $final_path/local/config/
+# Calculate and store the config file checksum
+ynh_store_file_checksum "$final_path/local/config/config.inc.php"
 
+# Make a backup of the original database config file if modified
+ynh_backup_if_checksum_is_different "$final_path/local/config/database.inc.php"
 # Setup database in local/config/database.inc.php
 ynh_replace_string "DBTOCHANGE" "$db_name" ../conf/database.inc.php
 ynh_replace_string "USERTOCHANGE" "$db_user" ../conf/database.inc.php
 ynh_replace_string "PASSTOCHANGE" "$db_pwd" ../conf/database.inc.php
-sudo cp ../conf/database.inc.php $final_path/local/config/database.inc.php
+cp ../conf/database.inc.php $final_path/local/config/database.inc.php
+# Calculate and store the database config file checksum
+ynh_store_file_checksum "$final_path/local/config/database.inc.php"
 
 # Activate ldap plugin
 ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "UPDATE plugins SET state='active' WHERE id='Ldap_Login';"
@@ -150,8 +158,8 @@ ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "UPDATE plugins SET state='ac
 # Configure and activate log_failed_logins plugin
 ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "INSERT INTO plugins (id,state,version) VALUES ('log_failed_logins','active','1.2');" 2>&1 > /dev/null ||ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "UPDATE plugins SET state='active' WHERE id='log_failed_logins';"
 ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "INSERT INTO config (param, value) VALUES ('logFailedLoginsFilename','/var/log/${app}FailedLogins.log');" 2>&1 > /dev/null || ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "UPDATE config SET value='/var/log/${app}FailedLogins.log' WHERE param='logFailedLoginsFilename';"
-sudo touch "/var/log/${app}FailedLogins.log"
-sudo chown $app: "/var/log/${app}FailedLogins.log"
+touch "/var/log/${app}FailedLogins.log"
+chown $app: "/var/log/${app}FailedLogins.log"
 
 # Set-up fail2ban
 ynh_add_fail2ban_config "/var/log/${app}FailedLogins.log" "ip=<HOST>" 6
@@ -166,5 +174,5 @@ fi
 #=================================================
 # RELOAD NGINX
 #=================================================
-sudo systemctl restart php5-fpm
-sudo systemctl reload nginx
+systemctl restart php5-fpm
+systemctl reload nginx
