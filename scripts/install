@@ -132,7 +132,7 @@ yunohost app ssowatconf
 
 # Generate random password for admin
 
-adm_pwd=$(dd if=/dev/urandom bs=1 count=200 2> /dev/null | tr -c -d 'A-Za-z0-9' | sed -n 's/\(.\{24\}\).*/\1/p')
+adm_pwd=$(ynh_string_random 24)
 ynh_app_setting_set $app admin_pwd "$adm_pwd"
 
 # Configure piwigo via curl
