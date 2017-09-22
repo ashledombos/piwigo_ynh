@@ -116,7 +116,7 @@ chown -R $app: $datapath
 chmod 755 -R $final_path/galleries
 
 #=================================================
-# NGINX CONFIGURATION
+# NGINX AND PHP-FPM CONFIGURATION
 #=================================================
 
 ynh_add_nginx_config
@@ -124,6 +124,10 @@ ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 # Copy and set php-fpm configuration
 ynh_add_fpm_config
+
+#=================================================
+# CONFIGURE PIWIGO
+#=================================================
 
 # Set permissions and reload nginx (needed at this stage for the PHP piwigo installation process)
 systemctl reload nginx
@@ -154,6 +158,10 @@ ynh_replace_string "PASSTOCHANGE" "$db_pwd" ../conf/database.inc.php
 cp ../conf/database.inc.php $final_path/local/config/database.inc.php
 # Calculate and store the database config file checksum
 ynh_store_file_checksum "$final_path/local/config/database.inc.php"
+
+#=================================================
+# ADD LDAP & FAIL2BAN PLUGINS
+#=================================================
 
 # Activate LDAP plugin
 ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "INSERT INTO plugins (id,state,version) VALUES ('Ldap_Login','active','1.1');"
