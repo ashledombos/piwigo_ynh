@@ -22,7 +22,7 @@ source /usr/share/yunohost/helpers
 app=$YNH_APP_INSTANCE_NAME
 
 domain=$(ynh_app_setting_get $app domain)
-final_path="/var/www/${app}"
+final_path=$(ynh_app_setting_get "$app" final_path)
 db_name=$(ynh_app_setting_get $app db_name)
 
 #=================================================
