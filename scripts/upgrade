@@ -93,6 +93,8 @@ fi
 TMPDIR=$(ynh_mkdir_tmp)
 ynh_setup_source "$TMPDIR"
 # Fetch needed plugins
+mkdir -p $TMPDIR/plugins/Ldap_Login
+ynh_setup_source "$TMPDIR/plugins/Ldap_Login" ldap_plugin
 ynh_setup_source "$TMPDIR/plugins" log_failed_logins_plugin
 
 #=================================================

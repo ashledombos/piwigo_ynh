@@ -84,6 +84,8 @@ ynh_app_setting_set $app final_path "$final_path"
 TMPDIR=$(mktemp -d)
 ynh_setup_source "$TMPDIR"
 # Fetch needed plugins
+mkdir -p $TMPDIR/plugins/Ldap_Login
+ynh_setup_source "$TMPDIR/plugins/Ldap_Login" ldap_plugin
 ynh_setup_source "$TMPDIR/plugins" log_failed_logins_plugin
 
 #=================================================
