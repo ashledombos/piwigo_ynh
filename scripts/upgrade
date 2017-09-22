@@ -26,6 +26,7 @@ DESTDIR="/var/www/$app"
 
 # Retrieve arguments
 domain=$(ynh_app_setting_get "$app" domain)
+
 path_url=$(ynh_app_setting_get "$app" path_url)
 # Compatibility with previous version
 if [ -z "$path_url" ] ; then
@@ -33,34 +34,43 @@ if [ -z "$path_url" ] ; then
   ynh_app_setting_set $app path_url "$path_url"
 fi
 path_url=$(ynh_normalize_url_path $path_url)
+
 final_path=$(ynh_app_setting_get "$app" final_path)
 # Compatibility with previous version
 if [ -z "$final_path" ] ; then
   final_path="/var/www/$app"
   ynh_app_setting_set $app final_path "$final_path"
 fi
+
 db_name=$(ynh_app_setting_get "$app" db_name)
 # Compatibility with previous version
 if [ -z "$db_name" ] ; then
   db_name=$app
   ynh_app_setting_set "$app" db_name "$db_name"
 fi
+
 db_user="$db_name"
 db_pwd=$(ynh_app_setting_get "$app" mysqlpwd)
 admin=$(ynh_app_setting_get "$app" admin)
+
 admin_pwd=$(ynh_app_setting_get "$app" admin_pwd)
-# Compatibility with previous version; password not set
+# Compatibility with previous version; password was not set
 if [ -z "$admin_pwd" ] ; then
   # Generate a new password
   admin_pwd=$(dd if=/dev/urandom bs=1 count=200 2> /dev/null | tr -c -d 'A-Za-z0-9' | sed -n 's/\(.\{24\}\).*/\1/p')
+  
   # Compute password hash with the Piwigo function
   cp ../conf/hash_password.php $final_path
   hashed_password=$(cd $final_path ; php hash_password.php $admin_pwd)
+  
   # Update password hash in database
   ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "UPDATE users SET password='$hashed_password' WHERE username='$admin';"
   ynh_app_setting_set $app admin_pwd "$admin_pwd"
+  
+  # Remove the temporary hash generation script
   ynh_secure_remove "$final_path/hash_password.php"
 fi
+
 language=$(ynh_app_setting_get "$app" language)
 if [ "$language" = "fr" ] ; then
   applanguage="fr_FR"
@@ -68,9 +78,8 @@ else
   applanguage="en_UK"
 fi
 
-
-
 is_public=$(ynh_app_setting_get "$app" is_public)
+
 #=================================================
 # MANAGE SCRIPT FAILURE
 #=================================================
@@ -117,7 +126,7 @@ chown -R $app: /home/yunohost.app/$app
 chmod 755 -R $final_path/galleries
 
 #=================================================
-# NGINX CONFIGURATION
+# NGINX AND PHP-FPM CONFIGURATION
 #=================================================
 
 ynh_add_nginx_config
@@ -125,6 +134,10 @@ ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 # Copy and set php-fpm configuration
 ynh_add_fpm_config
+
+#=================================================
+# CONFIGURE PIWIGO
+#=================================================
 
 # Set permissions and reload nginx (needed at this stage for the PHP piwigo installation process)
 systemctl reload nginx
@@ -153,6 +166,10 @@ ynh_replace_string "PASSTOCHANGE" "$db_pwd" ../conf/database.inc.php
 cp ../conf/database.inc.php $final_path/local/config/database.inc.php
 # Calculate and store the database config file checksum
 ynh_store_file_checksum "$final_path/local/config/database.inc.php"
+
+#=================================================
+# ADD LDAP & FAIL2BAN PLUGINS
+#=================================================
 
 # Activate ldap plugin
 ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "UPDATE plugins SET state='active' WHERE id='Ldap_Login';"
