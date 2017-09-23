@@ -63,6 +63,10 @@ ynh_app_setting_set $app language "$language"
 #=================================================
 # STANDARD MODIFICATIONS
 #=================================================
+# INSTALL DEPENDENCIES
+#=================================================
+
+ynh_install_app_dependencies "$pkg_dependencies"
 
 #=================================================
 # CREATE A MYSQL DB
