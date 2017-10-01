@@ -57,7 +57,7 @@ admin_pwd=$(ynh_app_setting_get "$app" admin_pwd)
 # Compatibility with previous version; password was not set
 if [ -z "$admin_pwd" ] ; then
   # Generate a new password
-  admin_pwd=$(dd if=/dev/urandom bs=1 count=200 2> /dev/null | tr -c -d 'A-Za-z0-9' | sed -n 's/\(.\{24\}\).*/\1/p')
+  admin_pwd=$(ynh_string_random 24)
   
   # Compute password hash with the Piwigo function
   cp ../conf/hash_password.php $final_path
@@ -122,14 +122,34 @@ ynh_system_user_create $app # Create dedicated user if not existing
 # SPECIFIC SETUP
 #=================================================
 
-# Install files and set permissions
-cp -a $TMPDIR/!(upload|galleries) $final_path
+# We store photos (potentially large data) on /home/yunohost.app
+datapath=/home/yunohost.app/$app
 
-cp -a $TMPDIR/galleries/* $final_path/galleries/
+# Backward compatibility:
+# If the galleries subdirectory was moved,
+# remove the link and overwrite it
+# (this directory always includes only a single index.php file...)
+if [ -h $final_path/galleries ] ; then
+  rm -f $final_path/galleries # only a symbolic link, ynh_secure_remove can't handle that
+  ynh_secure_remove $datapath/galleries
+fi
+
+# Install files and set permissions
+cp -a $TMPDIR/!(upload|_data) $final_path
+
+
+# Backward compatibility:
+# If the _data subdirectory wasn't already moved to /home/yunohost.app/$app,
+# then move it there
+if [ ! -h $final_path/_data ] ; then
+  mv $final_path/_data $datapath
+  ln -sd $datapath/_data $final_path/_data
+fi
+
 
 chown -R $app: $final_path
-chown -R $app: /home/yunohost.app/$app
-chmod 755 -R $final_path/galleries
+chown -R $app: $datapath
+chmod 755 -R $final_path/_data
 
 #=================================================
 # NGINX AND PHP-FPM CONFIGURATION

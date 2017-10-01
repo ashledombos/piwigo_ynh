@@ -104,20 +104,18 @@ ynh_system_user_create $app	# Create a dedicated system user
 
 # Install files and set permissions
 mkdir $final_path
-cp -a $TMPDIR/!(upload|galleries) $final_path
+cp -a $TMPDIR/!(upload|_data) $final_path
 
 datapath=/home/yunohost.app/$app
-mkdir -p $datapath
-mkdir -p $datapath/galleries
+mkdir -p $datapath/_data
 mkdir -p $datapath/upload
 
-ln -sd $datapath/galleries $final_path/galleries
-cp -a $TMPDIR/galleries/* $final_path/galleries/
+ln -sd $datapath/_data $final_path/_data
 ln -sd $datapath/upload $final_path/upload
 
 chown -R $app: $final_path
 chown -R $app: $datapath
-chmod 755 -R $final_path/galleries
+chmod 755 -R $final_path/_data
 
 #=================================================
 # NGINX AND PHP-FPM CONFIGURATION
