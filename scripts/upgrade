@@ -169,7 +169,6 @@ ynh_app_setting_set "$app" unprotected_uris "/"
 yunohost app ssowatconf
 
 # Configure piwigo via curl
-sleep 5s
 ynh_local_curl "/upgrade.php?language=$applanguage&now=true" "language=$applanguage" "username=$admin" "password=$admin_pwd"
 
 # Make a backup of the original config file if modified

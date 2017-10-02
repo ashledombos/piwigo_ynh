@@ -140,7 +140,6 @@ adm_pwd=$(ynh_string_random 24)
 ynh_app_setting_set $app admin_pwd "$adm_pwd"
 
 # Configure piwigo via curl
-sleep 5s
 mail="$(ynh_user_get_info $admin mail)"
 ynh_local_curl "/install.php?language=$applanguage" "install=true" "dbuser=$db_user" "dbpasswd=$db_pwd" "dbname=$db_name" "admin_name=$admin" "admin_pass1=$adm_pwd" "admin_pass2=$adm_pwd" "admin_mail=$mail"
 
