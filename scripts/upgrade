@@ -26,6 +26,7 @@ DESTDIR="/var/www/$app"
 
 # Retrieve arguments
 domain=$(ynh_app_setting_get "$app" domain)
+
 path_url=$(ynh_app_setting_get "$app" path_url)
 # Compatibility with previous version
 if [ -z "$path_url" ] ; then
@@ -33,34 +34,43 @@ if [ -z "$path_url" ] ; then
   ynh_app_setting_set $app path_url "$path_url"
 fi
 path_url=$(ynh_normalize_url_path $path_url)
+
 final_path=$(ynh_app_setting_get "$app" final_path)
 # Compatibility with previous version
 if [ -z "$final_path" ] ; then
   final_path="/var/www/$app"
   ynh_app_setting_set $app final_path "$final_path"
 fi
+
 db_name=$(ynh_app_setting_get "$app" db_name)
 # Compatibility with previous version
 if [ -z "$db_name" ] ; then
   db_name=$app
   ynh_app_setting_set "$app" db_name "$db_name"
 fi
+
 db_user="$db_name"
 db_pwd=$(ynh_app_setting_get "$app" mysqlpwd)
 admin=$(ynh_app_setting_get "$app" admin)
+
 admin_pwd=$(ynh_app_setting_get "$app" admin_pwd)
-# Compatibility with previous version; password not set
+# Compatibility with previous version; password was not set
 if [ -z "$admin_pwd" ] ; then
   # Generate a new password
-  admin_pwd=$(dd if=/dev/urandom bs=1 count=200 2> /dev/null | tr -c -d 'A-Za-z0-9' | sed -n 's/\(.\{24\}\).*/\1/p')
+  admin_pwd=$(ynh_string_random 24)
+  
   # Compute password hash with the Piwigo function
   cp ../conf/hash_password.php $final_path
   hashed_password=$(cd $final_path ; php hash_password.php $admin_pwd)
+  
   # Update password hash in database
   ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "UPDATE users SET password='$hashed_password' WHERE username='$admin';"
   ynh_app_setting_set $app admin_pwd "$admin_pwd"
+  
+  # Remove the temporary hash generation script
   ynh_secure_remove "$final_path/hash_password.php"
 fi
+
 language=$(ynh_app_setting_get "$app" language)
 if [ "$language" = "fr" ] ; then
   applanguage="fr_FR"
@@ -68,9 +78,8 @@ else
   applanguage="en_UK"
 fi
 
-
-
 is_public=$(ynh_app_setting_get "$app" is_public)
+
 #=================================================
 # MANAGE SCRIPT FAILURE
 #=================================================
@@ -80,10 +89,16 @@ is_public=$(ynh_app_setting_get "$app" is_public)
 if [ -f "/etc/yunohost/apps/$app/scripts/backup" ] ; then
   ynh_backup_before_upgrade # Backup the current version of the app
   ynh_clean_setup () {
-      ynh_backup_after_failed_upgrade
+      ynh_restore_upgradebackup
   }
   ynh_abort_if_errors	# Stop script if an error is detected
 fi
+
+#=================================================
+# INSTALL DEPENDENCIES
+#=================================================
+
+ynh_install_app_dependencies "$pkg_dependencies"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -107,17 +122,37 @@ ynh_system_user_create $app # Create dedicated user if not existing
 # SPECIFIC SETUP
 #=================================================
 
-# Install files and set permissions
-cp -a $TMPDIR/!(upload|galleries) $final_path
+# We store photos (potentially large data) on /home/yunohost.app
+datapath=/home/yunohost.app/$app
 
-cp -a $TMPDIR/galleries/* $final_path/galleries/
+# Backward compatibility:
+# If the galleries subdirectory was moved,
+# remove the link and overwrite it
+# (this directory always includes only a single index.php file...)
+if [ -h $final_path/galleries ] ; then
+  rm -f $final_path/galleries # only a symbolic link, ynh_secure_remove can't handle that
+  ynh_secure_remove $datapath/galleries
+fi
+
+# Install files and set permissions
+cp -a $TMPDIR/!(upload|_data) $final_path
+
+
+# Backward compatibility:
+# If the _data subdirectory wasn't already moved to /home/yunohost.app/$app,
+# then move it there
+if [ ! -h $final_path/_data ] ; then
+  mv $final_path/_data $datapath
+  ln -sd $datapath/_data $final_path/_data
+fi
+
 
 chown -R $app: $final_path
-chown -R $app: /home/yunohost.app/$app
-chmod 755 -R $final_path/galleries
+chown -R $app: $datapath
+chmod 755 -R $final_path/_data
 
 #=================================================
-# NGINX CONFIGURATION
+# NGINX AND PHP-FPM CONFIGURATION
 #=================================================
 
 ynh_add_nginx_config
@@ -126,15 +161,14 @@ ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
 # Copy and set php-fpm configuration
 ynh_add_fpm_config
 
-# Set permissions and reload nginx (needed at this stage for the PHP piwigo installation process)
-systemctl reload nginx
-sleep 5s
-systemctl reload php5-fpm
+#=================================================
+# CONFIGURE PIWIGO
+#=================================================
+
 ynh_app_setting_set "$app" unprotected_uris "/"
 yunohost app ssowatconf
 
 # Configure piwigo via curl
-sleep 5s
 ynh_local_curl "/upgrade.php?language=$applanguage&now=true" "language=$applanguage" "username=$admin" "password=$admin_pwd"
 
 # Make a backup of the original config file if modified
@@ -153,6 +187,10 @@ ynh_replace_string "PASSTOCHANGE" "$db_pwd" ../conf/database.inc.php
 cp ../conf/database.inc.php $final_path/local/config/database.inc.php
 # Calculate and store the database config file checksum
 ynh_store_file_checksum "$final_path/local/config/database.inc.php"
+
+#=================================================
+# ADD LDAP & FAIL2BAN PLUGINS
+#=================================================
 
 # Activate ldap plugin
 ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "UPDATE plugins SET state='active' WHERE id='Ldap_Login';"

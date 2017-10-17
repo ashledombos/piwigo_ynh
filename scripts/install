@@ -63,6 +63,10 @@ ynh_app_setting_set $app language "$language"
 #=================================================
 # STANDARD MODIFICATIONS
 #=================================================
+# INSTALL DEPENDENCIES
+#=================================================
+
+ynh_install_app_dependencies "$pkg_dependencies"
 
 #=================================================
 # CREATE A MYSQL DB
@@ -100,23 +104,21 @@ ynh_system_user_create $app	# Create a dedicated system user
 
 # Install files and set permissions
 mkdir $final_path
-cp -a $TMPDIR/!(upload|galleries) $final_path
+cp -a $TMPDIR/!(upload|_data) $final_path
 
 datapath=/home/yunohost.app/$app
-mkdir -p $datapath
-mkdir -p $datapath/galleries
+mkdir -p $datapath/_data
 mkdir -p $datapath/upload
 
-ln -sd $datapath/galleries $final_path/galleries
-cp -a $TMPDIR/galleries/* $final_path/galleries/
+ln -sd $datapath/_data $final_path/_data
 ln -sd $datapath/upload $final_path/upload
 
 chown -R $app: $final_path
 chown -R $app: $datapath
-chmod 755 -R $final_path/galleries
+chmod 755 -R $final_path/_data
 
 #=================================================
-# NGINX CONFIGURATION
+# NGINX AND PHP-FPM CONFIGURATION
 #=================================================
 
 ynh_add_nginx_config
@@ -125,10 +127,10 @@ ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
 # Copy and set php-fpm configuration
 ynh_add_fpm_config
 
-# Set permissions and reload nginx (needed at this stage for the PHP piwigo installation process)
-systemctl reload nginx
-sleep 5s
-systemctl reload php5-fpm
+#=================================================
+# CONFIGURE PIWIGO
+#=================================================
+
 ynh_app_setting_set "$app" unprotected_uris "/"
 yunohost app ssowatconf
 
@@ -138,7 +140,6 @@ adm_pwd=$(ynh_string_random 24)
 ynh_app_setting_set $app admin_pwd "$adm_pwd"
 
 # Configure piwigo via curl
-sleep 5s
 mail="$(ynh_user_get_info $admin mail)"
 ynh_local_curl "/install.php?language=$applanguage" "install=true" "dbuser=$db_user" "dbpasswd=$db_pwd" "dbname=$db_name" "admin_name=$admin" "admin_pass1=$adm_pwd" "admin_pass2=$adm_pwd" "admin_mail=$mail"
 
@@ -154,6 +155,10 @@ ynh_replace_string "PASSTOCHANGE" "$db_pwd" ../conf/database.inc.php
 cp ../conf/database.inc.php $final_path/local/config/database.inc.php
 # Calculate and store the database config file checksum
 ynh_store_file_checksum "$final_path/local/config/database.inc.php"
+
+#=================================================
+# ADD LDAP & FAIL2BAN PLUGINS
+#=================================================
 
 # Activate LDAP plugin
 ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "INSERT INTO plugins (id,state,version) VALUES ('Ldap_Login','active','1.1');"

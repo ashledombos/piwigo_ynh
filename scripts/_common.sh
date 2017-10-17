@@ -3,6 +3,8 @@
 # Common variables
 #
 
+pkg_dependencies="php5-gd"
+
 # ============= FUTURE YUNOHOST HELPERS =============
 
 # Create a dedicated fail2ban config (jail and filter conf files)

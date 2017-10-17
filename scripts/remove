@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Treat unset variables as an error
-set -u
 #=================================================
 # GENERIC STARTING
 #=================================================
@@ -24,6 +22,11 @@ domain=$(ynh_app_setting_get "$app" domain)
 #=================================================
 # STANDARD REMOVE
 #=================================================
+# REMOVE DEPENDENCIES
+#=================================================
+
+# Remove metapackage and its dependencies
+ynh_remove_app_dependencies
 
 #=================================================
 # REMOVE THE MYSQL DB
@@ -36,7 +39,6 @@ ynh_mysql_remove_db "$app" "$db_name"
 #=================================================
 
 ynh_secure_remove "/var/www/$app"
-ynh_secure_remove "/home/yunohost.app/$app"
 
 #=================================================
 # REMOVE FAIL2BAN CONFIGURATION
@@ -50,10 +52,6 @@ ynh_remove_fail2ban_config
 
 ynh_remove_fpm_config
 ynh_remove_nginx_config
-
-# Reload services
-systemctl restart php5-fpm
-systemctl reload nginx
 
 #=================================================
 # REMOVE DEDICATED USER
