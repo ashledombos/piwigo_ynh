@@ -19,9 +19,9 @@ source /usr/share/yunohost/helpers
 app=$YNH_APP_INSTANCE_NAME
 
 # Check destination directory
-DESTDIR="/var/www/$app"
-[[ ! -d $DESTDIR ]] && ynh_die \
-"The destination directory '$DESTDIR' does not exist.\
+destdir="/var/www/$app"
+[[ ! -d $destdir ]] && ynh_die \
+"The destination directory '$destdir' does not exist.\
  The app is not correctly installed, you should remove it first."
 
 # Retrieve arguments
@@ -105,12 +105,12 @@ ynh_install_app_dependencies "$pkg_dependencies"
 #=================================================
 
 # Create tmp directory and fetch app inside
-TMPDIR=$(ynh_mkdir_tmp)
-ynh_setup_source "$TMPDIR"
+tmpdir=$(ynh_mkdir_tmp)
+ynh_setup_source "$tmpdir"
 # Fetch needed plugins
-mkdir -p $TMPDIR/plugins/Ldap_Login
-ynh_setup_source "$TMPDIR/plugins/Ldap_Login" ldap_plugin
-ynh_setup_source "$TMPDIR/plugins" log_failed_logins_plugin
+mkdir -p $tmpdir/plugins/Ldap_Login
+ynh_setup_source "$tmpdir/plugins/Ldap_Login" ldap_plugin
+ynh_setup_source "$tmpdir/plugins" log_failed_logins_plugin
 
 #=================================================
 # CREATE DEDICATED USER
@@ -135,7 +135,7 @@ if [ -h $final_path/galleries ] ; then
 fi
 
 # Install files and set permissions
-cp -a $TMPDIR/!(upload|_data) $final_path
+cp -a $tmpdir/!(upload|_data) $final_path
 
 
 # Backward compatibility:
@@ -214,5 +214,4 @@ fi
 #=================================================
 # RELOAD NGINX
 #=================================================
-systemctl restart php5-fpm
 systemctl reload nginx

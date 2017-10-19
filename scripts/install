@@ -85,12 +85,12 @@ ynh_mysql_setup_db "$db_user" "$db_name"
 
 ynh_app_setting_set $app final_path "$final_path"
 # Create tmp directory and fetch app inside
-TMPDIR=$(mktemp -d)
-ynh_setup_source "$TMPDIR"
+tmpdir=$(mktemp -d)
+ynh_setup_source "$tmpdir"
 # Fetch needed plugins
-mkdir -p $TMPDIR/plugins/Ldap_Login
-ynh_setup_source "$TMPDIR/plugins/Ldap_Login" ldap_plugin
-ynh_setup_source "$TMPDIR/plugins" log_failed_logins_plugin
+mkdir -p $tmpdir/plugins/Ldap_Login
+ynh_setup_source "$tmpdir/plugins/Ldap_Login" ldap_plugin
+ynh_setup_source "$tmpdir/plugins" log_failed_logins_plugin
 
 #=================================================
 # CREATE DEDICATED USER
@@ -104,7 +104,7 @@ ynh_system_user_create $app	# Create a dedicated system user
 
 # Install files and set permissions
 mkdir $final_path
-cp -a $TMPDIR/!(upload|_data) $final_path
+cp -a $tmpdir/!(upload|_data) $final_path
 
 datapath=/home/yunohost.app/$app
 mkdir -p $datapath/_data
@@ -122,7 +122,6 @@ chmod 755 -R $final_path/_data
 #=================================================
 
 ynh_add_nginx_config
-ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 # Copy and set php-fpm configuration
 ynh_add_fpm_config
