@@ -192,8 +192,9 @@ ynh_store_file_checksum "$final_path/local/config/database.inc.php"
 # ADD LDAP & FAIL2BAN PLUGINS
 #=================================================
 
-# Activate ldap plugin
+# Configure and activate LDAP plugin
 ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "UPDATE plugins SET state='active' WHERE id='Ldap_Login';"
+cp ../conf/data.dat $final_path/plugins/Ldap_Login
 
 # Configure and activate log_failed_logins plugin
 ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "INSERT INTO plugins (id,state,version) VALUES ('log_failed_logins','active','1.2');" 2>&1 > /dev/null ||ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "UPDATE plugins SET state='active' WHERE id='log_failed_logins';"
