@@ -54,9 +54,15 @@ ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 ynh_restore_file "$final_path"
 # Restore data directory if backed-up
-if [ -d "$YNH_BACKUP_DIR/data" ] ; then
+if [ -d "$YNH_BACKUP_DIR/apps/${app}/backup/home/yunohost.app/${app}" ] ; then
   ynh_restore_file "/home/yunohost.app/${app}"
+else
+  # Create app folders
+  mkdir /home/yunohost.app/${app}/_data /home/yunohost.app/${app}/upload
 fi
+# Remove the option backup_core_only if it's in the settings.yml file
+ynh_app_setting_delete $app backup_core_only
+
 #=================================================
 # RESTORE MYSQL DB
 #=================================================
@@ -76,6 +82,7 @@ ynh_system_user_create $app	# Recreate the dedicated user, if not existing
 #=================================================
 
 chown -R $app: $final_path
+chown -R $app: /home/yunohost.app/${app}
 
 #=================================================
 # RESTORE FAIL2BAN CONFIGURATION
@@ -89,6 +96,7 @@ systemctl restart fail2ban
 #=================================================
 
 ynh_restore_file /etc/php5/fpm/pool.d/$app.conf
+ynh_restore_file "/etc/php5/fpm/conf.d/20-$app.ini"
 
 #=================================================
 # GENERIC FINALIZATION
