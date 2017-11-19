@@ -1,5 +1,5 @@
-SOURCE_URL=http://piwigo.org/ext/download.php?rid=4849
-SOURCE_SUM=523c532b9fec1328510bdb12f6ffd2af4f134a33b86b22cf6fc4c7eaebb6e954
+SOURCE_URL=https://gitlab.lindenaar.net/piwigo/Ldap_Login/repository/archive.zip?ref=master
+SOURCE_SUM=e33b35deb7fc2f23a185fc278c7f2208dedde2153d23f710579c4bdd23ef1b36
 SOURCE_FORMAT=zip
 SOURCE_IN_SUBDIR=true
 
