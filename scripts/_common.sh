@@ -3,7 +3,7 @@
 # Common variables
 #
 
-pkg_dependencies="php5-gd"
+pkg_dependencies="php5-gd php5-imagick imagemagick"
 
 # ============= FUTURE YUNOHOST HELPERS =============
 
