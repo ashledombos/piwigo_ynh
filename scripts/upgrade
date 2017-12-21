@@ -87,6 +87,9 @@ is_public=$(ynh_app_setting_get "$app" is_public)
 # Use prior backup and restore on error only if backup feature
 # exists on installed instance
 if [ -f "/etc/yunohost/apps/$app/scripts/backup" ] ; then
+  # Notify the backup process that it should not save the data directory
+  ynh_app_setting_set $app backup_core_only 1
+  
   ynh_backup_before_upgrade # Backup the current version of the app
   ynh_clean_setup () {
       ynh_restore_upgradebackup
