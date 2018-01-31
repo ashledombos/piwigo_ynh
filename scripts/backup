@@ -42,7 +42,7 @@ ynh_backup "$final_path"
 backup_core_only=$(ynh_app_setting_get "$app" backup_core_only)
 if [ -z $backup_core_only ]	# If backup_core_only setting set, don't backup data directory
 then
-  ynh_backup /home/yunohost.app/${app}
+  ynh_backup /home/yunohost.app/${app}/upload
 else
   echo "Data dir won't be saved, because backup_core_only is set." >&2
   # Remove the option so that next regular backup will be complete
