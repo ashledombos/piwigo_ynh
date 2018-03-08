@@ -89,6 +89,10 @@ chown -R $app: /home/yunohost.app/${app}
 #=================================================
 ynh_restore_file "/etc/fail2ban/jail.d/$app.conf"
 ynh_restore_file "/etc/fail2ban/filter.d/$app.conf"
+
+touch "/var/log/${app}FailedLogins.log"
+chown $app: "/var/log/${app}FailedLogins.log"
+
 systemctl restart fail2ban
 
 #=================================================
