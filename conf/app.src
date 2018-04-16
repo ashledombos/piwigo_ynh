@@ -1,4 +1,3 @@
-SOURCE_URL=http://piwigo.org/download/dlcounter.php?code=2.9.2
-SOURCE_SUM=344937dd1685efb41c1aa7301497aea0fb84707a6a9809eca9efb390d4eadb4a
+SOURCE_URL=http://piwigo.org/download/dlcounter.php?code=2.9.3
+SOURCE_SUM=4022a743ddc0555f8d4f114ec3c3aa439eec44659cbf0d1564d0e3cc2ff30426
 SOURCE_FORMAT=zip
-
