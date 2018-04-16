@@ -54,12 +54,14 @@ ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 ynh_restore_file "$final_path"
 # Restore data directory if backed-up
-if [ -d "$YNH_BACKUP_DIR/apps/${app}/backup/home/yunohost.app/${app}" ] ; then
-  ynh_restore_file "/home/yunohost.app/${app}"
+if [ -d "$YNH_BACKUP_DIR/apps/${app}/backup/home/yunohost.app/${app}/upload" ] ; then
+  ynh_restore_file "/home/yunohost.app/${app}/upload"
 else
-  # Create app folders
-  mkdir /home/yunohost.app/${app}/_data /home/yunohost.app/${app}/upload
+  # Create app data folder
+  mkdir /home/yunohost.app/${app}/upload
 fi
+# Create temporary data folder
+mkdir -p /home/yunohost.app/${app}/_data
 # Remove the option backup_core_only if it's in the settings.yml file
 ynh_app_setting_delete $app backup_core_only
 
