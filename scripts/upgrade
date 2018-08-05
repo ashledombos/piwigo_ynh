@@ -128,17 +128,8 @@ ynh_system_user_create $app # Create dedicated user if not existing
 # We store photos (potentially large data) on /home/yunohost.app
 datapath=/home/yunohost.app/$app
 
-# Backward compatibility:
-# If the galleries subdirectory was moved,
-# remove the link and overwrite it
-# (this directory always includes only a single index.php file...)
-if [ -h $final_path/galleries ] ; then
-  rm -f $final_path/galleries # only a symbolic link, ynh_secure_remove can't handle that
-  ynh_secure_remove $datapath/galleries
-fi
-
 # Install files and set permissions
-cp -a $tmpdir/!(upload|_data) $final_path
+cp -a $tmpdir/!(upload|_data|galleries) $final_path
 
 
 # Backward compatibility:
@@ -149,6 +140,13 @@ if [ ! -h $final_path/_data ] ; then
   ln -sd $datapath/_data $final_path/_data
 fi
 
+# Backward compatibility:
+# If the galleries subdirectory wasn't already moved to /home/yunohost.app/$app,
+# then move it there
+if [ ! -h $final_path/galleries ] ; then
+  mv $final_path/galleries $datapath
+  ln -sd $datapath/galleries $final_path/galleries
+fi
 
 chown -R $app: $final_path
 chown -R $app: $datapath
