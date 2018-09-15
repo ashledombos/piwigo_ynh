@@ -104,14 +104,20 @@ ynh_system_user_create $app	# Create a dedicated system user
 
 # Install files and set permissions
 mkdir $final_path
-cp -a $tmpdir/!(upload|_data) $final_path
+cp -a $tmpdir/!(upload|_data|galleries) $final_path
 
 datapath=/home/yunohost.app/$app
 mkdir -p $datapath/_data
 mkdir -p $datapath/upload
+mkdir -p $datapath/galleries
 
 ln -sd $datapath/_data $final_path/_data
 ln -sd $datapath/upload $final_path/upload
+ln -sd $datapath/galleries $final_path/galleries
+
+cp -Rp $tmpdir/_data/. $final_path/_data
+cp -Rp $tmpdir/upload/. $final_path/upload
+cp -Rp $tmpdir/galleries/. $final_path/galleries
 
 chown -R $app: $final_path
 chown -R $app: $datapath
