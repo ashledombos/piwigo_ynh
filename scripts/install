@@ -31,6 +31,7 @@ app=$YNH_APP_INSTANCE_NAME
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
 #=================================================
+ynh_print_info "Validating installation parameters..."
 
 final_path=/var/www/$app
 test ! -e "$final_path" || ynh_die "This path already contains a folder"
@@ -44,6 +45,7 @@ ynh_webpath_register $app $domain $path_url
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
+ynh_print_info "Storing installation settings..."
 
 ynh_app_setting_set $app domain $domain
 ynh_app_setting_set $app path $path_url
@@ -56,12 +58,14 @@ ynh_app_setting_set $app language $language
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
+ynh_print_info "Installing dependencies..."
 
 ynh_install_app_dependencies "$pkg_dependencies"
 
 #=================================================
 # CREATE A MYSQL DB
 #=================================================
+ynh_print_info "Creating a MySQL database..."
 
 db_name=$(ynh_sanitize_dbid $app)
 ynh_app_setting_set $app db_name $db_name
@@ -70,6 +74,7 @@ ynh_mysql_setup_db $db_name $db_name
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
+ynh_print_info "Setting up source files..."
 
 ynh_app_setting_set $app final_path $final_path
 
@@ -85,6 +90,7 @@ ynh_setup_source "$tmpdir/plugins" log_failed_logins_plugin
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
+ynh_print_info "Configuring system user..."
 
 # Create a system user
 ynh_system_user_create $app
@@ -92,6 +98,7 @@ ynh_system_user_create $app
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
+ynh_print_info "Configuring nginx web server..."
 
 # Create a dedicated nginx config
 ynh_add_nginx_config
@@ -131,6 +138,7 @@ ynh_secure_remove "$tmpdir"
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
+ynh_print_info "Configuring php-fpm..."
 
 # Create a dedicated php-fpm config
 ynh_add_fpm_config
@@ -138,6 +146,7 @@ ynh_add_fpm_config
 #=================================================
 # SETUP APPLICATION WITH CURL
 #=================================================
+ynh_print_info "Installing piwigo with Curl..."
 
 ynh_app_setting_set $app unprotected_uris "/"
 # Reload SSOwat config
@@ -165,6 +174,7 @@ ynh_local_curl "/install.php?language=$applanguage" "install=true" "dbuser=$db_n
 #=================================================
 # CONFIGURE PIWIGO
 #=================================================
+ynh_print_info "Configuring piwigo..."
 
 # Change local config
 cp ../conf/config.inc.php $final_path/local/config/
@@ -185,6 +195,7 @@ ynh_store_file_checksum "$final_path/local/config/database.inc.php"
 #=================================================
 # ADD LDAP PLUGINS
 #=================================================
+ynh_print_info "Configuring LDAP plugin..."
 
 # Configure and activate LDAP plugin
 ynh_mysql_connect_as $db_name $db_pwd $db_name <<< "INSERT INTO plugins (id,state,version) VALUES ('Ldap_Login','active','1.1');"
@@ -193,6 +204,7 @@ cp ../conf/data.dat $final_path/plugins/Ldap_Login
 #=================================================
 # CONFIGURE FAIL2BAN
 #=================================================
+ynh_print_info "Configuring fail2ban..."
 
 # Configure and activate log_failed_logins plugin
 ynh_mysql_connect_as $db_name $db_pwd $db_name <<< "INSERT INTO plugins (id,state,version) VALUES ('log_failed_logins','active','1.2');"
@@ -208,6 +220,7 @@ ynh_add_fail2ban_config --logpath="/var/log/${app}FailedLogins.log" --failregex=
 #=================================================
 # SETUP SSOWAT
 #=================================================
+ynh_print_info "Configuring SSOwat..."
 
 # Protect URIs if private
 if [ $is_public -eq 0 ]
@@ -219,6 +232,12 @@ fi
 #=================================================
 # RELOAD NGINX
 #=================================================
+ynh_print_info "Reloading nginx web server..."
 
 systemctl reload nginx
 
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Installation of $app completed"
