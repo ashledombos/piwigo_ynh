@@ -93,7 +93,6 @@ path_url=$(ynh_normalize_url_path $path_url)
 #=================================================
 
 # Create tmp directory and fetch app inside
-tmpdir=$(ynh_mkdir_tmp)
 tmpdir="$(ynh_smart_mktemp --min_size=300)"
 ynh_setup_source "$tmpdir"
 
