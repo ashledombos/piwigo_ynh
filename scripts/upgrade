@@ -1,8 +1,5 @@
 #!/bin/bash
-shopt -s extglob  # sets extended pattern matching options in the bash shell
 
-# Exit on command errors and treat unset variables as an error
-set -eu
 #=================================================
 # GENERIC STARTING
 #=================================================
@@ -15,122 +12,136 @@ source /usr/share/yunohost/helpers
 #=================================================
 # LOAD SETTINGS
 #=================================================
-# Set app specific variables
+
 app=$YNH_APP_INSTANCE_NAME
 
-# Check destination directory
-destdir="/var/www/$app"
-[[ ! -d $destdir ]] && ynh_die \
-"The destination directory '$destdir' does not exist.\
- The app is not correctly installed, you should remove it first."
+domain=$(ynh_app_setting_get $app domain)
+path_url=$(ynh_app_setting_get $app path)
+admin=$(ynh_app_setting_get $app admin)
+is_public=$(ynh_app_setting_get $app is_public)
+final_path=$(ynh_app_setting_get $app final_path)
+language=$(ynh_app_setting_get $app language)
+db_name=$(ynh_app_setting_get $app db_name)
+admin_pwd=$(ynh_app_setting_get $app admin_pwd)
 
-# Retrieve arguments
-domain=$(ynh_app_setting_get "$app" domain)
+#=================================================
+# ENSURE DOWNWARD COMPATIBILITY
+#=================================================
 
-path_url=$(ynh_app_setting_get "$app" path_url)
-# Compatibility with previous version
-if [ -z "$path_url" ] ; then
-  path_url=$(ynh_app_setting_get "$app" path)
-  ynh_app_setting_set $app path_url "$path_url"
-fi
-path_url=$(ynh_normalize_url_path $path_url)
-
-final_path=$(ynh_app_setting_get "$app" final_path)
-# Compatibility with previous version
-if [ -z "$final_path" ] ; then
-  final_path="/var/www/$app"
-  ynh_app_setting_set $app final_path "$final_path"
+# If db_name doesn't exist, create it
+if [ -z $db_name ]; then
+	db_name=$(ynh_sanitize_dbid $app)
+	ynh_app_setting_set $app db_name $db_name
 fi
 
-db_name=$(ynh_app_setting_get "$app" db_name)
-# Compatibility with previous version
-if [ -z "$db_name" ] ; then
-  db_name=$app
-  ynh_app_setting_set "$app" db_name "$db_name"
+# If final_path doesn't exist, create it
+if [ -z $final_path ]; then
+	final_path=/var/www/$app
+	ynh_app_setting_set $app final_path $final_path
 fi
 
-db_user="$db_name"
-db_pwd=$(ynh_app_setting_get "$app" mysqlpwd)
-admin=$(ynh_app_setting_get "$app" admin)
-
-admin_pwd=$(ynh_app_setting_get "$app" admin_pwd)
 # Compatibility with previous version; password was not set
 if [ -z "$admin_pwd" ] ; then
   # Generate a new password
   admin_pwd=$(ynh_string_random 24)
-  
+
   # Compute password hash with the Piwigo function
   cp ../conf/hash_password.php $final_path
   hashed_password=$(cd $final_path ; php hash_password.php $admin_pwd)
-  
+
   # Update password hash in database
-  ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "UPDATE users SET password='$hashed_password' WHERE username='$admin';"
+  db_pwd=$(ynh_app_setting_get $app mysqlpwd)
+  ynh_mysql_connect_as $db_name $db_pwd $db_name <<< "UPDATE users SET password='$hashed_password' WHERE username='$admin';"
   ynh_app_setting_set $app admin_pwd "$admin_pwd"
-  
+
   # Remove the temporary hash generation script
   ynh_secure_remove "$final_path/hash_password.php"
 fi
 
-language=$(ynh_app_setting_get "$app" language)
-if [ "$language" = "fr" ] ; then
-  applanguage="fr_FR"
-else
-  applanguage="en_UK"
-fi
-
-is_public=$(ynh_app_setting_get "$app" is_public)
-
-#=================================================
-# MANAGE SCRIPT FAILURE
-#=================================================
-
-# Use prior backup and restore on error only if backup feature
-# exists on installed instance
-if [ -f "/etc/yunohost/apps/$app/scripts/backup" ] ; then
-  # Notify the backup process that it should not save the data directory
-  ynh_app_setting_set $app backup_core_only 1
-  
-  ynh_backup_before_upgrade # Backup the current version of the app
-  ynh_clean_setup () {
-      ynh_restore_upgradebackup
-  }
-  ynh_abort_if_errors	# Stop script if an error is detected
+# Use path instead of path_url in settings.yml...
+if [ -z "$path_url" ]
+then
+	path_url=$(ynh_app_setting_get $app path_url)
+	ynh_app_setting_set $app path $path_url
+	ynh_app_setting_delete $app path_url
 fi
 
 #=================================================
-# INSTALL DEPENDENCIES
+# BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
 
-ynh_install_app_dependencies "$pkg_dependencies"
+# Backup the current version of the app
+ynh_backup_before_upgrade
+ynh_clean_setup () {
+	# restore it if the upgrade fails
+	ynh_restore_upgradebackup
+}
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
 
+#=================================================
+# CHECK THE PATH
+#=================================================
+
+# Normalize the URL path syntax
+path_url=$(ynh_normalize_url_path $path_url)
+
+#=================================================
+# STANDARD UPGRADE STEPS
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 
 # Create tmp directory and fetch app inside
 tmpdir=$(ynh_mkdir_tmp)
+tmpdir="$(ynh_smart_mktemp --min_size=300)"
 ynh_setup_source "$tmpdir"
+
 # Fetch needed plugins
 mkdir -p $tmpdir/plugins/Ldap_Login
 ynh_setup_source "$tmpdir/plugins/Ldap_Login" ldap_plugin
 ynh_setup_source "$tmpdir/plugins" log_failed_logins_plugin
 
 #=================================================
+# NGINX CONFIGURATION
+#=================================================
+
+# Create a dedicated nginx config
+ynh_add_nginx_config
+
+#=================================================
+# UPGRADE DEPENDENCIES
+#=================================================
+
+ynh_install_app_dependencies "$pkg_dependencies"
+
+#=================================================
 # CREATE DEDICATED USER
 #=================================================
 
-ynh_system_user_create $app # Create dedicated user if not existing
+# Create a dedicated user (if not existing)
+ynh_system_user_create $app
 
 #=================================================
-# SPECIFIC SETUP
+# PHP-FPM CONFIGURATION
 #=================================================
 
-# We store photos (potentially large data) on /home/yunohost.app
+# Create a dedicated php-fpm config
+ynh_add_fpm_config
+
+#=================================================
+# SPECIFIC UPGRADE
+#=================================================
+# COPY FILES TO $FINAL_PATH
+#=================================================
+
+# sets extended pattern matching options in the bash shell
+shopt -s extglob
+
 datapath=/home/yunohost.app/$app
 
 # Install files and set permissions
 cp -a $tmpdir/!(upload|_data|galleries) $final_path
-
 
 # Backward compatibility:
 # If the _data subdirectory wasn't already moved to /home/yunohost.app/$app,
@@ -152,68 +163,93 @@ chown -R $app: $final_path
 chown -R $app: $datapath
 chmod 755 -R $final_path/_data
 
+ynh_secure_remove "$tmpdir"
+
 #=================================================
-# NGINX AND PHP-FPM CONFIGURATION
+# UPGRADE APPLICATION WITH CURL
 #=================================================
 
-ynh_add_nginx_config
-ynh_store_file_checksum "/etc/nginx/conf.d/$domain.d/$app.conf"
+ynh_app_setting_set $app unprotected_uris "/"
+# Reload SSOwat config
+yunohost app ssowatconf
 
-# Copy and set php-fpm configuration
-ynh_add_fpm_config
+# Reload Nginx
+systemctl reload nginx
+
+if [ "$language" = "fr" ] ; then
+  applanguage="fr_FR"
+else
+  applanguage="en_UK"
+fi
+
+# Upgrade piwigo via curl
+ynh_local_curl "/upgrade.php?language=$applanguage&now=true" "language=$applanguage" "username=$admin" "password=$admin_pwd"
 
 #=================================================
 # CONFIGURE PIWIGO
 #=================================================
-
-ynh_app_setting_set "$app" unprotected_uris "/"
-yunohost app ssowatconf
-
-# Configure piwigo via curl
-ynh_local_curl "/upgrade.php?language=$applanguage&now=true" "language=$applanguage" "username=$admin" "password=$admin_pwd"
+ynh_print_info "Configuring piwigo..."
 
 # Make a backup of the original config file if modified
 ynh_backup_if_checksum_is_different "$final_path/local/config/config.inc.php"
+
 # Change local config
 cp ../conf/config.inc.php $final_path/local/config/
+
 # Calculate and store the config file checksum
 ynh_store_file_checksum "$final_path/local/config/config.inc.php"
 
 # Make a backup of the original database config file if modified
 ynh_backup_if_checksum_is_different "$final_path/local/config/database.inc.php"
+
 # Setup database in local/config/database.inc.php
-ynh_replace_string "DBTOCHANGE" "$db_name" ../conf/database.inc.php
-ynh_replace_string "USERTOCHANGE" "$db_user" ../conf/database.inc.php
-ynh_replace_string "PASSTOCHANGE" "$db_pwd" ../conf/database.inc.php
+ynh_replace_string "__DBTOCHANGE__" "$db_name" ../conf/database.inc.php
+ynh_replace_string "__USERTOCHANGE__" "$db_name" ../conf/database.inc.php
+db_pwd=$(ynh_app_setting_get $app mysqlpwd)
+ynh_replace_string "__PASSTOCHANGE__" "$db_pwd" ../conf/database.inc.php
+
 cp ../conf/database.inc.php $final_path/local/config/database.inc.php
+
 # Calculate and store the database config file checksum
 ynh_store_file_checksum "$final_path/local/config/database.inc.php"
 
 #=================================================
-# ADD LDAP & FAIL2BAN PLUGINS
+# ADD LDAP PLUGINS
 #=================================================
 
 # Configure and activate LDAP plugin
-ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "UPDATE plugins SET state='active' WHERE id='Ldap_Login';"
+ynh_mysql_connect_as $db_name $db_pwd $db_name <<< "UPDATE plugins SET state='active' WHERE id='Ldap_Login';"
 cp ../conf/data.dat $final_path/plugins/Ldap_Login
 
+#=================================================
+# UPGRADE FAIL2BAN
+#=================================================
+
 # Configure and activate log_failed_logins plugin
-ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "INSERT INTO plugins (id,state,version) VALUES ('log_failed_logins','active','1.2');" 2>&1 > /dev/null ||ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "UPDATE plugins SET state='active' WHERE id='log_failed_logins';"
-ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "INSERT INTO config (param, value) VALUES ('logFailedLoginsFilename','/var/log/${app}FailedLogins.log');" 2>&1 > /dev/null || ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "UPDATE config SET value='/var/log/${app}FailedLogins.log' WHERE param='logFailedLoginsFilename';"
+ynh_mysql_connect_as $db_name $db_pwd $db_name <<< "INSERT INTO plugins (id,state,version) VALUES ('log_failed_logins','active','1.2');" 2>&1 > /dev/null ||ynh_mysql_connect_as $db_name $db_pwd $db_name <<< "UPDATE plugins SET state='active' WHERE id='log_failed_logins';"
+ynh_mysql_connect_as $db_name $db_pwd $db_name <<< "INSERT INTO config (param, value) VALUES ('logFailedLoginsFilename','/var/log/${app}FailedLogins.log');" 2>&1 > /dev/null || ynh_mysql_connect_as $db_name $db_pwd $db_name <<< "UPDATE config SET value='/var/log/${app}FailedLogins.log' WHERE param='logFailedLoginsFilename';"
+
 touch "/var/log/${app}FailedLogins.log"
 chown $app: "/var/log/${app}FailedLogins.log"
 
-# Set-up fail2ban
-ynh_add_fail2ban_config "/var/log/${app}FailedLogins.log" "ip=<HOST>" 6
+ynh_add_fail2ban_config --logpath="/var/log/${app}FailedLogins.log" --failregex="ip=<HOST>" --max_retry=6
+
+#=================================================
+# GENERIC FINALIZATION
+#=================================================
+# SETUP SSOWAT
+#=================================================
 
 # Protect URIs if private
-if [ $is_public -eq 0 ];
+if [ $is_public -eq 0 ]
 then
-  ynh_app_setting_delete "$app" unprotected_uris
-  ynh_app_setting_set "$app" protected_uris "/"
+  ynh_app_setting_delete $app unprotected_uris
+  ynh_app_setting_set $app protected_uris "/"
 fi
 
 #=================================================
 # RELOAD NGINX
 #=================================================
+
 systemctl reload nginx
+

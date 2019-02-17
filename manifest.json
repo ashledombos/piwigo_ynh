@@ -6,7 +6,7 @@
         "en": "photo gallery",
         "fr": "Galerie photo"
     },
-    "version": "2.9.4~ynh1",
+    "version": "2.9.4~ynh2",
     "url": "http://piwigo.org",
     "license": "GPL-2.0",
     "maintainer": {
@@ -64,6 +64,7 @@
             },
             {
                 "name": "language",
+                "type": "string",
                 "ask": {
                     "en": "Choose the application language",
                     "fr": "Choisissez la langue de l'application"

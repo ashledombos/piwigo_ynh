@@ -1,16 +1,12 @@
 #!/bin/bash
 
-
+#=================================================
+# GENERIC START
 #=================================================
 # IMPORT GENERIC HELPERS
 #=================================================
 
-if [ ! -e _common.sh ]; then
-	# Fetch helpers file if not in current directory
-	cp ../settings/scripts/_common.sh ./_common.sh
-	chmod a+rx _common.sh
-fi
-source _common.sh
+source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -33,42 +29,44 @@ db_name=$(ynh_app_setting_get $app db_name)
 #=================================================
 # STANDARD BACKUP STEPS
 #=================================================
-# BACKUP APP MAIN DIR
+# BACKUP THE APP MAIN DIR
 #=================================================
 
 ynh_backup "$final_path"
 
-# Copy the data directory
-backup_core_only=$(ynh_app_setting_get "$app" backup_core_only)
-if [ -z $backup_core_only ]	# If backup_core_only setting set, don't backup data directory
-then
-  ynh_backup /home/yunohost.app/${app}/upload
-else
-  echo "Data dir won't be saved, because backup_core_only is set." >&2
-  # Remove the option so that next regular backup will be complete
-  ynh_app_setting_delete $app backup_core_only
-fi
-
 #=================================================
-# BACKUP FAIL2BAN CONFIGURATION
-#=================================================
-ynh_backup "/etc/fail2ban/jail.d/$app.conf"
-ynh_backup "/etc/fail2ban/filter.d/$app.conf"
-
-#=================================================
-# BACKUP NGINX CONFIGURATION
+# BACKUP THE NGINX CONFIGURATION
 #=================================================
 
 ynh_backup "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 #=================================================
-# BACKUP PHP-FPM CONFIGURATION
+# BACKUP THE PHP-FPM CONFIGURATION
 #=================================================
 
-ynh_backup "/etc/php5/fpm/pool.d/$app.conf"
 
 #=================================================
-# BACKUP MYSQL DB
+# BACKUP THE MYSQL DATABASE
 #=================================================
 
 ynh_mysql_dump_db "$db_name" > db.sql
+
+#=================================================
+# BACKUP FAIL2BAN CONFIGURATION
+#=================================================
+
+ynh_backup "/etc/php5/fpm/pool.d/$app.conf"
+ynh_backup "/etc/fail2ban/jail.d/$app.conf"
+ynh_backup "/etc/fail2ban/filter.d/$app.conf"
+
+#=================================================
+# SPECIFIC BACKUP
+#=================================================
+# BACKUP THE DATA DIRECTORY
+#=================================================
+
+# The 1 parameter indicates the directory is "big",
+# so that it won't be backed up before upgrade
+# This argument has to be the third one.
+ynh_backup "/home/yunohost.app/${app}/upload" "/home/yunohost.app/${app}/upload" 1
+

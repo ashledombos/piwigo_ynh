@@ -1,5 +1,4 @@
 #!/bin/bash
-shopt -s extglob  # sets extended pattern matching options in the bash shell
 
 #=================================================
 # GENERIC STARTING
@@ -14,39 +13,31 @@ source /usr/share/yunohost/helpers
 # MANAGE SCRIPT FAILURE
 #=================================================
 
-ynh_abort_if_errors	# Stop script if an error is detected
+# Exit if an error occurs during the execution of the script
+ynh_abort_if_errors
 
 #=================================================
 # RETRIEVE ARGUMENTS FROM THE MANIFEST
 #=================================================
 
-# Retrieve app id
-app=$YNH_APP_INSTANCE_NAME
-
-# Retrieve arguments
 domain=$YNH_APP_ARG_DOMAIN
 path_url=$YNH_APP_ARG_PATH
 admin=$YNH_APP_ARG_ADMIN
 is_public=$YNH_APP_ARG_IS_PUBLIC
 language=$YNH_APP_ARG_LANGUAGE
 
-if [ "$language" = "fr" ] ; then
-  applanguage="fr_FR"
-else
-  applanguage="en_UK"
-fi
+app=$YNH_APP_INSTANCE_NAME
 
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
 #=================================================
 
-path_url=$(ynh_normalize_url_path $path_url)	# Check and normalize path
-
 final_path=/var/www/$app
 test ! -e "$final_path" || ynh_die "This path already contains a folder"
 
-# Check web path availability
-ynh_webpath_available $domain $path_url
+# Normalize the url path syntax
+path_url=$(ynh_normalize_url_path $path_url)
+
 # Register (book) web path
 ynh_webpath_register $app $domain $path_url
 
@@ -54,11 +45,11 @@ ynh_webpath_register $app $domain $path_url
 # STORE SETTINGS FROM MANIFEST
 #=================================================
 
-ynh_app_setting_set $app domain "$domain"
-ynh_app_setting_set $app path_url "$path_url"
-ynh_app_setting_set $app admin "$admin"
-ynh_app_setting_set $app is_public "$is_public"
-ynh_app_setting_set $app language "$language"
+ynh_app_setting_set $app domain $domain
+ynh_app_setting_set $app path $path_url
+ynh_app_setting_set $app admin $admin
+ynh_app_setting_set $app is_public $is_public
+ynh_app_setting_set $app language $language
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -73,20 +64,19 @@ ynh_install_app_dependencies "$pkg_dependencies"
 #=================================================
 
 db_name=$(ynh_sanitize_dbid $app)
-db_user="$db_name"
-ynh_app_setting_set "$app" db_name "$db_name"
-
-# Initialize database
-ynh_mysql_setup_db "$db_user" "$db_name"
+ynh_app_setting_set $app db_name $db_name
+ynh_mysql_setup_db $db_name $db_name
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 
-ynh_app_setting_set $app final_path "$final_path"
+ynh_app_setting_set $app final_path $final_path
+
 # Create tmp directory and fetch app inside
-tmpdir=$(mktemp -d)
+tmpdir="$(ynh_smart_mktemp --min_size=300)"
 ynh_setup_source "$tmpdir"
+
 # Fetch needed plugins
 mkdir -p $tmpdir/plugins/Ldap_Login
 ynh_setup_source "$tmpdir/plugins/Ldap_Login" ldap_plugin
@@ -96,11 +86,24 @@ ynh_setup_source "$tmpdir/plugins" log_failed_logins_plugin
 # CREATE DEDICATED USER
 #=================================================
 
-ynh_system_user_create $app	# Create a dedicated system user
+# Create a system user
+ynh_system_user_create $app
+
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+
+# Create a dedicated nginx config
+ynh_add_nginx_config
 
 #=================================================
 # SPECIFIC SETUP
 #=================================================
+# COPY FILES TO $FINAL_PATH
+#=================================================
+
+# sets extended pattern matching options in the bash shell
+shopt -s extglob
 
 # Install files and set permissions
 mkdir $final_path
@@ -123,69 +126,99 @@ chown -R $app: $final_path
 chown -R $app: $datapath
 chmod 755 -R $final_path/_data
 
+ynh_secure_remove "$tmpdir"
+
 #=================================================
-# NGINX AND PHP-FPM CONFIGURATION
+# PHP-FPM CONFIGURATION
 #=================================================
 
-ynh_add_nginx_config
-
-# Copy and set php-fpm configuration
+# Create a dedicated php-fpm config
 ynh_add_fpm_config
+
+#=================================================
+# SETUP APPLICATION WITH CURL
+#=================================================
+
+ynh_app_setting_set $app unprotected_uris "/"
+# Reload SSOwat config
+yunohost app ssowatconf
+
+# Reload Nginx
+systemctl reload nginx
+
+# Generate random password for admin
+adm_pwd=$(ynh_string_random 24)
+ynh_app_setting_set $app admin_pwd "$adm_pwd"
+
+if [ "$language" = "fr" ] ; then
+  applanguage="fr_FR"
+else
+  applanguage="en_UK"
+fi
+
+# Configure piwigo via curl
+mail="$(ynh_user_get_info $admin mail)"
+
+# Installation with curl
+ynh_local_curl "/install.php?language=$applanguage" "install=true" "dbuser=$db_name" "dbpasswd=$db_pwd" "dbname=$db_name" "admin_name=$admin" "admin_pass1=$adm_pwd" "admin_pass2=$adm_pwd" "admin_mail=$mail"
 
 #=================================================
 # CONFIGURE PIWIGO
 #=================================================
 
-ynh_app_setting_set "$app" unprotected_uris "/"
-yunohost app ssowatconf
-
-# Generate random password for admin
-
-adm_pwd=$(ynh_string_random 24)
-ynh_app_setting_set $app admin_pwd "$adm_pwd"
-
-# Configure piwigo via curl
-mail="$(ynh_user_get_info $admin mail)"
-ynh_local_curl "/install.php?language=$applanguage" "install=true" "dbuser=$db_user" "dbpasswd=$db_pwd" "dbname=$db_name" "admin_name=$admin" "admin_pass1=$adm_pwd" "admin_pass2=$adm_pwd" "admin_mail=$mail"
-
 # Change local config
 cp ../conf/config.inc.php $final_path/local/config/
+
 # Calculate and store the config file checksum
 ynh_store_file_checksum "$final_path/local/config/config.inc.php"
 
 # Setup database in local/config/database.inc.php
-ynh_replace_string "DBTOCHANGE" "$db_name" ../conf/database.inc.php
-ynh_replace_string "USERTOCHANGE" "$db_user" ../conf/database.inc.php
-ynh_replace_string "PASSTOCHANGE" "$db_pwd" ../conf/database.inc.php
+ynh_replace_string "__DBTOCHANGE__" "$db_name" ../conf/database.inc.php
+ynh_replace_string "__USERTOCHANGE__" "$db_name" ../conf/database.inc.php
+ynh_replace_string "__PASSTOCHANGE__" "$db_pwd" ../conf/database.inc.php
+
 cp ../conf/database.inc.php $final_path/local/config/database.inc.php
+
 # Calculate and store the database config file checksum
 ynh_store_file_checksum "$final_path/local/config/database.inc.php"
 
 #=================================================
-# ADD LDAP & FAIL2BAN PLUGINS
+# ADD LDAP PLUGINS
 #=================================================
 
 # Configure and activate LDAP plugin
-ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "INSERT INTO plugins (id,state,version) VALUES ('Ldap_Login','active','1.1');"
+ynh_mysql_connect_as $db_name $db_pwd $db_name <<< "INSERT INTO plugins (id,state,version) VALUES ('Ldap_Login','active','1.1');"
 cp ../conf/data.dat $final_path/plugins/Ldap_Login
 
+#=================================================
+# CONFIGURE FAIL2BAN
+#=================================================
+
 # Configure and activate log_failed_logins plugin
-ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "INSERT INTO plugins (id,state,version) VALUES ('log_failed_logins','active','1.2');"
-ynh_mysql_connect_as $db_name $db_pwd $db_user <<< "INSERT INTO config (param, value) VALUES ('logFailedLoginsFilename','/var/log/${app}FailedLogins.log');"
+ynh_mysql_connect_as $db_name $db_pwd $db_name <<< "INSERT INTO plugins (id,state,version) VALUES ('log_failed_logins','active','1.2');"
+ynh_mysql_connect_as $db_name $db_pwd $db_name <<< "INSERT INTO config (param, value) VALUES ('logFailedLoginsFilename','/var/log/${app}FailedLogins.log');"
+
 touch "/var/log/${app}FailedLogins.log"
 chown $app: "/var/log/${app}FailedLogins.log"
 
-# Set-up fail2ban
-ynh_add_fail2ban_config "/var/log/${app}FailedLogins.log" "ip=<HOST>" 6
+ynh_add_fail2ban_config --logpath="/var/log/${app}FailedLogins.log" --failregex="ip=<HOST>" --max_retry=6
+
+#=================================================
+# GENERIC FINALIZATION
+#=================================================
+# SETUP SSOWAT
+#=================================================
 
 # Protect URIs if private
-if [ $is_public -eq 0 ];
+if [ $is_public -eq 0 ]
 then
-  ynh_app_setting_delete "$app" unprotected_uris
-  ynh_app_setting_set "$app" protected_uris "/"
+  ynh_app_setting_delete $app unprotected_uris
+  ynh_app_setting_set $app protected_uris "/"
 fi
 
 #=================================================
 # RELOAD NGINX
 #=================================================
+
 systemctl reload nginx
+
