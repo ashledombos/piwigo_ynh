@@ -4,7 +4,7 @@
 # COMMON VARIABLES
 #=================================================
 
-pkg_dependencies="php5-gd php5-imagick imagemagick"
+pkg_dependencies="php-gd php-imagick imagemagick"
 
 #=================================================
 # FUTURE OFFICIAL HELPERS
