@@ -1,15 +1,12 @@
 #!/bin/bash
 
 #=================================================
+# GENERIC START
+#=================================================
 # IMPORT GENERIC HELPERS
 #=================================================
 
-if [ ! -e _common.sh ]; then
-	# Fetch helpers file if not in current directory
-	cp ../settings/scripts/_common.sh ./_common.sh
-	chmod a+rx _common.sh
-fi
-source _common.sh
+source ../settings/scripts/_common.sh
 source /usr/share/yunohost/helpers
 
 #=================================================
@@ -22,6 +19,7 @@ ynh_abort_if_errors
 #=================================================
 # LOAD SETTINGS
 #=================================================
+ynh_print_info "Loading settings..."
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -34,6 +32,7 @@ db_name=$(ynh_app_setting_get $app db_name)
 #=================================================
 # CHECK IF THE APP CAN BE RESTORED
 #=================================================
+ynh_print_info "Validating restoration parameters..."
 
 ynh_webpath_available $domain $path_url \
 	|| ynh_die "Path not available: ${domain}${path_url}"
@@ -41,54 +40,48 @@ test ! -d $final_path \
 	|| ynh_die "There is already a directory: $final_path "
 
 #=================================================
-# STANDARD RESTORE STEPS
+# STANDARD RESTORATION STEPS
 #=================================================
-# RESTORE NGINX CONFIGURATION
+# RESTORE THE NGINX CONFIGURATION
 #=================================================
 
 ynh_restore_file "/etc/nginx/conf.d/$domain.d/$app.conf"
 
 #=================================================
-# RESTORE APP MAIN DIR
+# RESTORE THE APP MAIN DIR
 #=================================================
+ynh_print_info "Restoring the app main directory..."
 
 ynh_restore_file "$final_path"
-# Restore data directory if backed-up
-if [ -d "$YNH_BACKUP_DIR/apps/${app}/backup/home/yunohost.app/${app}/upload" ] ; then
-  ynh_restore_file "/home/yunohost.app/${app}/upload"
-else
-  # Create app data folder
-  mkdir /home/yunohost.app/${app}/upload
-fi
-# Create temporary data folder
-mkdir -p /home/yunohost.app/${app}/_data
-# Remove the option backup_core_only if it's in the settings.yml file
-ynh_app_setting_delete $app backup_core_only
 
 #=================================================
-# RESTORE MYSQL DB
+# RESTORE THE MYSQL DATABASE
 #=================================================
+ynh_print_info "Restoring the MySQL database..."
 
 db_pwd=$(ynh_app_setting_get $app mysqlpwd)
-ynh_mysql_create_db $db_name $db_name $db_pwd
+ynh_mysql_setup_db $db_name $db_name $db_pwd
 ynh_mysql_connect_as $db_name $db_pwd $db_name < ./db.sql
 
 #=================================================
-# RECREATE OF THE DEDICATED USER
+# RECREATE THE DEDICATED USER
 #=================================================
+ynh_print_info "Recreating the dedicated system user..."
 
-ynh_system_user_create $app	# Recreate the dedicated user, if not existing
-
-#=================================================
-# RESTORE USER RIGHTS
-#=================================================
-
-chown -R $app: $final_path
-chown -R $app: /home/yunohost.app/${app}
+# Create the dedicated user (if not existing)
+ynh_system_user_create $app
 
 #=================================================
-# RESTORE FAIL2BAN CONFIGURATION
+# RESTORE THE PHP-FPM CONFIGURATION
 #=================================================
+
+ynh_restore_file "/etc/php/7.0/fpm/pool.d/$app.conf"
+
+#=================================================
+# RESTORE THE FAIL2BAN CONFIGURATION
+#=================================================
+ynh_print_info "Restoring the fail2ban configuration"
+
 ynh_restore_file "/etc/fail2ban/jail.d/$app.conf"
 ynh_restore_file "/etc/fail2ban/filter.d/$app.conf"
 
@@ -98,16 +91,43 @@ chown $app: "/var/log/${app}FailedLogins.log"
 systemctl restart fail2ban
 
 #=================================================
-# RESTORE PHP-FPM CONFIGURATION
+# SPECIFIC RESTORATION
+#=================================================
+# RESTORE THE DATA DIRECTORY
+#=================================================
+ynh_print_info "Restoring data directory..."
+
+# The data directory will be restored only if it exists in the backup archive
+# So only if it was backup previously.
+if [ -d "$YNH_BACKUP_DIR/apps/$app/backup/home/yunohost.app/${app}/upload" ]
+then
+	ynh_restore_file "/home/yunohost.app/${app}/upload"
+else
+	# Create app folders
+	mkdir -p "/home/yunohost.app/${app}/upload"
+fi
+# Create temporary data folder
+mkdir -p /home/yunohost.app/${app}/_data
+
+#=================================================
+# RESTORE USER RIGHTS
 #=================================================
 
-ynh_restore_file /etc/php5/fpm/pool.d/$app.conf
+chown -R $app: $final_path
+chown -R $app: /home/yunohost.app/${app}
 
 #=================================================
 # GENERIC FINALIZATION
 #=================================================
 # RELOAD NGINX AND PHP-FPM
 #=================================================
+ynh_print_info "Reloading nginx web server and php-fpm..."
 
-systemctl reload php5-fpm
+systemctl reload php7.0-fpm
 systemctl reload nginx
+
+#=================================================
+# END OF SCRIPT
+#=================================================
+
+ynh_print_info "Restoration completed for $app"
