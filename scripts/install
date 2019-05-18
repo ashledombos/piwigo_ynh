@@ -31,74 +31,71 @@ app=$YNH_APP_INSTANCE_NAME
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
 #=================================================
-ynh_print_info "Validating installation parameters..."
+ynh_script_progression --message="Validating installation parameters..."
 
 final_path=/var/www/$app
-test ! -e "$final_path" || ynh_die "This path already contains a folder"
-
-# Normalize the url path syntax
-path_url=$(ynh_normalize_url_path $path_url)
+test ! -e "$final_path" || ynh_die --message="This path already contains a folder"
 
 # Register (book) web path
-ynh_webpath_register $app $domain $path_url
+ynh_webpath_register --app=$app --domain=$domain --path_url=$path_url
 
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
-ynh_print_info "Storing installation settings..."
+ynh_script_progression --message="Storing installation settings..."
 
-ynh_app_setting_set $app domain $domain
-ynh_app_setting_set $app path $path_url
-ynh_app_setting_set $app admin $admin
-ynh_app_setting_set $app is_public $is_public
-ynh_app_setting_set $app language $language
+ynh_app_setting_set --app=$app --key=domain --value=$domain
+ynh_app_setting_set --app=$app --key=path --value=$path_url
+ynh_app_setting_set --app=$app --key=admin --value=$admin
+ynh_app_setting_set --app=$app --key=is_public --value=$is_public
+ynh_app_setting_set --app=$app --key=language --value=$language
 
 #=================================================
 # STANDARD MODIFICATIONS
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
-ynh_print_info "Installing dependencies..."
+ynh_script_progression --message="Installing dependencies..." --weight=40
 
 ynh_install_app_dependencies "$pkg_dependencies"
 
 #=================================================
 # CREATE A MYSQL DB
 #=================================================
-ynh_print_info "Creating a MySQL database..."
+ynh_script_progression --message="Creating a MySQL database..."
 
-db_name=$(ynh_sanitize_dbid $app)
-ynh_app_setting_set $app db_name $db_name
-ynh_mysql_setup_db $db_name $db_name
+db_name=$(ynh_sanitize_dbid --db_name=$app)
+ynh_app_setting_set --app=$app --key=db_name --value=$db_name
+ynh_mysql_setup_db --db_user=$db_name --db_name=$db_name
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_print_info "Setting up source files..."
+ynh_script_progression --message="Setting up source files..." --weight=5
 
-ynh_app_setting_set $app final_path $final_path
+ynh_app_setting_set --app=$app --key=final_path --value=$final_path
 
 # Create tmp directory and fetch app inside
 tmpdir="$(ynh_smart_mktemp --min_size=300)"
-ynh_setup_source "$tmpdir"
+ynh_setup_source --dest_dir="$tmpdir"
 
 # Fetch needed plugins
 mkdir -p $tmpdir/plugins/Ldap_Login
-ynh_setup_source "$tmpdir/plugins/Ldap_Login" ldap_plugin
-ynh_setup_source "$tmpdir/plugins" log_failed_logins_plugin
+ynh_setup_source --dest_dir="$tmpdir/plugins/Ldap_Login" --source_id=ldap_plugin
+ynh_setup_source --dest_dir="$tmpdir/plugins" --source_id=log_failed_logins_plugin
 
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
-ynh_print_info "Configuring system user..."
+ynh_script_progression --message="Configuring system user..." --weight=3
 
 # Create a system user
-ynh_system_user_create $app
+ynh_system_user_create --username=$app
 
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_print_info "Configuring nginx web server..."
+ynh_script_progression --message="Configuring nginx web server..."
 
 # Create a dedicated nginx config
 ynh_add_nginx_config
@@ -133,12 +130,12 @@ chown -R $app: $final_path
 chown -R $app: $datapath
 chmod 755 -R $final_path/_data
 
-ynh_secure_remove "$tmpdir"
+ynh_secure_remove --file="$tmpdir"
 
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
-ynh_print_info "Configuring php-fpm..."
+ynh_script_progression --message="Configuring php-fpm..." --weight=2
 
 # Create a dedicated php-fpm config
 ynh_add_fpm_config
@@ -146,27 +143,27 @@ ynh_add_fpm_config
 #=================================================
 # SETUP APPLICATION WITH CURL
 #=================================================
-ynh_print_info "Installing piwigo with Curl..."
+ynh_script_progression --message="Installing piwigo with Curl..." --weight=5
 
-ynh_app_setting_set $app unprotected_uris "/"
+ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
 # Reload SSOwat config
 yunohost app ssowatconf
 
 # Reload Nginx
-systemctl reload nginx
+ynh_systemd_action --service_name=nginx --action=reload
 
 # Generate random password for admin
-adm_pwd=$(ynh_string_random 24)
-ynh_app_setting_set $app admin_pwd "$adm_pwd"
+adm_pwd=$(ynh_string_random --length=24)
+ynh_app_setting_set --app=$app --key=admin_pwd --value="$adm_pwd"
 
-if [ "$language" = "fr" ] ; then
+if [ "$language" = "fr" ]; then
   applanguage="fr_FR"
 else
   applanguage="en_UK"
 fi
 
 # Configure piwigo via curl
-mail="$(ynh_user_get_info $admin mail)"
+mail="$(ynh_user_get_info --username=$admin --key=mail)"
 
 # Installation with curl
 ynh_local_curl "/install.php?language=$applanguage" "install=true" "dbuser=$db_name" "dbpasswd=$db_pwd" "dbname=$db_name" "admin_name=$admin" "admin_pass1=$adm_pwd" "admin_pass2=$adm_pwd" "admin_mail=$mail"
@@ -174,41 +171,41 @@ ynh_local_curl "/install.php?language=$applanguage" "install=true" "dbuser=$db_n
 #=================================================
 # CONFIGURE PIWIGO
 #=================================================
-ynh_print_info "Configuring piwigo..."
+ynh_script_progression --message="Configuring piwigo..."
 
 # Change local config
 cp ../conf/config.inc.php $final_path/local/config/
 
 # Calculate and store the config file checksum
-ynh_store_file_checksum "$final_path/local/config/config.inc.php"
+ynh_store_file_checksum --file="$final_path/local/config/config.inc.php"
 
 # Setup database in local/config/database.inc.php
-ynh_replace_string "__DBTOCHANGE__" "$db_name" ../conf/database.inc.php
-ynh_replace_string "__USERTOCHANGE__" "$db_name" ../conf/database.inc.php
-ynh_replace_string "__PASSTOCHANGE__" "$db_pwd" ../conf/database.inc.php
+ynh_replace_string --match_string="__DBTOCHANGE__" --replace_string="$db_name" --target_file=../conf/database.inc.php
+ynh_replace_string --match_string="__USERTOCHANGE__" --replace_string="$db_name" --target_file=../conf/database.inc.php
+ynh_replace_string --match_string="__PASSTOCHANGE__" --replace_string="$db_pwd" --target_file=../conf/database.inc.php
 
 cp ../conf/database.inc.php $final_path/local/config/database.inc.php
 
 # Calculate and store the database config file checksum
-ynh_store_file_checksum "$final_path/local/config/database.inc.php"
+ynh_store_file_checksum --file="$final_path/local/config/database.inc.php"
 
 #=================================================
 # ADD LDAP PLUGINS
 #=================================================
-ynh_print_info "Configuring LDAP plugin..."
+ynh_script_progression --message="Configuring LDAP plugin..."
 
 # Configure and activate LDAP plugin
-ynh_mysql_connect_as $db_name $db_pwd $db_name <<< "INSERT INTO plugins (id,state,version) VALUES ('Ldap_Login','active','1.1');"
+ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name <<< "INSERT INTO plugins (id,state,version) VALUES ('Ldap_Login','active','1.1');"
 cp ../conf/data.dat $final_path/plugins/Ldap_Login
 
 #=================================================
 # CONFIGURE FAIL2BAN
 #=================================================
-ynh_print_info "Configuring fail2ban..."
+ynh_script_progression --message="Configuring fail2ban..." --weight=6
 
 # Configure and activate log_failed_logins plugin
-ynh_mysql_connect_as $db_name $db_pwd $db_name <<< "INSERT INTO plugins (id,state,version) VALUES ('log_failed_logins','active','1.2');"
-ynh_mysql_connect_as $db_name $db_pwd $db_name <<< "INSERT INTO config (param, value) VALUES ('logFailedLoginsFilename','/var/log/${app}FailedLogins.log');"
+ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name <<< "INSERT INTO plugins (id,state,version) VALUES ('log_failed_logins','active','1.2');"
+ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name <<< "INSERT INTO config (param, value) VALUES ('logFailedLoginsFilename','/var/log/${app}FailedLogins.log');"
 
 touch "/var/log/${app}FailedLogins.log"
 chown $app: "/var/log/${app}FailedLogins.log"
@@ -220,24 +217,24 @@ ynh_add_fail2ban_config --logpath="/var/log/${app}FailedLogins.log" --failregex=
 #=================================================
 # SETUP SSOWAT
 #=================================================
-ynh_print_info "Configuring SSOwat..."
+ynh_script_progression --message="Configuring SSOwat..."
 
 # Protect URIs if private
 if [ $is_public -eq 0 ]
 then
-  ynh_app_setting_delete $app unprotected_uris
-  ynh_app_setting_set $app protected_uris "/"
+  ynh_app_setting_delete --app=$app --key=unprotected_uris
+  ynh_app_setting_set --app=$app --key=protected_uris --value="/"
 fi
 
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_print_info "Reloading nginx web server..."
+ynh_script_progression --message="Reloading nginx web server..."
 
-systemctl reload nginx
+ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================
 # END OF SCRIPT
 #=================================================
 
-ynh_print_info "Installation of $app completed"
+ynh_script_progression --message="Installation of $app completed" --last
