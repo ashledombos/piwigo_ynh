@@ -43,9 +43,9 @@ this package:
 
 #### Supported architectures
 
-* x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/piwigo%20%28Official%29.svg)](https://ci-apps.yunohost.org/ci/apps/piwigo/)
-* ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/piwigo%20%28Official%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/piwigo/)
-* Jessie x86-64b - [![Build Status](https://ci-stretch.nohost.me/ci/logs/piwigo%20%28Official%29.svg)](https://ci-stretch.nohost.me/ci/apps/piwigo/)
+* x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/piwigo%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/piwigo/)
+* ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/piwigo%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/piwigo/)
+* Jessie x86-64b - [![Build Status](https://ci-stretch.nohost.me/ci/logs/piwigo%20%28Apps%29.svg)](https://ci-stretch.nohost.me/ci/apps/piwigo/)
 
 ## Limitations
 
@@ -55,6 +55,7 @@ this package:
 
  * Report a bug: https://github.com/YunoHost-Apps/piwigo_ynh/issues
  * Piwigo website: http://piwigo.org/
+ * Piwigo repository: https://github.com/Piwigo/Piwigo
  * YunoHost website: https://yunohost.org/
 
 ---
