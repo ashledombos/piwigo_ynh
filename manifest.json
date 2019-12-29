@@ -6,7 +6,7 @@
         "en": "photo gallery",
         "fr": "Galerie photo"
     },
-    "version": "2.9.5~ynh1",
+    "version": "2.10.1~ynh1",
     "url": "http://piwigo.org",
     "license": "GPL-2.0",
     "maintainer": {
