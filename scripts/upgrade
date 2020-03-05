@@ -8,6 +8,7 @@
 
 source _common.sh
 source /usr/share/yunohost/helpers
+source _ynh_local_curl
 
 #=================================================
 # LOAD SETTINGS
@@ -232,13 +233,32 @@ cp ../conf/database.inc.php $final_path/local/config/database.inc.php
 ynh_store_file_checksum --file="$final_path/local/config/database.inc.php"
 
 #=================================================
-# ADD LDAP PLUGINS
+# CONFIGURE LDAP PLUGIN
 #=================================================
 ynh_script_progression --message="Configuring LDAP plugin..."
 
-# Configure and activate LDAP plugin
-ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name <<< "UPDATE plugins SET state='active' WHERE id='Ldap_Login';"
-cp ../conf/data.dat $final_path/plugins/Ldap_Login
+# Activate the LDAP plugin using the WS API
+
+# Login with admin account
+ynh_local_curl "/ws.php?format=json" "method=pwg.session.login" "username=$admin" "password=$admin_pwd"
+# Get session token
+status=$(ynh_local_curl "/ws.php?format=json" "method=pwg.session.getStatus")
+pwg_token=$(jq --raw-output .result.pwg_token <<< $status)
+# Activate the Ldap_Login plugin
+ynh_local_curl "/ws.php?format=json" "method=pwg.plugins.performAction" "action=activate" "plugin=Ldap_Login" "pwg_token=$pwg_token"
+# Log out
+ynh_local_curl "/ws.php?format=json" "method=pwg.session.logout"
+
+# Edit Ldap_Login plugin configuration
+ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name <<< "UPDATE piwigo_ldap_login_config SET value='ou=users,dc=yunohost,dc=org' WHERE param = 'ld_basedn';
+UPDATE piwigo_ldap_login_config SET value='uid' WHERE param = 'ld_user_attr';
+UPDATE piwigo_ldap_login_config SET value='' WHERE param = 'ld_binddn';
+UPDATE piwigo_ldap_login_config SET value='0' WHERE param = 'allow_new_users';
+UPDATE piwigo_ldap_login_config SET value='0' WHERE param = 'ld_group_user_active';"
+# Remove configuration file for older plugin version
+if [ -f $final_path/plugins/Ldap_Login/data.dat ] ; then
+	ynh_secure_remove --file=$final_path/plugins/Ldap_Login/data.dat
+fi
 
 #=================================================
 # UPGRADE FAIL2BAN
