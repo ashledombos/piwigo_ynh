@@ -107,13 +107,13 @@ then
 	ynh_script_progression --message="Upgrading source files..." --weight=3
 
 	# Create tmp directory and fetch app inside
-    tmpdir="$(ynh_smart_mktemp --min_size=300)"
-    ynh_setup_source --dest_dir="$tmpdir"
+  tmpdir="$(ynh_smart_mktemp --min_size=300)"
+  ynh_setup_source --dest_dir="$tmpdir"
 
-    # Fetch needed plugins
-    mkdir -p $tmpdir/plugins/Ldap_Login
-    ynh_setup_source --dest_dir="$tmpdir/plugins/Ldap_Login" --source_id=ldap_plugin
-    ynh_setup_source --dest_dir="$tmpdir/plugins" --source_id=log_failed_logins_plugin
+  # Fetch needed plugins
+  mkdir -p $tmpdir/plugins/Ldap_Login
+  ynh_setup_source --dest_dir="$tmpdir/plugins/Ldap_Login" --source_id=ldap_plugin
+  ynh_setup_source --dest_dir="$tmpdir/plugins" --source_id=log_failed_logins_plugin
 fi
 
 #=================================================
@@ -158,30 +158,33 @@ shopt -s extglob
 
 datapath=/home/yunohost.app/$app
 
-# Install files and set permissions
-cp -a $tmpdir/!(upload|_data|galleries) $final_path
+if [ "$upgrade_type" == "UPGRADE_APP" ]
+then
+  # Install files and set permissions
+  cp -a $tmpdir/!(upload|_data|galleries) $final_path
 
-# Backward compatibility:
-# If the _data subdirectory wasn't already moved to /home/yunohost.app/$app,
-# then move it there
-if [ ! -h $final_path/_data ] ; then
-  mv $final_path/_data $datapath
-  ln -sd $datapath/_data $final_path/_data
-fi
+  # Backward compatibility:
+  # If the _data subdirectory wasn't already moved to /home/yunohost.app/$app,
+  # then move it there
+  if [ ! -h $final_path/_data ] ; then
+    mv $final_path/_data $datapath
+    ln -sd $datapath/_data $final_path/_data
+  fi
 
-# Backward compatibility:
-# If the galleries subdirectory wasn't already moved to /home/yunohost.app/$app,
-# then move it there
-if [ ! -h $final_path/galleries ] ; then
-  mv $final_path/galleries $datapath
-  ln -sd $datapath/galleries $final_path/galleries
+  # Backward compatibility:
+  # If the galleries subdirectory wasn't already moved to /home/yunohost.app/$app,
+  # then move it there
+  if [ ! -h $final_path/galleries ] ; then
+    mv $final_path/galleries $datapath
+    ln -sd $datapath/galleries $final_path/galleries
+  fi
+
+  ynh_secure_remove --file="$tmpdir"
 fi
 
 chown -R $app: $final_path
 chown -R $app: $datapath
 chmod 755 -R $final_path/_data
-
-ynh_secure_remove --file="$tmpdir"
 
 #=================================================
 # UPGRADE APPLICATION WITH CURL
