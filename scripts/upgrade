@@ -243,6 +243,9 @@ ynh_store_file_checksum --file="$final_path/local/config/database.inc.php"
 #=================================================
 ynh_script_progression --message="Configuring LDAP plugin..."
 
+# Disable LDAP plugin to avoid warning messages during API call
+ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name <<< "DELETE FROM plugins WHERE id='Ldap_Login';"
+
 # Activate the LDAP plugin using the WS API
 
 # Login with admin account
