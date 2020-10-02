@@ -1,6 +1,6 @@
 # Piwigo for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/piwigo.svg)](https://dash.yunohost.org/appci/app/piwigo) ![](https://ci-apps.yunohost.org/ci/badges/piwigo.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/piwigo.maintain.svg) 
+[![Integration level](https://dash.yunohost.org/integration/piwigo.svg)](https://dash.yunohost.org/appci/app/piwigo) ![](https://ci-apps.yunohost.org/ci/badges/piwigo.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/piwigo.maintain.svg)  
 [![Install Piwigo with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=piwigo)
 
 > *This package allow you to install Piwigo quickly and simply on a YunoHost server.  
@@ -19,7 +19,6 @@ Extensions make Piwigo easily customizable. Icing on the cake, Piwigo is free an
 
 ## Demo
 
-* [YunoHost demo](https://demo.yunohost.org/piwigo/)
 * [Official demo](http://piwigo.org/demo/)
 
 ## Configuration
