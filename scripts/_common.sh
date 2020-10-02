@@ -4,7 +4,11 @@
 # COMMON VARIABLES
 #=================================================
 
-pkg_dependencies="php-gd php-imagick imagemagick"
+YNH_PHP_VERSION="7.3"
+
+pkg_dependencies="imagemagick"
+
+extra_php_dependencies="php${YNH_PHP_VERSION}-gd php${YNH_PHP_VERSION}-imagick"
 
 #=================================================
 # EXPERIMENTAL HELPERS

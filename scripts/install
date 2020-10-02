@@ -96,9 +96,9 @@ ynh_system_user_create --username=$app
 #=================================================
 # NGINX CONFIGURATION
 #=================================================
-ynh_script_progression --message="Configuring nginx web server..."
+ynh_script_progression --message="Configuring NGINX web server..."
 
-# Create a dedicated nginx config
+# Create a dedicated NGINX config
 ynh_add_nginx_config
 
 #=================================================
@@ -136,15 +136,16 @@ ynh_secure_remove --file="$tmpdir"
 #=================================================
 # PHP-FPM CONFIGURATION
 #=================================================
-ynh_script_progression --message="Configuring php-fpm..." --weight=2
+ynh_script_progression --message="Configuring PHP-FPM..." --weight=2
 
 # Create a dedicated php-fpm config
-ynh_add_fpm_config
+ynh_add_fpm_config --phpversion=$YNH_PHP_VERSION --package="$extra_php_dependencies"
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
 # SETUP APPLICATION WITH CURL
 #=================================================
-ynh_script_progression --message="Installing piwigo with Curl..." --weight=5
+ynh_script_progression --message="Installing Piwigo with cURL..." --weight=5
 
 ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
 # Reload SSOwat config
@@ -172,7 +173,7 @@ ynh_local_curl "/install.php?language=$applanguage" "install=true" "dbuser=$db_n
 #=================================================
 # CONFIGURE PIWIGO
 #=================================================
-ynh_script_progression --message="Configuring piwigo..."
+ynh_script_progression --message="Configuring Piwigo..."
 
 # Change local config
 cp ../conf/config.inc.php $final_path/local/config/
@@ -219,7 +220,7 @@ UPDATE piwigo_ldap_login_config SET value='0' WHERE param = 'ld_group_user_activ
 #=================================================
 # CONFIGURE FAIL2BAN
 #=================================================
-ynh_script_progression --message="Configuring fail2ban..." --weight=6
+ynh_script_progression --message="Configuring Fail2Ban..." --weight=6
 
 # Configure and activate log_failed_logins plugin
 ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name <<< "INSERT INTO plugins (id,state,version) VALUES ('log_failed_logins','active','1.2');"
@@ -247,7 +248,7 @@ fi
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading nginx web server..."
+ynh_script_progression --message="Reloading NGINX web server..."
 
 ynh_systemd_action --service_name=nginx --action=reload
 
@@ -255,4 +256,4 @@ ynh_systemd_action --service_name=nginx --action=reload
 # END OF SCRIPT
 #=================================================
 
-ynh_script_progression --message="Installation of $app completed" --last
+ynh_script_progression --message="Installation of Piwigo completed" --last

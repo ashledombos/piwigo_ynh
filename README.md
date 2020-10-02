@@ -43,9 +43,8 @@ this package:
 
 #### Supported architectures
 
-* x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/piwigo%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/piwigo/)
+* x86-64 - [![Build Status](https://ci-apps.yunohost.org/ci/logs/piwigo%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/piwigo/)
 * ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/piwigo%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/piwigo/)
-* Jessie x86-64b - [![Build Status](https://ci-stretch.nohost.me/ci/logs/piwigo%20%28Apps%29.svg)](https://ci-stretch.nohost.me/ci/apps/piwigo/)
 
 ## Limitations
 
@@ -60,8 +59,7 @@ this package:
 
 ---
 
-Developers infos
-----------------
+## Developers infos
 
 Please do your pull request to the [testing branch](https://github.com/YunoHost-Apps/piwigo_ynh/tree/testing).
 
