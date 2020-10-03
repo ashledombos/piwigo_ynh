@@ -75,4 +75,4 @@ ynh_backup --src_path="/home/yunohost.app/${app}/upload" --is_big
 # END OF SCRIPT
 #=================================================
 
-ynh_print_info --message="Backup script completed for $app. (YunoHost will then actually copy those files to the archive)."
+ynh_print_info --message="Backup script completed for Piwigo. (YunoHost will then actually copy those files to the archive)."

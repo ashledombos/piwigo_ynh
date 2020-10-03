@@ -100,7 +100,7 @@ ynh_systemd_action --action=restart --service_name=fail2ban
 ynh_script_progression --message="Reinstalling dependencies..." --weight=40
 
 # Define and install dependencies
-ynh_install_app_dependencies $pkg_dependencies
+ynh_install_app_dependencies "$pkg_dependencies"
 
 #=================================================
 # RESTORE THE DATA DIRECTORY
@@ -111,7 +111,7 @@ ynh_script_progression --message="Restoring data directory..."
 ynh_restore_file --origin_path="/home/yunohost.app/$app/upload" --not_mandatory
 
 # Create app folders
-mkdir -p "/home/yunohost.app/$app/upload"
+mkdir -p /home/yunohost.app/$app/upload
 
 # Create temporary data folder
 mkdir -p /home/yunohost.app/$app/_data
