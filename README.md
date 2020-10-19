@@ -1,6 +1,6 @@
 # Piwigo for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/piwigo.svg)](https://dash.yunohost.org/appci/app/piwigo)  
+[![Integration level](https://dash.yunohost.org/integration/piwigo.svg)](https://dash.yunohost.org/appci/app/piwigo) ![](https://ci-apps.yunohost.org/ci/badges/piwigo.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/piwigo.maintain.svg)  
 [![Install Piwigo with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=piwigo)
 
 > *This package allow you to install Piwigo quickly and simply on a YunoHost server.  
@@ -43,9 +43,8 @@ this package:
 
 #### Supported architectures
 
-* x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/piwigo%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/piwigo/)
+* x86-64 - [![Build Status](https://ci-apps.yunohost.org/ci/logs/piwigo%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/piwigo/)
 * ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/piwigo%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/piwigo/)
-* Jessie x86-64b - [![Build Status](https://ci-stretch.nohost.me/ci/logs/piwigo%20%28Apps%29.svg)](https://ci-stretch.nohost.me/ci/apps/piwigo/)
 
 ## Limitations
 
@@ -60,8 +59,7 @@ this package:
 
 ---
 
-Developers infos
-----------------
+## Developers infos
 
 Please do your pull request to the [testing branch](https://github.com/YunoHost-Apps/piwigo_ynh/tree/testing).
 
