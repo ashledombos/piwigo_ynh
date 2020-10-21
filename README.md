@@ -15,11 +15,10 @@ Extensions make Piwigo easily customizable. Icing on the cake, Piwigo is free an
 
 ## Screenshots
 
-![](http://piwigo.org/screenshots/homepage/piwigo-batch-manager.png)
+![](https://camo.githubusercontent.com/e6a5d3a1200eabf27760b660a9b0505418ac14b9/68747470733a2f2f70697769676f2e6f72672f73637265656e73686f74732f6769746875622d73637265656e73686f742d322e31302e6a7067)
 
 ## Demo
 
-* [YunoHost demo](https://demo.yunohost.org/piwigo/)
 * [Official demo](http://piwigo.org/demo/)
 
 ## Configuration
@@ -31,9 +30,7 @@ Extensions make Piwigo easily customizable. Icing on the cake, Piwigo is free an
 
 ## YunoHost specific features
 
-In addition to Piwigo core features, the following are made available with
-this package:
-
+In addition to Piwigo core features, the following are made available with this package:
  * Integrate with YunoHost users and SSO:
    * private mode: limit access to Yunohost users
    * public mode:
