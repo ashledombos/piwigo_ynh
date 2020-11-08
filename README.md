@@ -8,14 +8,13 @@ If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to
 
 ## Overview
 
-[Piwigo](http://piwigo.org) is a photo gallery software for the web, built by an active community of users and developers  
-Extensions make Piwigo easily customizable. Icing on the cake, Piwigo is free and opensource.
+[Piwigo](http://piwigo.org) is a photo gallery software for the web, built by an active community of users and developers. Extensions make Piwigo easily customizable.
 
 **Shipped version:** 2.10.2
 
 ## Screenshots
 
-![](https://camo.githubusercontent.com/e6a5d3a1200eabf27760b660a9b0505418ac14b9/68747470733a2f2f70697769676f2e6f72672f73637265656e73686f74732f6769746875622d73637265656e73686f742d322e31302e6a7067)
+![](sources/screenshot_Piwigo.jpg)
 
 ## Demo
 
@@ -32,7 +31,7 @@ Extensions make Piwigo easily customizable. Icing on the cake, Piwigo is free an
 
 In addition to Piwigo core features, the following are made available with this package:
  * Integrate with YunoHost users and SSO:
-   * private mode: limit access to Yunohost users
+   * private mode: limit access to YunoHost users
    * public mode:
      * SSO for YunoHost users
      * allow other users management, and guest mode
