@@ -1,6 +1,6 @@
 # Piwigo for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/piwigo.svg)](https://dash.yunohost.org/appci/app/piwigo)  
+[![Integration level](https://dash.yunohost.org/integration/piwigo.svg)](https://dash.yunohost.org/appci/app/piwigo) ![](https://ci-apps.yunohost.org/ci/badges/piwigo.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/piwigo.maintain.svg)  
 [![Install Piwigo with YunoHost](https://install-app.yunohost.org/install-with-yunohost.png)](https://install-app.yunohost.org/?app=piwigo)
 
 > *This package allow you to install Piwigo quickly and simply on a YunoHost server.  
@@ -8,18 +8,16 @@ If you don't have YunoHost, please see [here](https://yunohost.org/#/install) to
 
 ## Overview
 
-[Piwigo](http://piwigo.org) is a photo gallery software for the web, built by an active community of users and developers  
-Extensions make Piwigo easily customizable. Icing on the cake, Piwigo is free and opensource.
+[Piwigo](http://piwigo.org) is a photo gallery software for the web, built by an active community of users and developers. Extensions make Piwigo easily customizable.
 
 **Shipped version:** 2.10.2
 
 ## Screenshots
 
-![](http://piwigo.org/screenshots/homepage/piwigo-batch-manager.png)
+![](sources/screenshot_Piwigo.jpg)
 
 ## Demo
 
-* [YunoHost demo](https://demo.yunohost.org/piwigo/)
 * [Official demo](http://piwigo.org/demo/)
 
 ## Configuration
@@ -31,11 +29,9 @@ Extensions make Piwigo easily customizable. Icing on the cake, Piwigo is free an
 
 ## YunoHost specific features
 
-In addition to Piwigo core features, the following are made available with
-this package:
-
+In addition to Piwigo core features, the following are made available with this package:
  * Integrate with YunoHost users and SSO:
-   * private mode: limit access to Yunohost users
+   * private mode: limit access to YunoHost users
    * public mode:
      * SSO for YunoHost users
      * allow other users management, and guest mode
@@ -43,9 +39,8 @@ this package:
 
 #### Supported architectures
 
-* x86-64b - [![Build Status](https://ci-apps.yunohost.org/ci/logs/piwigo%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/piwigo/)
+* x86-64 - [![Build Status](https://ci-apps.yunohost.org/ci/logs/piwigo%20%28Apps%29.svg)](https://ci-apps.yunohost.org/ci/apps/piwigo/)
 * ARMv8-A - [![Build Status](https://ci-apps-arm.yunohost.org/ci/logs/piwigo%20%28Apps%29.svg)](https://ci-apps-arm.yunohost.org/ci/apps/piwigo/)
-* Jessie x86-64b - [![Build Status](https://ci-stretch.nohost.me/ci/logs/piwigo%20%28Apps%29.svg)](https://ci-stretch.nohost.me/ci/apps/piwigo/)
 
 ## Limitations
 
@@ -60,8 +55,7 @@ this package:
 
 ---
 
-Developers infos
-----------------
+## Developers infos
 
 Please do your pull request to the [testing branch](https://github.com/YunoHost-Apps/piwigo_ynh/tree/testing).
 

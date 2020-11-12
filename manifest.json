@@ -3,10 +3,10 @@
     "id": "piwigo",
     "packaging_format": 1,
     "description": {
-        "en": "photo gallery",
-        "fr": "Galerie photo"
+        "en": "Open source photo gallery for the web",
+        "fr": "Galerie de photos open source pour le web"
     },
-    "version": "2.10.2~ynh1",
+    "version": "2.10.2~ynh2",
     "url": "http://piwigo.org",
     "license": "GPL-2.0",
     "maintainer": {
@@ -15,7 +15,7 @@
         "url": ""
     },
     "requirements": {
-    "yunohost": ">= 3.5.0"
+    "yunohost": ">= 3.8.1"
     },
     "multi_instance": true,
     "services": [
