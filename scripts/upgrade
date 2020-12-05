@@ -89,13 +89,6 @@ ynh_clean_setup () {
 ynh_abort_if_errors
 
 #=================================================
-# CHECK THE PATH
-#=================================================
-
-# Normalize the URL path syntax
-path_url=$(ynh_normalize_url_path --path_url=$path_url)
-
-#=================================================
 # STANDARD UPGRADE STEPS
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -120,7 +113,7 @@ fi
 #=================================================
 ynh_script_progression --message="Upgrading NGINX web server configuration..." --weight=2
 
-# Create a dedicated nginx config
+# Create a dedicated NGINX config
 ynh_add_nginx_config
 
 #=================================================
@@ -194,7 +187,7 @@ ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
 # Reload SSOwat config
 yunohost app ssowatconf
 
-# Reload Nginx
+# Reload NGINX
 ynh_systemd_action --service_name=nginx --action=reload
 
 if [ "$language" = "fr" ] ; then
@@ -203,7 +196,7 @@ else
   applanguage="en_UK"
 fi
 
-# Upgrade piwigo via curl
+# Upgrade Piwigo via cURL
 ynh_local_curl "/upgrade.php?language=$applanguage&now=true" "language=$applanguage" "username=$admin" "password=$admin_pwd"
 
 #=================================================
