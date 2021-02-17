@@ -24,6 +24,7 @@ final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 language=$(ynh_app_setting_get --app=$app --key=language)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 admin_pwd=$(ynh_app_setting_get --app=$app --key=admin_pwd)
+db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
 
 #=================================================
 # CHECK VERSION
@@ -74,6 +75,13 @@ then
 	ynh_app_setting_delete --app=$app --key=path_url
 fi
 
+# Cleaning legacy permissions
+if ynh_legacy_permissions_exists; then
+  ynh_legacy_permissions_delete_all
+
+  ynh_app_setting_delete --app=$app --key=is_public
+fi
+
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
@@ -121,7 +129,7 @@ ynh_add_nginx_config
 #=================================================
 ynh_script_progression --message="Upgrading dependencies..." --weight=6
 
-ynh_install_app_dependencies "$pkg_dependencies"
+ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # CREATE DEDICATED USER
@@ -216,13 +224,7 @@ ynh_store_file_checksum --file="$final_path/local/config/config.inc.php"
 # Make a backup of the original database config file if modified
 ynh_backup_if_checksum_is_different --file="$final_path/local/config/database.inc.php"
 
-# Setup database in local/config/database.inc.php
-ynh_replace_string --match_string="__DBTOCHANGE__" --replace_string="$db_name" --target_file=../conf/database.inc.php
-ynh_replace_string --match_string="__USERTOCHANGE__" --replace_string="$db_name" --target_file=../conf/database.inc.php
-db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
-ynh_replace_string --match_string="__PASSTOCHANGE__" --replace_string="$db_pwd" --target_file=../conf/database.inc.php
-
-cp ../conf/database.inc.php $final_path/local/config/database.inc.php
+ynh_add_config --template="../conf/database.inc.php" --destination="$final_path/local/config/database.inc.php"
 
 # Calculate and store the database config file checksum
 ynh_store_file_checksum --file="$final_path/local/config/database.inc.php"
@@ -274,18 +276,6 @@ ynh_add_fail2ban_config --logpath="/var/log/${app}FailedLogins.log" --failregex=
 
 #=================================================
 # GENERIC FINALIZATION
-#=================================================
-# SETUP SSOWAT
-#=================================================
-ynh_script_progression --message="Upgrading SSOwat configuration..."
-
-# Protect URIs if private
-if [ $is_public -eq 0 ]
-then
-  ynh_app_setting_delete --app=$app --key=unprotected_uris
-  ynh_app_setting_set --app=$app --key=protected_uris --value="/"
-fi
-
 #=================================================
 # RELOAD NGINX
 #=================================================

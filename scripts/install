@@ -65,8 +65,9 @@ ynh_install_app_dependencies "$pkg_dependencies"
 ynh_script_progression --message="Creating a MySQL database..."
 
 db_name=$(ynh_sanitize_dbid --db_name=$app)
+db_user=$db_name
 ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-ynh_mysql_setup_db --db_user=$db_name --db_name=$db_name
+ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -138,7 +139,7 @@ ynh_secure_remove --file="$tmpdir"
 ynh_script_progression --message="Configuring PHP-FPM..." --weight=2
 
 # Create a dedicated PHP-FPM config
-ynh_add_fpm_config --phpversion=$YNH_PHP_VERSION
+ynh_add_fpm_config
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
@@ -146,11 +147,10 @@ phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 #=================================================
 ynh_script_progression --message="Installing Piwigo with cURL..." --weight=5
 
-ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
-# Reload SSOwat config
-yunohost app ssowatconf
+# Set the app as temporarily public for cURL call
+ynh_permission_update --permission="main" --add="visitors"
 
-# Reload Nginx
+# Reload NGINX
 ynh_systemd_action --service_name=nginx --action=reload
 
 # Generate random password for admin
@@ -163,10 +163,10 @@ else
   applanguage="en_UK"
 fi
 
-# Configure piwigo via curl
+# Configure Piwigo via cURL
 mail="$(ynh_user_get_info --username=$admin --key=mail)"
 
-# Installation with curl
+# Installation with cURL
 ynh_local_curl "/install.php?language=$applanguage" "install=true" "dbuser=$db_name" "dbpasswd=$db_pwd" "dbname=$db_name" "admin_name=$admin" "admin_pass1=$adm_pwd" "admin_pass2=$adm_pwd" "admin_mail=$mail"
 
 #=================================================
@@ -181,11 +181,7 @@ cp ../conf/config.inc.php $final_path/local/config/
 ynh_store_file_checksum --file="$final_path/local/config/config.inc.php"
 
 # Setup database in local/config/database.inc.php
-ynh_replace_string --match_string="__DBTOCHANGE__" --replace_string="$db_name" --target_file=../conf/database.inc.php
-ynh_replace_string --match_string="__USERTOCHANGE__" --replace_string="$db_name" --target_file=../conf/database.inc.php
-ynh_replace_string --match_string="__PASSTOCHANGE__" --replace_string="$db_pwd" --target_file=../conf/database.inc.php
-
-cp ../conf/database.inc.php $final_path/local/config/database.inc.php
+ynh_add_config --template="../conf/database.inc.php" --destination="$final_path/local/config/database.inc.php"
 
 # Calculate and store the database config file checksum
 ynh_store_file_checksum --file="$final_path/local/config/database.inc.php"
@@ -235,13 +231,12 @@ ynh_add_fail2ban_config --logpath="/var/log/${app}FailedLogins.log" --failregex=
 #=================================================
 # SETUP SSOWAT
 #=================================================
-ynh_script_progression --message="Configuring SSOwat..."
+ynh_script_progression --message="Configuring permissions..."
 
-# Protect URIs if private
+# Make app public if necessary
 if [ $is_public -eq 0 ]
 then
-  ynh_app_setting_delete --app=$app --key=unprotected_uris
-  ynh_app_setting_set --app=$app --key=protected_uris --value="/"
+	ynh_permission_update --permission="main" --remove="visitors"
 fi
 
 #=================================================
