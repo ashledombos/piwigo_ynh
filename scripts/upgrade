@@ -24,6 +24,7 @@ final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 language=$(ynh_app_setting_get --app=$app --key=language)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 admin_pwd=$(ynh_app_setting_get --app=$app --key=admin_pwd)
+db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
 
 #=================================================
 # CHECK VERSION
@@ -74,6 +75,13 @@ then
 	ynh_app_setting_delete --app=$app --key=path_url
 fi
 
+# Cleaning legacy permissions
+if ynh_legacy_permissions_exists; then
+  ynh_legacy_permissions_delete_all
+
+  ynh_app_setting_delete --app=$app --key=is_public
+fi
+
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
@@ -87,13 +95,6 @@ ynh_clean_setup () {
 }
 # Exit if an error occurs during the execution of the script
 ynh_abort_if_errors
-
-#=================================================
-# CHECK THE PATH
-#=================================================
-
-# Normalize the URL path syntax
-path_url=$(ynh_normalize_url_path --path_url=$path_url)
 
 #=================================================
 # STANDARD UPGRADE STEPS
@@ -120,7 +121,7 @@ fi
 #=================================================
 ynh_script_progression --message="Upgrading NGINX web server configuration..." --weight=2
 
-# Create a dedicated nginx config
+# Create a dedicated NGINX config
 ynh_add_nginx_config
 
 #=================================================
@@ -128,7 +129,7 @@ ynh_add_nginx_config
 #=================================================
 ynh_script_progression --message="Upgrading dependencies..." --weight=6
 
-ynh_install_app_dependencies "$pkg_dependencies"
+ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # CREATE DEDICATED USER
@@ -190,11 +191,16 @@ chmod 755 -R $final_path/_data
 #=================================================
 ynh_script_progression --message="Upgrading Piwigo with cURL..." --weight=6
 
-ynh_app_setting_set --app=$app --key=unprotected_uris --value="/"
-# Reload SSOwat config
-yunohost app ssowatconf
+# Set the app as temporarily public for cURL call
+ynh_permission_has_user --permission="main" --user="visitors"
+contains_visitors=$?
 
-# Reload Nginx
+if [ $contains_visitors -eq 1 ]
+then
+    ynh_permission_update --permission="main" --add="visitors"
+fi
+
+# Reload NGINX
 ynh_systemd_action --service_name=nginx --action=reload
 
 if [ "$language" = "fr" ] ; then
@@ -203,7 +209,7 @@ else
   applanguage="en_UK"
 fi
 
-# Upgrade piwigo via curl
+# Upgrade Piwigo via cURL
 ynh_local_curl "/upgrade.php?language=$applanguage&now=true" "language=$applanguage" "username=$admin" "password=$admin_pwd"
 
 #=================================================
@@ -223,13 +229,7 @@ ynh_store_file_checksum --file="$final_path/local/config/config.inc.php"
 # Make a backup of the original database config file if modified
 ynh_backup_if_checksum_is_different --file="$final_path/local/config/database.inc.php"
 
-# Setup database in local/config/database.inc.php
-ynh_replace_string --match_string="__DBTOCHANGE__" --replace_string="$db_name" --target_file=../conf/database.inc.php
-ynh_replace_string --match_string="__USERTOCHANGE__" --replace_string="$db_name" --target_file=../conf/database.inc.php
-db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
-ynh_replace_string --match_string="__PASSTOCHANGE__" --replace_string="$db_pwd" --target_file=../conf/database.inc.php
-
-cp ../conf/database.inc.php $final_path/local/config/database.inc.php
+ynh_add_config --template="../conf/database.inc.php" --destination="$final_path/local/config/database.inc.php"
 
 # Calculate and store the database config file checksum
 ynh_store_file_checksum --file="$final_path/local/config/database.inc.php"
@@ -280,19 +280,18 @@ chown $app: "/var/log/${app}FailedLogins.log"
 ynh_add_fail2ban_config --logpath="/var/log/${app}FailedLogins.log" --failregex="ip=<HOST>" --max_retry=6
 
 #=================================================
-# GENERIC FINALIZATION
-#=================================================
 # SETUP SSOWAT
 #=================================================
-ynh_script_progression --message="Upgrading SSOwat configuration..."
+ynh_script_progression --message="Configuring permissions..."
 
-# Protect URIs if private
+# Make app public if necessary
 if [ $is_public -eq 0 ]
 then
-  ynh_app_setting_delete --app=$app --key=unprotected_uris
-  ynh_app_setting_set --app=$app --key=protected_uris --value="/"
+  ynh_permission_update --permission="main" --remove="visitors"
 fi
 
+#=================================================
+# GENERIC FINALIZATION
 #=================================================
 # RELOAD NGINX
 #=================================================
