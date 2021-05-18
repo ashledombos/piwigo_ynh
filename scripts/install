@@ -92,29 +92,6 @@ mkdir -p $tmpdir/plugins/Ldap_Login
 ynh_setup_source --dest_dir="$tmpdir/plugins/Ldap_Login" --source_id=ldap_plugin
 ynh_setup_source --dest_dir="$tmpdir/plugins" --source_id=log_failed_logins_plugin
 
-#=================================================
-# NGINX CONFIGURATION
-#=================================================
-ynh_script_progression --message="Configuring NGINX web server..."
-
-# Create a dedicated NGINX config
-ynh_add_nginx_config
-
-#=================================================
-# PHP-FPM CONFIGURATION
-#=================================================
-ynh_script_progression --message="Configuring PHP-FPM..." --weight=2
-
-# Create a dedicated PHP-FPM config
-ynh_add_fpm_config
-phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
-
-#=================================================
-# SPECIFIC SETUP
-#=================================================
-# COPY FILES TO $FINAL_PATH
-#=================================================
-
 # sets extended pattern matching options in the bash shell
 shopt -s extglob
 
@@ -147,6 +124,25 @@ ynh_app_setting_set --app=$app --key=datapath --value=$datapath
 
 ynh_secure_remove --file="$tmpdir"
 
+#=================================================
+# NGINX CONFIGURATION
+#=================================================
+ynh_script_progression --message="Configuring NGINX web server..."
+
+# Create a dedicated NGINX config
+ynh_add_nginx_config
+
+#=================================================
+# PHP-FPM CONFIGURATION
+#=================================================
+ynh_script_progression --message="Configuring PHP-FPM..." --weight=2
+
+# Create a dedicated PHP-FPM config
+ynh_add_fpm_config
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+
+#=================================================
+# SPECIFIC SETUP
 #=================================================
 # SETUP APPLICATION WITH CURL
 #=================================================
