@@ -170,7 +170,7 @@ fi
 mail="$(ynh_user_get_info --username=$admin --key=mail)"
 
 # Installation with cURL
-ynh_local_curl "/install.php?language=$applanguage" "install=true" "dbuser=$db_name" "dbpasswd=$db_pwd" "dbname=$db_name" "admin_name=$admin" "admin_pass1=$adm_pwd" "admin_pass2=$adm_pwd" "admin_mail=$mail"
+ynh_local_curl "/install.php?language=$applanguage" "install=true" "dbhost=127.0.0.1" "dbuser=$db_user" "dbpasswd=$db_pwd" "dbname=$db_name" "prefix=" "admin_name=$admin" "admin_pass1=$adm_pwd" "admin_pass2=$adm_pwd" "admin_mail=$mail"
 
 #=================================================
 # CONFIGURE PIWIGO
@@ -178,16 +178,14 @@ ynh_local_curl "/install.php?language=$applanguage" "install=true" "dbuser=$db_n
 ynh_script_progression --message="Configuring Piwigo..."
 
 # Change local config
-cp ../conf/config.inc.php $final_path/local/config/
-
-# Calculate and store the config file checksum
-ynh_store_file_checksum --file="$final_path/local/config/config.inc.php"
+ynh_add_config --template="../conf/config.inc.php" --destination="$final_path/local/config/config.inc.php"
 
 # Setup database in local/config/database.inc.php
 ynh_add_config --template="../conf/database.inc.php" --destination="$final_path/local/config/database.inc.php"
 
-# Calculate and store the database config file checksum
-ynh_store_file_checksum --file="$final_path/local/config/database.inc.php"
+chmod 750 "$final_path"
+chmod -R o-rwx "$final_path"
+chown -R $app:www-data "$final_path"
 
 #=================================================
 # ADD LDAP PLUGIN
