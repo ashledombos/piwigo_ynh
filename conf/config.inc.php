@@ -1,7 +1,7 @@
 <?php
 
 // Use HTTP authentication
-$conf['apache_authentication'] = true;
+$conf['apache_authentication'] = false;
 
 // Use external authentication
 $conf['external_authentification'] = true;
