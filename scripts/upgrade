@@ -188,7 +188,8 @@ ynh_install_app_dependencies $pkg_dependencies
 ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=3
 
 # Create a dedicated PHP-FPM config
-ynh_add_fpm_config
+ynh_add_fpm_config --package="$extra_php_dependencies"
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
 # SPECIFIC UPGRADE
@@ -242,12 +243,12 @@ ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name <<< 
 
 # Login with admin account
 ynh_local_curl "/ws.php?format=json" "method=pwg.session.login" "username=$admin" "password=$admin_pwd"
-# Get session token
+# Get session token
 status=$(ynh_local_curl "/ws.php?format=json" "method=pwg.session.getStatus")
 pwg_token=$(jq --raw-output .result.pwg_token <<< $status)
 # Activate the Ldap_Login plugin
 ynh_local_curl "/ws.php?format=json" "method=pwg.plugins.performAction" "action=activate" "plugin=Ldap_Login" "pwg_token=$pwg_token"
-# Log out
+# Log out
 ynh_local_curl "/ws.php?format=json" "method=pwg.session.logout"
 
 # Edit Ldap_Login plugin configuration

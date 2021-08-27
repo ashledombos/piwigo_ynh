@@ -139,7 +139,7 @@ ynh_add_nginx_config
 ynh_script_progression --message="Configuring PHP-FPM..." --weight=2
 
 # Create a dedicated PHP-FPM config
-ynh_add_fpm_config
+ynh_add_fpm_config --package="$extra_php_dependencies"
 phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
@@ -197,14 +197,14 @@ ynh_script_progression --message="Configuring LDAP plugin..."
 
 # Login with admin account
 ynh_local_curl "/ws.php?format=json" "method=pwg.session.login" "username=$admin" "password=$adm_pwd"
-# Get session token
+# Get session token
 status=$(ynh_local_curl "/ws.php?format=json" "method=pwg.session.getStatus")
 pwg_token=$(jq --raw-output .result.pwg_token <<< $status)
 # Install the Ldap_Login plugin
 ynh_local_curl "/ws.php?format=json" "method=pwg.plugins.performAction" "action=install" "plugin=Ldap_Login" "pwg_token=$pwg_token"
 # Activate the Ldap_Login plugin
 ynh_local_curl "/ws.php?format=json" "method=pwg.plugins.performAction" "action=activate" "plugin=Ldap_Login" "pwg_token=$pwg_token"
-# Log out
+# Log out
 ynh_local_curl "/ws.php?format=json" "method=pwg.session.logout"
 
 # Edit Ldap_Login plugin configuration
