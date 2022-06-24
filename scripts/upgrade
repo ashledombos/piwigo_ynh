@@ -27,8 +27,6 @@ db_user=$db_name
 admin_pwd=$(ynh_app_setting_get --app=$app --key=admin_pwd)
 db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
 
-email=$(ynh_user_get_info --username=$admin --key=mail)
-
 #=================================================
 # CHECK VERSION
 #=================================================
