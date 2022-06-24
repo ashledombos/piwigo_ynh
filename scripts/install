@@ -22,9 +22,9 @@ ynh_abort_if_errors
 
 domain=$YNH_APP_ARG_DOMAIN
 path_url=$YNH_APP_ARG_PATH
-admin=$YNH_APP_ARG_ADMIN
 is_public=$YNH_APP_ARG_IS_PUBLIC
 language=$YNH_APP_ARG_LANGUAGE
+admin=$YNH_APP_ARG_ADMIN
 
 app=$YNH_APP_INSTANCE_NAME
 
@@ -46,9 +46,9 @@ ynh_script_progression --message="Storing installation settings..."
 
 ynh_app_setting_set --app=$app --key=domain --value=$domain
 ynh_app_setting_set --app=$app --key=path --value=$path_url
-ynh_app_setting_set --app=$app --key=admin --value=$admin
 ynh_app_setting_set --app=$app --key=is_public --value=$is_public
 ynh_app_setting_set --app=$app --key=language --value=$language
+ynh_app_setting_set --app=$app --key=admin --value=$admin
 
 #=================================================
 # STANDARD MODIFICATIONS
@@ -65,7 +65,7 @@ ynh_install_app_dependencies $pkg_dependencies
 ynh_script_progression --message="Configuring system user..." --weight=3
 
 # Create a system user
-ynh_system_user_create --username=$app --home_dir=$final_path
+ynh_system_user_create --username=$app --home_dir="$final_path"
 
 #=================================================
 # CREATE A MYSQL DATABASE
@@ -127,21 +127,21 @@ ynh_app_setting_set --app=$app --key=datapath --value=$datapath
 ynh_secure_remove --file="$tmpdir"
 
 #=================================================
+# PHP-FPM CONFIGURATION
+#=================================================
+ynh_script_progression --message="Configuring PHP-FPM..." --weight=2
+
+# Create a dedicated PHP-FPM config
+ynh_add_fpm_config
+phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+
+#=================================================
 # NGINX CONFIGURATION
 #=================================================
 ynh_script_progression --message="Configuring NGINX web server..."
 
 # Create a dedicated NGINX config
 ynh_add_nginx_config
-
-#=================================================
-# PHP-FPM CONFIGURATION
-#=================================================
-ynh_script_progression --message="Configuring PHP-FPM..." --weight=2
-
-# Create a dedicated PHP-FPM config
-ynh_add_fpm_config --package="$extra_php_dependencies"
-phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
 # SPECIFIC SETUP
