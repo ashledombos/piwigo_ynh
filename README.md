@@ -5,7 +5,7 @@ It shall NOT be edited by hand.
 
 # Piwigo for YunoHost
 
-[![Integration level](https://dash.yunohost.org/integration/piwigo.svg)](https://dash.yunohost.org/appci/app/piwigo) ![](https://ci-apps.yunohost.org/ci/badges/piwigo.status.svg) ![](https://ci-apps.yunohost.org/ci/badges/piwigo.maintain.svg)  
+[![Integration level](https://dash.yunohost.org/integration/piwigo.svg)](https://dash.yunohost.org/appci/app/piwigo) ![Working status](https://ci-apps.yunohost.org/ci/badges/piwigo.status.svg) ![Maintenance status](https://ci-apps.yunohost.org/ci/badges/piwigo.maintain.svg)  
 [![Install Piwigo with YunoHost](https://install-app.yunohost.org/install-with-yunohost.svg)](https://install-app.yunohost.org/?app=piwigo)
 
 *[Lire ce readme en français.](./README_fr.md)*
@@ -24,7 +24,7 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 ## Screenshots
 
-![](./doc/screenshots/screenshot_Piwigo.jpg)
+![Screenshot of Piwigo](./doc/screenshots/screenshot_Piwigo.jpg)
 
 ## Disclaimers / important information
 
@@ -40,21 +40,22 @@ In addition to Piwigo core features, the following are made available with this 
 
 ## Documentation and resources
 
-* Official app website: http://piwigo.org
-* Official admin documentation: https://piwigo.org/guides
-* Upstream app code repository: https://github.com/Piwigo/Piwigo
-* YunoHost documentation for this app: https://yunohost.org/app_piwigo
-* Report a bug: https://github.com/YunoHost-Apps/piwigo_ynh/issues
+* Official app website: <http://piwigo.org>
+* Official admin documentation: <https://piwigo.org/guides>
+* Upstream app code repository: <https://github.com/Piwigo/Piwigo>
+* YunoHost documentation for this app: <https://yunohost.org/app_piwigo>
+* Report a bug: <https://github.com/YunoHost-Apps/piwigo_ynh/issues>
 
 ## Developer info
 
 Please send your pull request to the [testing branch](https://github.com/YunoHost-Apps/piwigo_ynh/tree/testing).
 
 To try the testing branch, please proceed like that.
-```
+
+``` bash
 sudo yunohost app install https://github.com/YunoHost-Apps/piwigo_ynh/tree/testing --debug
 or
 sudo yunohost app upgrade piwigo -u https://github.com/YunoHost-Apps/piwigo_ynh/tree/testing --debug
 ```
 
-**More info regarding app packaging:** https://yunohost.org/packaging_apps
+**More info regarding app packaging:** <https://yunohost.org/packaging_apps>
