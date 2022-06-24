@@ -2,9 +2,9 @@
 	; Manifest
 		domain="domain.tld"
 		path="/path"
-		admin="john"
-		language="fr"
 		is_public=1
+		language="fr"
+		admin="john"
 	; Checks
 		pkg_linter=1
 		setup_sub_dir=1
@@ -13,14 +13,15 @@
 		setup_private=1
 		setup_public=1
 		upgrade=1
+		# 12.0.0~ynh1
 		upgrade=1	from_commit=bc9ab6f21a7dcaab9245ef5cbfc9d6c4bd026925
+		# 12.1.0~ynh1
+		upgrade=1	from_commit=cd09a41142c55f4d4c0e654574ccb3e9d1ad3f91
 		backup_restore=1
 		multi_instance=1
+		port_already_use=0
 		change_url=1
 ;;; Options
 Email=
 Notification=none
 ;;; Upgrade options
-	; commit=bc9ab6f21a7dcaab9245ef5cbfc9d6c4bd026925
-		name=12.0.0
-		manifest_arg=domain=DOMAIN&path=PATH&admin=USER&language=fr&is_public=1&

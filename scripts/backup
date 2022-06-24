@@ -42,6 +42,12 @@ ynh_print_info --message="Declaring files to be backed up..."
 ynh_backup --src_path="$final_path"
 
 #=================================================
+# BACKUP THE DATA DIR
+#=================================================
+
+ynh_backup --src_path="$datapath" --is_big
+
+#=================================================
 # BACKUP THE NGINX CONFIGURATION
 #=================================================
 
@@ -59,12 +65,6 @@ ynh_backup --src_path="/etc/php/$phpversion/fpm/pool.d/$app.conf"
 
 ynh_backup --src_path="/etc/fail2ban/jail.d/$app.conf"
 ynh_backup --src_path="/etc/fail2ban/filter.d/$app.conf"
-
-#=================================================
-# BACKUP THE DATA DIRECTORY
-#=================================================
-
-ynh_backup --src_path="$datapath" --is_big
 
 #=================================================
 # BACKUP THE MYSQL DATABASE
