@@ -24,8 +24,9 @@ is_public=$(ynh_app_setting_get --app=$app --key=is_public)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 db_user=$db_name
-admin_pwd=$(ynh_app_setting_get --app=$app --key=admin_pwd)
 db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+admin_pwd=$(ynh_app_setting_get --app=$app --key=admin_pwd)
+datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 
 #=================================================
 # CHECK VERSION
