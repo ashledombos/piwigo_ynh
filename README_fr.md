@@ -18,7 +18,7 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 [Piwigo](http://piwigo.org) is a photo gallery software for the web, built by an active community of users and developers. Extensions make Piwigo easily customizable.
 
 
-**Version incluse :** 12.2.0~ynh1
+**Version incluse :** 12.2.0~ynh2
 
 **Démo :** https://piwigo.org/demo
 
@@ -28,15 +28,15 @@ Si vous n'avez pas YunoHost, regardez [ici](https://yunohost.org/#/install) pour
 
 ## Avertissements / informations importantes
 
-## YunoHost specific features
+## Caractéristiques spécifiques de YunoHost
 
-In addition to Piwigo core features, the following are made available with this package:
- * Integrate with YunoHost users and SSO:
-   * private mode: limit access to YunoHost users
-   * public mode:
-     * SSO for YunoHost users
-     * allow other users management, and guest mode
- * Allow one YunoHost user to be the administrator (set at the installation)
+En plus des fonctionnalités de base de Piwigo, les éléments suivants sont mis à disposition avec ce paquet :
+ * Intégration avec les utilisateurs de YunoHost et le SSO :
+   * mode privé : limiter l'accès aux utilisateurs de YunoHost.
+   * mode public :
+     * SSO pour les utilisateurs de YunoHost
+     * autoriser la gestion d'autres utilisateurs, et mode invité
+ * Permet à un utilisateur de YunoHost d'être l'administrateur (défini à l'installation).
 
 ## Documentations et ressources
 
