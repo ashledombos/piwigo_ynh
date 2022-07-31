@@ -24,8 +24,9 @@ is_public=$(ynh_app_setting_get --app=$app --key=is_public)
 final_path=$(ynh_app_setting_get --app=$app --key=final_path)
 db_name=$(ynh_app_setting_get --app=$app --key=db_name)
 db_user=$db_name
-admin_pwd=$(ynh_app_setting_get --app=$app --key=admin_pwd)
 db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+admin_pwd=$(ynh_app_setting_get --app=$app --key=admin_pwd)
+datadir=$(ynh_app_setting_get --app=$app --key=datadir)
 
 #=================================================
 # CHECK VERSION
@@ -33,16 +34,6 @@ db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
 ynh_script_progression --message="Checking version..."
 
 upgrade_type=$(ynh_check_app_version_changed)
-
-#=================================================
-# FIX MISSING APP SETTING THAT BREAKS BACKUP
-#=================================================
-
-# If datapath doesn't exist, create it
-if [ -z "$datapath" ]; then
-	datapath=/home/yunohost.app/$app
-	ynh_app_setting_set --app=$app --key=datapath --value=$datapath
-fi
 
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
@@ -68,6 +59,12 @@ ynh_script_progression --message="Ensuring downward compatibility..."
 # Cleaning legacy permissions
 if ynh_legacy_permissions_exists; then
 	ynh_legacy_permissions_delete_all
+fi
+
+# If datadir doesn't exist, create it
+if [ -z "$datadir" ]; then
+	datadir=/home/yunohost.app/$app
+	ynh_app_setting_set --app=$app --key=datadir --value=$datadir
 fi
 
 # If db_name doesn't exist, create it
@@ -123,8 +120,6 @@ ynh_system_user_create --username=$app --home_dir="$final_path"
 # sets extended pattern matching options in the bash shell
 shopt -s extglob
 
-datapath=/home/yunohost.app/$app
-
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
 	ynh_script_progression --message="Upgrading source files..." --weight=3
@@ -145,24 +140,24 @@ then
 	# If the _data subdirectory wasn't already moved to /home/yunohost.app/$app,
 	# then move it there
 	if [ ! -h $final_path/_data ] ; then
-		mv $final_path/_data $datapath
-		ln -sd $datapath/_data $final_path/_data
+		mv $final_path/_data $datadir
+		ln -sd $datadir/_data $final_path/_data
 	fi
 
 	# Backward compatibility:
 	# If the galleries subdirectory wasn't already moved to /home/yunohost.app/$app,
 	# then move it there
 	if [ ! -h $final_path/galleries ] ; then
-		mv $final_path/galleries $datapath
-		ln -sd $datapath/galleries $final_path/galleries
+		mv $final_path/galleries $datadir
+		ln -sd $datadir/galleries $final_path/galleries
 	fi
 
 	ynh_secure_remove --file="$tmpdir"
 fi
 
-chmod 750 "$datapath"
-chmod -R o-rwx "$datapath"
-chown -R $app:www-data "$datapath"
+chmod 750 "$datadir"
+chmod -R o-rwx "$datadir"
+chown -R $app:www-data "$datadir"
 
 chmod 750 "$final_path"
 chmod -R o-rwx "$final_path"
