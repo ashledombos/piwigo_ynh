@@ -14,20 +14,20 @@ source /usr/share/yunohost/helpers
 #=================================================
 
 # Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
+#REMOVEME? ynh_abort_if_errors
 
 #=================================================
 # RETRIEVE ARGUMENTS FROM THE MANIFEST
 #=================================================
 
-domain=$YNH_APP_ARG_DOMAIN
-path_url=$YNH_APP_ARG_PATH
-is_public=$YNH_APP_ARG_IS_PUBLIC
-language=$YNH_APP_ARG_LANGUAGE
-admin=$YNH_APP_ARG_ADMIN
-phpversion=$YNH_PHP_VERSION
+#REMOVEME? domain=$YNH_APP_ARG_DOMAIN
+#REMOVEME? path=$YNH_APP_ARG_PATH
+#REMOVEME? is_public=$YNH_APP_ARG_IS_PUBLIC
+#REMOVEME? language=$YNH_APP_ARG_LANGUAGE
+#REMOVEME? admin=$YNH_APP_ARG_ADMIN
+#REMOVEME? phpversion=$YNH_PHP_VERSION
 
-app=$YNH_APP_INSTANCE_NAME
+#REMOVEME? app=$YNH_APP_INSTANCE_NAME
 
 fpm_footprint="low"
 fpm_free_footprint=0
@@ -36,23 +36,23 @@ fpm_usage="low"
 #=================================================
 # CHECK IF THE APP CAN BE INSTALLED WITH THESE ARGS
 #=================================================
-ynh_script_progression --message="Validating installation parameters..."
+#REMOVEME? ynh_script_progression --message="Validating installation parameters..."
 
-final_path=/var/www/$app
-test ! -e "$final_path" || ynh_die --message="This path already contains a folder"
+#REMOVEME? install_dir=/var/www/$app
+#REMOVEME? test ! -e "$install_dir" || ynh_die --message="This path already contains a folder"
 
 # Register (book) web path
-ynh_webpath_register --app=$app --domain=$domain --path_url=$path_url
+#REMOVEME? ynh_webpath_register --app=$app --domain=$domain --path=$path
 
 #=================================================
 # STORE SETTINGS FROM MANIFEST
 #=================================================
-ynh_script_progression --message="Storing installation settings..."
+#REMOVEME? ynh_script_progression --message="Storing installation settings..."
 
-ynh_app_setting_set --app=$app --key=domain --value=$domain
-ynh_app_setting_set --app=$app --key=path --value=$path_url
+#REMOVEME? ynh_app_setting_set --app=$app --key=domain --value=$domain
+#REMOVEME? ynh_app_setting_set --app=$app --key=path --value=$path
 ynh_app_setting_set --app=$app --key=language --value=$language
-ynh_app_setting_set --app=$app --key=admin --value=$admin
+#REMOVEME? ynh_app_setting_set --app=$app --key=admin --value=$admin
 ynh_app_setting_set --app=$app --key=fpm_footprint --value=$fpm_footprint
 ynh_app_setting_set --app=$app --key=fpm_free_footprint --value=$fpm_free_footprint
 ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
@@ -62,34 +62,34 @@ ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Installing dependencies..." --weight=40
+#REMOVEME? ynh_script_progression --message="Installing dependencies..." --weight=40
 
-ynh_install_app_dependencies $pkg_dependencies
+#REMOVEME? ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
-ynh_script_progression --message="Configuring system user..." --weight=3
+#REMOVEME? ynh_script_progression --message="Configuring system user..." --weight=3
 
 # Create a system user
-ynh_system_user_create --username=$app --home_dir="$final_path"
+#REMOVEME? ynh_system_user_create --username=$app --home_dir="$install_dir"
 
 #=================================================
 # CREATE A MYSQL DATABASE
 #=================================================
-ynh_script_progression --message="Creating a MySQL database..."
+#REMOVEME? ynh_script_progression --message="Creating a MySQL database..."
 
-db_name=$(ynh_sanitize_dbid --db_name=$app)
-db_user=$db_name
-ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
+#REMOVEME? db_name=$(ynh_sanitize_dbid --db_name=$app)
+#REMOVEME? db_user=$db_name
+#REMOVEME? ynh_app_setting_set --app=$app --key=db_name --value=$db_name
+#REMOVEME? ynh_mysql_setup_db --db_user=$db_user --db_name=$db_name
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 ynh_script_progression --message="Setting up source files..." --weight=5
 
-ynh_app_setting_set --app=$app --key=final_path --value=$final_path
+#REMOVEME? ynh_app_setting_set --app=$app --key=install_dir --value=$install_dir
 
 # Create tmp directory and fetch app inside
 tmpdir="$(ynh_smart_mktemp --min_size=300)"
@@ -104,12 +104,12 @@ ynh_setup_source --dest_dir="$tmpdir/plugins" --source_id=log_failed_logins_plug
 shopt -s extglob
 
 # Install files and set permissions
-mkdir $final_path
-cp -a $tmpdir/!(upload|_data|galleries) $final_path
+mkdir $install_dir
+cp -a $tmpdir/!(upload|_data|galleries) $install_dir
 
-chmod 750 "$final_path"
-chmod -R o-rwx "$final_path"
-chown -R $app:www-data "$final_path"
+chmod 750 "$install_dir"
+chmod -R o-rwx "$install_dir"
+chown -R $app:www-data "$install_dir"
 
 #=================================================
 # PHP-FPM CONFIGURATION
@@ -118,7 +118,7 @@ ynh_script_progression --message="Configuring PHP-FPM..." --weight=2
 
 # Create a dedicated PHP-FPM config
 ynh_add_fpm_config --usage=$fpm_usage --footprint=$fpm_footprint
-phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+#REMOVEME? phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
 # NGINX CONFIGURATION
@@ -135,26 +135,26 @@ ynh_add_nginx_config
 #=================================================
 ynh_script_progression --message="Creating a data directory..."
 
-datadir=/home/yunohost.app/$app
-ynh_app_setting_set --app=$app --key=datadir --value=$datadir
+#REMOVEME? data_dir=/home/yunohost.app/$app
+#REMOVEME? ynh_app_setting_set --app=$app --key=data_dir --value=$data_dir
 
-mkdir -p $datadir/_data
-mkdir -p $datadir/upload
-mkdir -p $datadir/galleries
+mkdir -p $data_dir/_data
+mkdir -p $data_dir/upload
+mkdir -p $data_dir/galleries
 
-ln -sd $datadir/_data $final_path/_data
-ln -sd $datadir/upload $final_path/upload
-ln -sd $datadir/galleries $final_path/galleries
+ln -sd $data_dir/_data $install_dir/_data
+ln -sd $data_dir/upload $install_dir/upload
+ln -sd $data_dir/galleries $install_dir/galleries
 
-cp -Rp $tmpdir/_data/. $final_path/_data
-cp -Rp $tmpdir/upload/. $final_path/upload
-cp -Rp $tmpdir/galleries/. $final_path/galleries
+cp -Rp $tmpdir/_data/. $install_dir/_data
+cp -Rp $tmpdir/upload/. $install_dir/upload
+cp -Rp $tmpdir/galleries/. $install_dir/galleries
 
 ynh_secure_remove --file="$tmpdir"
 
-chmod 750 "$datadir"
-chmod -R o-rwx "$datadir"
-chown -R $app:www-data "$datadir"
+chmod 750 "$data_dir"
+chmod -R o-rwx "$data_dir"
+chown -R $app:www-data "$data_dir"
 
 #=================================================
 # SETUP APPLICATION WITH CURL
@@ -164,14 +164,14 @@ ynh_script_progression --message="Setuping application with CURL..." --weight=5
 # Set the app as temporarily public for curl call
 ynh_script_progression --message="Configuring SSOwat..."
 # Making the app public for curl
-ynh_permission_update --permission="main" --add="visitors"
+#REMOVEME? ynh_permission_update --permission="main" --add="visitors"
 
 # Reload NGINX
-ynh_systemd_action --service_name=nginx --action=reload
+#REMOVEME? ynh_systemd_action --service_name=nginx --action=reload
 
 # Generate random password for admin
 adm_pwd=$(ynh_string_random --length=24)
-ynh_app_setting_set --app=$app --key=admin_pwd --value="$adm_pwd"
+#REMOVEME? ynh_app_setting_set --app=$app --key=admin_pwd --value="$adm_pwd"
 
 if [ "$language" = "fr" ]; then
   applanguage="fr_FR"
@@ -191,14 +191,14 @@ ynh_local_curl "/install.php?language=$applanguage" "install=true" "dbhost=127.0
 ynh_script_progression --message="Configuring Piwigo..."
 
 # Change local config
-ynh_add_config --template="../conf/config.inc.php" --destination="$final_path/local/config/config.inc.php"
+ynh_add_config --template="../conf/config.inc.php" --destination="$install_dir/local/config/config.inc.php"
 
 # Setup database in local/config/database.inc.php
-ynh_add_config --template="../conf/database.inc.php" --destination="$final_path/local/config/database.inc.php"
+ynh_add_config --template="../conf/database.inc.php" --destination="$install_dir/local/config/database.inc.php"
 
-chmod 750 "$final_path"
-chmod -R o-rwx "$final_path"
-chown -R $app:www-data "$final_path"
+chmod 750 "$install_dir"
+chmod -R o-rwx "$install_dir"
+chown -R $app:www-data "$install_dir"
 
 #=================================================
 # ADD LDAP PLUGIN
@@ -227,7 +227,7 @@ UPDATE piwigo_ldap_login_config SET value='0' WHERE param = 'allow_new_users';
 UPDATE piwigo_ldap_login_config SET value='0' WHERE param = 'ld_group_user_active';"
 
 # Remove the public access
-ynh_permission_update --permission="main" --remove="visitors"
+#REMOVEME? ynh_permission_update --permission="main" --remove="visitors"
 
 #=================================================
 # GENERIC FINALIZATION
@@ -248,22 +248,22 @@ ynh_add_fail2ban_config --logpath="/var/log/${app}FailedLogins.log" --failregex=
 #=================================================
 # SETUP SSOWAT
 #=================================================
-ynh_script_progression --message="Configuring permissions..."
+#REMOVEME? ynh_script_progression --message="Configuring permissions..."
 
 # Make app public if necessary
-if [ $is_public -eq 1 ]
+#REMOVEME? if [ $is_public -eq 1 ]
 then
 	# Everyone can access the app.
 	# The "main" permission is automatically created before the install script.
-	ynh_permission_update --permission="main" --add="visitors"
+#REMOVEME? 	ynh_permission_update --permission="main" --add="visitors"
 fi
 
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading NGINX web server..."
+#REMOVEME? ynh_script_progression --message="Reloading NGINX web server..."
 
-ynh_systemd_action --service_name=nginx --action=reload
+#REMOVEME? ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================
 # END OF SCRIPT

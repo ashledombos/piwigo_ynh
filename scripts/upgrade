@@ -12,25 +12,25 @@ source /usr/share/yunohost/helpers
 #=================================================
 # LOAD SETTINGS
 #=================================================
-ynh_script_progression --message="Loading installation settings..." --weight=2
+#REMOVEME? ynh_script_progression --message="Loading installation settings..." --weight=2
 
-app=$YNH_APP_INSTANCE_NAME
+#REMOVEME? app=$YNH_APP_INSTANCE_NAME
 
-domain=$(ynh_app_setting_get --app=$app --key=domain)
-path_url=$(ynh_app_setting_get --app=$app --key=path)
-language=$(ynh_app_setting_get --app=$app --key=language)
-admin=$(ynh_app_setting_get --app=$app --key=admin)
-final_path=$(ynh_app_setting_get --app=$app --key=final_path)
-db_name=$(ynh_app_setting_get --app=$app --key=db_name)
-db_user=$db_name
-db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
-admin_pwd=$(ynh_app_setting_get --app=$app --key=admin_pwd)
-datadir=$(ynh_app_setting_get --app=$app --key=datadir)
-phpversion=$YNH_PHP_VERSION
+#REMOVEME? domain=$(ynh_app_setting_get --app=$app --key=domain)
+#REMOVEME? path=$(ynh_app_setting_get --app=$app --key=path)
+#REMOVEME? language=$(ynh_app_setting_get --app=$app --key=language)
+#REMOVEME? admin=$(ynh_app_setting_get --app=$app --key=admin)
+#REMOVEME? #REMOVEME? install_dir=$(ynh_app_setting_get --app=$app --key=install_dir)
+#REMOVEME? db_name=$(ynh_app_setting_get --app=$app --key=db_name)
+#REMOVEME? db_user=$db_name
+#REMOVEME? db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+#REMOVEME? admin_pwd=$(ynh_app_setting_get --app=$app --key=admin_pwd)
+#REMOVEME? data_dir=$(ynh_app_setting_get --app=$app --key=data_dir)
+#REMOVEME? phpversion=$YNH_PHP_VERSION
 
-fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
-fpm_free_footprint=$(ynh_app_setting_get --app=$app --key=fpm_free_footprint)
-fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
+#REMOVEME? fpm_footprint=$(ynh_app_setting_get --app=$app --key=fpm_footprint)
+#REMOVEME? fpm_free_footprint=$(ynh_app_setting_get --app=$app --key=fpm_free_footprint)
+#REMOVEME? fpm_usage=$(ynh_app_setting_get --app=$app --key=fpm_usage)
 
 #=================================================
 # CHECK VERSION
@@ -41,16 +41,16 @@ upgrade_type=$(ynh_check_app_version_changed)
 #=================================================
 # BACKUP BEFORE UPGRADE THEN ACTIVE TRAP
 #=================================================
-ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=6
+#REMOVEME? ynh_script_progression --message="Backing up the app before upgrading (may take a while)..." --weight=6
 
 # Backup the current version of the app
-ynh_backup_before_upgrade
-ynh_clean_setup () {
+#REMOVEME? ynh_backup_before_upgrade
+#REMOVEME? ynh_clean_setup () {
 	# Restore it if the upgrade fails
-	ynh_restore_upgradebackup
+#REMOVEME? 	ynh_restore_upgradebackup
 }
 # Exit if an error occurs during the execution of the script
-ynh_abort_if_errors
+#REMOVEME? ynh_abort_if_errors
 
 #=================================================
 # STANDARD UPGRADE STEPS
@@ -78,26 +78,26 @@ if [ -z "$fpm_usage" ]; then
 fi
 
 # Cleaning legacy permissions
-if ynh_legacy_permissions_exists; then
-	ynh_legacy_permissions_delete_all
+#REMOVEME? if ynh_legacy_permissions_exists; then
+#REMOVEME? 	ynh_legacy_permissions_delete_all
 fi
 
-# If datadir doesn't exist, create it
-if [ -z "$datadir" ]; then
-	datadir=/home/yunohost.app/$app
-	ynh_app_setting_set --app=$app --key=datadir --value=$datadir
+# If data_dir doesn't exist, create it
+if [ -z "$data_dir" ]; then
+	data_dir=/home/yunohost.app/$app
+#REMOVEME? 	ynh_app_setting_set --app=$app --key=data_dir --value=$data_dir
 fi
 
 # If db_name doesn't exist, create it
 if [ -z "$db_name" ]; then
 	db_name=$(ynh_sanitize_dbid --db_name=$app)
-	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
+#REMOVEME? 	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
 fi
 
-# If final_path doesn't exist, create it
-if [ -z "$final_path" ]; then
-	final_path=/var/www/$app
-	ynh_app_setting_set --app=$app --key=final_path --value=$final_path
+# If install_dir doesn't exist, create it
+if [ -z "$install_dir" ]; then
+#REMOVEME? 	install_dir=/var/www/$app
+#REMOVEME? 	ynh_app_setting_set --app=$app --key=install_dir --value=$install_dir
 fi
 
 # Compatibility with previous version; password was not set
@@ -106,33 +106,33 @@ if [ -z "$admin_pwd" ] ; then
   admin_pwd=$(ynh_string_random --length=24)
 
   # Compute password hash with the Piwigo function
-  cp ../conf/hash_password.php $final_path
-  hashed_password=$(cd $final_path ; php hash_password.php $admin_pwd)
+  cp ../conf/hash_password.php $install_dir
+  hashed_password=$(cd $install_dir ; php hash_password.php $admin_pwd)
 
   # Update password hash in database
-  db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
+#REMOVEME?   db_pwd=$(ynh_app_setting_get --app=$app --key=mysqlpwd)
   ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name <<< "UPDATE users SET password='$hashed_password' WHERE username='$admin';"
-  ynh_app_setting_set --app=$app --key=admin_pwd --value="$admin_pwd"
+#REMOVEME?   ynh_app_setting_set --app=$app --key=admin_pwd --value="$admin_pwd"
 
   # Remove the temporary hash generation script
-  ynh_secure_remove --file="$final_path/hash_password.php"
+#REMOVEME?   ynh_secure_remove --file="$install_dir/hash_password.php"
 fi
 
-# Use path instead of path_url in settings.yml...
-if [ -z "$path_url" ]
+# Use path instead of path in settings.yml...
+if [ -z "$path" ]
 then
-	path_url=$(ynh_app_setting_get --app=$app --key=path_url)
-	ynh_app_setting_set --app=$app --key=path --value=$path_url
-	ynh_app_setting_delete --app=$app --key=path_url
+#REMOVEME? 	path=$(ynh_app_setting_get --app=$app --key=path)
+#REMOVEME? 	ynh_app_setting_set --app=$app --key=path --value=$path
+	ynh_app_setting_delete --app=$app --key=path
 fi
 
 #=================================================
 # CREATE DEDICATED USER
 #=================================================
-ynh_script_progression --message="Making sure dedicated system user exists..." --weight=1
+#REMOVEME? ynh_script_progression --message="Making sure dedicated system user exists..." --weight=1
 
 # Create a dedicated user (if not existing)
-ynh_system_user_create --username=$app --home_dir="$final_path"
+#REMOVEME? ynh_system_user_create --username=$app --home_dir="$install_dir"
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
@@ -155,41 +155,41 @@ then
 	ynh_setup_source --dest_dir="$tmpdir/plugins" --source_id=log_failed_logins_plugin
 
 	# Install files and set permissions
-	cp -a $tmpdir/!(upload|_data|galleries) $final_path
+	cp -a $tmpdir/!(upload|_data|galleries) $install_dir
 
 	# Backward compatibility:
 	# If the _data subdirectory wasn't already moved to /home/yunohost.app/$app,
 	# then move it there
-	if [ ! -h $final_path/_data ] ; then
-		mv $final_path/_data $datadir
-		ln -sd $datadir/_data $final_path/_data
+	if [ ! -h $install_dir/_data ] ; then
+		mv $install_dir/_data $data_dir
+		ln -sd $data_dir/_data $install_dir/_data
 	fi
 
 	# Backward compatibility:
 	# If the galleries subdirectory wasn't already moved to /home/yunohost.app/$app,
 	# then move it there
-	if [ ! -h $final_path/galleries ] ; then
-		mv $final_path/galleries $datadir
-		ln -sd $datadir/galleries $final_path/galleries
+	if [ ! -h $install_dir/galleries ] ; then
+		mv $install_dir/galleries $data_dir
+		ln -sd $data_dir/galleries $install_dir/galleries
 	fi
 
 	ynh_secure_remove --file="$tmpdir"
 fi
 
-chmod 750 "$datadir"
-chmod -R o-rwx "$datadir"
-chown -R $app:www-data "$datadir"
+chmod 750 "$data_dir"
+chmod -R o-rwx "$data_dir"
+chown -R $app:www-data "$data_dir"
 
-chmod 750 "$final_path"
-chmod -R o-rwx "$final_path"
-chown -R $app:www-data "$final_path"
+chmod 750 "$install_dir"
+chmod -R o-rwx "$install_dir"
+chown -R $app:www-data "$install_dir"
 
 #=================================================
 # UPGRADE DEPENDENCIES
 #=================================================
-ynh_script_progression --message="Upgrading dependencies..." --weight=6
+#REMOVEME? ynh_script_progression --message="Upgrading dependencies..." --weight=6
 
-ynh_install_app_dependencies $pkg_dependencies
+#REMOVEME? ynh_install_app_dependencies $pkg_dependencies
 
 #=================================================
 # PHP-FPM CONFIGURATION
@@ -198,7 +198,7 @@ ynh_script_progression --message="Upgrading PHP-FPM configuration..." --weight=3
 
 # Create a dedicated PHP-FPM config
 ynh_add_fpm_config --phpversion=$phpversion --usage=$fpm_usage --footprint=$fpm_footprint
-phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
+#REMOVEME? phpversion=$(ynh_app_setting_get --app=$app --key=phpversion)
 
 #=================================================
 # NGINX CONFIGURATION
@@ -216,7 +216,7 @@ ynh_add_nginx_config
 ynh_script_progression --message="Upgrading Piwigo with cURL..." --weight=6
 
 # Reload NGINX
-ynh_systemd_action --service_name=nginx --action=reload
+#REMOVEME? ynh_systemd_action --service_name=nginx --action=reload
 
 if [ "$language" = "fr" ] ; then
   applanguage="fr_FR"
@@ -233,14 +233,14 @@ ynh_local_curl "/upgrade.php?language=$applanguage&now=true" "language=$applangu
 ynh_script_progression --message="Configuring Piwigo..."
 
 # Change local config
-ynh_add_config --template="../conf/config.inc.php" --destination="$final_path/local/config/config.inc.php"
+ynh_add_config --template="../conf/config.inc.php" --destination="$install_dir/local/config/config.inc.php"
 
 # Setup database in local/config/database.inc.php
-ynh_add_config --template="../conf/database.inc.php" --destination="$final_path/local/config/database.inc.php"
+ynh_add_config --template="../conf/database.inc.php" --destination="$install_dir/local/config/database.inc.php"
 
-chmod 750 "$final_path"
-chmod -R o-rwx "$final_path"
-chown -R $app:www-data "$final_path"
+chmod 750 "$install_dir"
+chmod -R o-rwx "$install_dir"
+chown -R $app:www-data "$install_dir"
 
 #=================================================
 # CONFIGURE LDAP PLUGIN
@@ -269,8 +269,8 @@ UPDATE piwigo_ldap_login_config SET value='' WHERE param = 'ld_binddn';
 UPDATE piwigo_ldap_login_config SET value='0' WHERE param = 'allow_new_users';
 UPDATE piwigo_ldap_login_config SET value='0' WHERE param = 'ld_group_user_active';"
 # Remove configuration file for older plugin version
-if [ -f $final_path/plugins/Ldap_Login/data.dat ] ; then
-	ynh_secure_remove --file=$final_path/plugins/Ldap_Login/data.dat
+if [ -f $install_dir/plugins/Ldap_Login/data.dat ] ; then
+#REMOVEME? 	ynh_secure_remove --file=$install_dir/plugins/Ldap_Login/data.dat
 fi
 
 #=================================================
@@ -292,9 +292,9 @@ ynh_add_fail2ban_config --logpath="/var/log/${app}FailedLogins.log" --failregex=
 #=================================================
 # RELOAD NGINX
 #=================================================
-ynh_script_progression --message="Reloading NGINX web server..." --weight=1
+#REMOVEME? ynh_script_progression --message="Reloading NGINX web server..." --weight=1
 
-ynh_systemd_action --service_name=nginx --action=reload
+#REMOVEME? ynh_systemd_action --service_name=nginx --action=reload
 
 #=================================================
 # END OF SCRIPT
