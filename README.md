@@ -44,7 +44,6 @@ In addition to Piwigo core features, the following are made available with this 
 * Official app website: <http://piwigo.org>
 * Official admin documentation: <https://piwigo.org/guides>
 * Upstream app code repository: <https://github.com/Piwigo/Piwigo>
-* YunoHost documentation for this app: <https://yunohost.org/app_piwigo>
 * Report a bug: <https://github.com/YunoHost-Apps/piwigo_ynh/issues>
 
 ## Developer info
