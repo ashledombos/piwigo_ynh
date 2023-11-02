@@ -44,7 +44,6 @@ ynh_setup_source --dest_dir="$tmpdir/plugins" --source_id=log_failed_logins_plug
 shopt -s extglob
 
 # Install files and set permissions
-mkdir $install_dir
 cp -a $tmpdir/!(upload|_data|galleries) $install_dir
 
 chmod 750 "$install_dir"
