@@ -44,6 +44,7 @@ En plus des fonctionnalités de base de Piwigo, les éléments suivants sont mis
 * Site officiel de l’app : <http://piwigo.org>
 * Documentation officielle de l’admin : <https://piwigo.org/guides>
 * Dépôt de code officiel de l’app : <https://github.com/Piwigo/Piwigo>
+* YunoHost Store: <https://apps.yunohost.org/app/piwigo>
 * Signaler un bug : <https://github.com/YunoHost-Apps/piwigo_ynh/issues>
 
 ## Informations pour les développeurs
