@@ -16,40 +16,6 @@ source /usr/share/yunohost/helpers
 upgrade_type=$(ynh_check_app_version_changed)
 
 #=================================================
-# STANDARD UPGRADE STEPS
-#=================================================
-# ENSURE DOWNWARD COMPATIBILITY
-#=================================================
-ynh_script_progression --message="Ensuring downward compatibility..."
-
-# If fpm_footprint doesn't exist, create it
-if [ -z "$fpm_footprint" ]; then
-    fpm_footprint=low
-    ynh_app_setting_set --app=$app --key=fpm_footprint --value=$fpm_footprint
-fi
-
-# If fpm_free_footprint doesn't exist, create it
-if [ -z "$fpm_free_footprint" ]; then
-    fpm_free_footprint=0
-    ynh_app_setting_set --app=$app --key=fpm_free_footprint --value=$fpm_free_footprint
-fi
-
-# If fpm_usage doesn't exist, create it
-if [ -z "$fpm_usage" ]; then
-    fpm_usage=low
-    ynh_app_setting_set --app=$app --key=fpm_usage --value=$fpm_usage
-fi
-
-# Compatibility with previous version; password was not set
-if [ -z "$admin_pwd" ] ; then
-  # Generate a new password
-  admin_pwd=$(ynh_string_random --length=24)
-
-  # Compute password hash with the Piwigo function
-  cp ../conf/hash_password.php $install_dir
-  hashed_password=$(cd $install_dir ; php hash_password.php $admin_pwd)
-
-#=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 
@@ -127,7 +93,8 @@ else
 fi
 
 # Upgrade Piwigo via cURL
-ynh_local_curl "/upgrade.php?language=$applanguage&now=true" "language=$applanguage" "username=$admin" "password=$admin_pwd"
+# FIXME : Why Curl ... Why can't we trigger the migration from the command line somehow ...
+#ynh_local_curl "/upgrade.php?language=$applanguage&now=true" "language=$applanguage" "username=$admin" "password=$admin_pwd"
 
 #=================================================
 # CONFIGURE PIWIGO
@@ -155,7 +122,9 @@ ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name <<< 
 # Activate the LDAP plugin using the WS API
 
 # Login with admin account
-ynh_local_curl "/ws.php?format=json" "method=pwg.session.login" "username=$admin" "password=$admin_pwd"
+
+# FIXME: Is this stuff really needed ... isn't there a way to enable the damn LDAP login plugin from the command line or something ...
+#ynh_local_curl "/ws.php?format=json" "method=pwg.session.login" "username=$admin" "password=$admin_pwd"
 # Get session token
 status=$(ynh_local_curl "/ws.php?format=json" "method=pwg.session.getStatus")
 pwg_token=$(jq --raw-output .result.pwg_token <<< $status)

@@ -74,9 +74,6 @@ ynh_script_progression --message="Setuping application with CURL..." --weight=5
 ynh_systemd_action --service_name=nginx --action=reload
 
 # Generate random password for admin
-adm_pwd=$(ynh_string_random --length=24)
-ynh_app_setting_set --app=$app --key=admin_pwd --value="$adm_pwd"
-
 if [ "$language" = "fr" ]; then
   applanguage="fr_FR"
 else
@@ -87,7 +84,7 @@ fi
 mail="$(ynh_user_get_info --username=$admin --key=mail)"
 
 # Installation with cURL
-ynh_local_curl "/install.php?language=$applanguage" "install=true" "dbhost=127.0.0.1" "dbuser=$db_user" "dbpasswd=$db_pwd" "dbname=$db_name" "prefix=" "admin_name=$admin" "admin_pass1=$adm_pwd" "admin_pass2=$adm_pwd" "admin_mail=$mail"
+ynh_local_curl "/install.php?language=$applanguage" "install=true" "dbhost=127.0.0.1" "dbuser=$db_user" "dbpasswd=$db_pwd" "dbname=$db_name" "prefix=" "admin_name=$admin" "admin_pass1=$password" "admin_pass2=$password" "admin_mail=$mail"
 
 #=================================================
 # CONFIGURE PIWIGO
@@ -112,7 +109,7 @@ ynh_script_progression --message="Configuring LDAP plugin..."
 # Activate the LDAP plugin using the WS API
 
 # Login with admin account
-ynh_local_curl "/ws.php?format=json" "method=pwg.session.login" "username=$admin" "password=$adm_pwd"
+ynh_local_curl "/ws.php?format=json" "method=pwg.session.login" "username=$admin" "password=$password"
 # Get session token
 status=$(ynh_local_curl "/ws.php?format=json" "method=pwg.session.getStatus")
 pwg_token=$(jq --raw-output .result.pwg_token <<< $status)
