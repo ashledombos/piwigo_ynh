@@ -27,18 +27,6 @@ If you don't have YunoHost, please consult [the guide](https://yunohost.org/#/in
 
 ![Screenshot of Piwigo](./doc/screenshots/screenshot_Piwigo.jpg)
 
-## Disclaimers / important information
-
-## YunoHost specific features
-
-In addition to Piwigo core features, the following are made available with this package:
- * Integrate with YunoHost users and SSO:
-   * private mode: limit access to YunoHost users
-   * public mode:
-     * SSO for YunoHost users
-     * allow other users management, and guest mode
- * Allow one YunoHost user to be the administrator (set at the installation)
-
 ## Documentation and resources
 
 * Official app website: <http://piwigo.org>
