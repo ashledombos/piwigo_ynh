@@ -68,18 +68,9 @@ chown -R $app:www-data "$data_dir"
 #=================================================
 ynh_script_progression --message="Setuping application with CURL..." --weight=5
 
-# Generate random password for admin
-if [ "$language" = "fr" ]; then
-  applanguage="fr_FR"
-else
-  applanguage="en_UK"
-fi
-
-# Configure Piwigo via cURL
-mail="$(ynh_user_get_info --username=$admin --key=mail)"
-
 # Installation with cURL
-ynh_local_curl "/install.php?language=$applanguage" "install=true" "dbhost=127.0.0.1" "dbuser=$db_user" "dbpasswd=$db_pwd" "dbname=$db_name" "prefix=" "admin_name=$admin" "admin_pass1=$password" "admin_pass2=$password" "admin_mail=$mail"
+mail="$(ynh_user_get_info --username=$admin --key=mail)"
+ynh_local_curl "/install.php?language=$language" "install=true" "dbhost=127.0.0.1" "dbuser=$db_user" "dbpasswd=$db_pwd" "dbname=$db_name" "prefix=" "admin_name=$admin" "admin_pass1=$password" "admin_pass2=$password" "admin_mail=$mail"
 
 #=================================================
 # CONFIGURE PIWIGO

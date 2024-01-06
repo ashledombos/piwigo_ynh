@@ -1,13 +1,15 @@
 #!/bin/bash
 
-#=================================================
-# GENERIC START
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
-
 source _common.sh
 source /usr/share/yunohost/helpers
+
+# Boring backward compatibility
+if [ "${language:-}" == "fr" ] ; then
+  language="fr_FR"
+else
+  language="en_UK"
+fi
+
 
 #=================================================
 # CHECK VERSION
@@ -81,18 +83,9 @@ ynh_add_nginx_config
 #=================================================
 ynh_script_progression --message="Upgrading Piwigo with cURL..." --weight=6
 
-# Reload NGINX
-ynh_systemd_action --service_name=nginx --action=reload
-
-if [ "$language" = "fr" ] ; then
-  applanguage="fr_FR"
-else
-  applanguage="en_UK"
-fi
-
 # Upgrade Piwigo via cURL
 # FIXME : Why Curl ... Why can't we trigger the migration from the command line somehow ...
-#ynh_local_curl "/upgrade.php?language=$applanguage&now=true" "language=$applanguage" "username=$admin" "password=$admin_pwd"
+#ynh_local_curl "/upgrade.php?language=$language&now=true" "language=$language" "username=$admin" "password=$admin_pwd"
 
 #=================================================
 # CONFIGURE PIWIGO
