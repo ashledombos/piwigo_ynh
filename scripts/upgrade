@@ -75,7 +75,7 @@ ynh_script_progression --message="Upgrading Piwigo with cURL..." --weight=6
 
 # Upgrade Piwigo via cURL
 # Why can't we trigger the migration from the command line somehow ...
-ynh_local_curl "/upgrade.php?language=$language&now=true" "language=$language" "username=$admin" "password=$admin_pwd"
+ynh_local_curl "/upgrade.php?language=$language&now=true" "language=$language" "username=$admin" "password=$password"
 
 #=================================================
 # CONFIGURE PIWIGO
