@@ -3,6 +3,9 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 
+# Gotta save the stupid password because we need it during upgrade because there's no way to trigger the upgrade.php script from command line ...
+ynh_app_setting_set --app=$app --key=password --value="$password"
+
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================

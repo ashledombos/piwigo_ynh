@@ -74,8 +74,8 @@ ynh_add_nginx_config
 ynh_script_progression --message="Upgrading Piwigo with cURL..." --weight=6
 
 # Upgrade Piwigo via cURL
-# FIXME : Why Curl ... Why can't we trigger the migration from the command line somehow ...
-#ynh_local_curl "/upgrade.php?language=$language&now=true" "language=$language" "username=$admin" "password=$admin_pwd"
+# Why can't we trigger the migration from the command line somehow ...
+ynh_local_curl "/upgrade.php?language=$language&now=true" "language=$language" "username=$admin" "password=$admin_pwd"
 
 #=================================================
 # CONFIGURE PIWIGO
@@ -104,8 +104,8 @@ ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name <<< 
 
 # Login with admin account
 
-# FIXME: Is this stuff really needed ... isn't there a way to enable the damn LDAP login plugin from the command line or something ...
-#ynh_local_curl "/ws.php?format=json" "method=pwg.session.login" "username=$admin" "password=$admin_pwd"
+# ... isn't there a way to enable the damn LDAP login plugin from the command line or something ...
+ynh_local_curl "/ws.php?format=json" "method=pwg.session.login" "username=$admin" "password=$admin_pwd"
 # Get session token
 status=$(ynh_local_curl "/ws.php?format=json" "method=pwg.session.getStatus")
 pwg_token=$(jq --raw-output .result.pwg_token <<< $status)
