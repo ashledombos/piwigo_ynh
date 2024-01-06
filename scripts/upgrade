@@ -10,7 +10,6 @@ else
   language="en_UK"
 fi
 
-
 #=================================================
 # CHECK VERSION
 #=================================================
@@ -21,42 +20,33 @@ upgrade_type=$(ynh_check_app_version_changed)
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 
-# sets extended pattern matching options in the bash shell
-shopt -s extglob
+# Get rid of legacy symlinks
+[ -L "$install_dir/_data" ] && ynh_secure_remove "$install_dir/_data" || true
+[ -L "$install_dir/galleries" ] && ynh_secure_remove "$install_dir/galleries" || true
+[ -L "$install_dir/upload" ] && ynh_secure_remove "$install_dir/upload" || true
 
 if [ "$upgrade_type" == "UPGRADE_APP" ]
 then
 	ynh_script_progression --message="Upgrading source files..." --weight=3
 
-	# Create tmp directory and fetch app inside
-	tmpdir="$(ynh_smart_mktemp --min_size=300)"
-	ynh_setup_source --dest_dir="$tmpdir"
+	ynh_setup_source --dest_dir="$install_dir"
+	ynh_setup_source --dest_dir="$install_dir/plugins/Ldap_Login" --source_id=ldap_plugin
+	ynh_setup_source --dest_dir="$install_dir/plugins" --source_id=log_failed_logins_plugin
 
-	# Fetch needed plugins
-	mkdir -p $tmpdir/plugins/Ldap_Login
-	ynh_setup_source --dest_dir="$tmpdir/plugins/Ldap_Login" --source_id=ldap_plugin
-	ynh_setup_source --dest_dir="$tmpdir/plugins" --source_id=log_failed_logins_plugin
+    # We don't want to keep those in the install dir, they already are in $data_dir
+    if [ -d "$install_dir/_data" ] && [ ! -L "$install_dir/_data" ]
+    then
+        ynh_secure_remove "$install_dir/_data"
+    fi
+    if [ -d "$install_dir/galleries" ] && [ ! -L "$install_dir/galleries" ]
+    then
+        ynh_secure_remove "$install_dir/galleries"
+    fi
+    if [ -d "$install_dir/upload" ] && [ ! -L "$install_dir/upload" ]
+    then
+        ynh_secure_remove "$install_dir/upload"
+    fi
 
-	# Install files and set permissions
-	cp -a $tmpdir/!(upload|_data|galleries) $install_dir
-
-	# Backward compatibility:
-	# If the _data subdirectory wasn't already moved to /home/yunohost.app/$app,
-	# then move it there
-	if [ ! -h $install_dir/_data ] ; then
-		mv $install_dir/_data $data_dir
-		ln -sd $data_dir/_data $install_dir/_data
-	fi
-
-	# Backward compatibility:
-	# If the galleries subdirectory wasn't already moved to /home/yunohost.app/$app,
-	# then move it there
-	if [ ! -h $install_dir/galleries ] ; then
-		mv $install_dir/galleries $data_dir
-		ln -sd $data_dir/galleries $install_dir/galleries
-	fi
-
-	ynh_secure_remove --file="$tmpdir"
 fi
 
 chmod 750 "$data_dir"
