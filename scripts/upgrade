@@ -10,6 +10,12 @@ else
   language="en_UK"
 fi
 
+if [ -z "${password:-}" ];
+then
+    password="${admin_pwd}"
+    ynh_app_setting_set --app=$app --key=password --value="$password"
+fi
+
 #=================================================
 # CHECK VERSION
 #=================================================
