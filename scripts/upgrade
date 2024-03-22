@@ -20,17 +20,6 @@ if [ -z "${password:-}" ]; then
     ynh_app_setting_set --app=$app --key=password --value="$password"
 fi
 
-# Get rid of legacy symlinks
-if [ -L "$install_dir/_data" ]; then
-    ynh_secure_remove "$install_dir/_data"
-fi
-if [ -L "$install_dir/galleries" ]; then
-    ynh_secure_remove "$install_dir/galleries"
-fi
-if [ -L "$install_dir/upload" ]; then
-    ynh_secure_remove "$install_dir/upload"
-fi
-
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
@@ -40,16 +29,7 @@ ynh_setup_source --dest_dir="$install_dir"
 ynh_setup_source --dest_dir="$install_dir/plugins/Ldap_Login" --source_id=ldap_plugin
 ynh_setup_source --dest_dir="$install_dir/plugins" --source_id=log_failed_logins_plugin
 
-# We don't want to keep those in the install dir, they already are in $data_dir
-if [ -d "$install_dir/_data" ] && [ ! -L "$install_dir/_data" ]; then
-    ynh_secure_remove "$install_dir/_data"
-fi
-if [ -d "$install_dir/galleries" ] && [ ! -L "$install_dir/galleries" ]; then
-    ynh_secure_remove "$install_dir/galleries"
-fi
-if [ -d "$install_dir/upload" ] && [ ! -L "$install_dir/upload" ]; then
-    ynh_secure_remove "$install_dir/upload"
-fi
+_create_data_dirs_if_required
 
 chmod -R o-rwx "$data_dir"
 chown -R "$app:www-data" "$data_dir"
