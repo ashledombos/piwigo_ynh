@@ -1,0 +1,104 @@
+#:schema https://raw.githubusercontent.com/YunoHost/apps/master/schemas/manifest.v2.schema.json
+
+packaging_format = 2
+
+id = "piwigo"
+name = "Piwigo"
+description.en = "Open source photo gallery for the web"
+description.fr = "Galerie de photos open source pour le web"
+
+version = "14.3.0~ynh1"
+
+maintainers = ["JimboJoe"]
+
+[upstream]
+license = "GPL-2.0"
+website = "http://piwigo.org"
+demo = "https://piwigo.org/demo"
+admindoc = "https://piwigo.org/guides"
+code = "https://github.com/Piwigo/Piwigo"
+
+[integration]
+yunohost = ">= 11.2"
+architectures = "all"
+multi_instance = true
+
+ldap = true
+
+sso = true
+
+disk = "50M"
+ram.build = "50M"
+ram.runtime = "50M"
+
+[install]
+    [install.domain]
+    type = "domain"
+
+    [install.path]
+    type = "path"
+    default = "/piwigo"
+
+    [install.init_main_permission]
+    type = "group"
+    default = "visitors"
+
+    [install.language]
+    ask.en = "Choose the application language"
+    ask.fr = "Choisissez la langue de l'application"
+    type = "select"
+    choices = ["fr_FR", "en_UK"]
+    default = "en_UK"
+
+    [install.admin]
+    type = "user"
+
+    [install.password]
+    type = "password"
+
+[resources]
+    [resources.sources.main]
+    url = "https://piwigo.org/download/dlcounter.php?code=14.3.0"
+    sha256 = "ab1d329afbb092ef74534bc09f56ef75a81d26443383e6ae47fe9801808552ef"
+    format = "zip"
+
+    autoupdate.strategy = "latest_github_release"
+
+    [resources.sources.ldap_plugin]
+    url = "https://piwigo.org/ext/download.php?rid=7036"
+    sha256 = "3c22652f6c0653aaeebe239435796748ee57612ad44e8e5f2553277545d36e5e"
+    format = "zip"
+
+    autoupdate.upstream = "https://github.com/kipjr/ldap_login"
+    autoupdate.strategy = "latest_github_release"
+
+    [resources.sources.log_failed_logins_plugin]
+    url = "http://piwigo.org/ext/download.php?rid=5525"
+    sha256 = "85b9a06f2c7ca8ae9698e6151c7631f519c945f696b02da72f9ff53243d7e4ca"
+    in_subdir = false
+    format = "zip"
+
+    [resources.system_user]
+    allow_email = true
+
+    [resources.install_dir]
+
+    [resources.data_dir]
+
+    [resources.permissions]
+    main.url = "/"
+
+    [resources.apt]
+    packages = [
+        "mariadb-server",
+        "imagemagick",
+        "php8.0-gd",
+        "php8.0-imagick",
+        "php8.0-xml",
+        "php8.0-mbstring",
+        "php8.0-mysqli",
+        "php8.0-ldap",
+    ]
+
+    [resources.database]
+    type = "mysql"
