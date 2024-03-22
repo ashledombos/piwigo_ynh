@@ -3,6 +3,12 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 
+#=================================================
+# INITIALIZE AND STORE SETTINGS
+#=================================================
+
+mail="$(ynh_user_get_info --username=$admin --key=mail)"
+
 # Gotta save the stupid password because we need it during upgrade because there's no way to trigger the upgrade.php script from command line ...
 ynh_app_setting_set --app=$app --key=password --value="$password"
 
@@ -15,22 +21,20 @@ ynh_setup_source --dest_dir="$install_dir"
 ynh_setup_source --dest_dir="$install_dir/plugins/Ldap_Login" --source_id=ldap_plugin
 ynh_setup_source --dest_dir="$install_dir/plugins" --source_id=log_failed_logins_plugin
 
-chmod 750 "$install_dir"
 chmod -R o-rwx "$install_dir"
-chown -R $app:www-data "$install_dir"
+chown -R "$app:www-data" "$install_dir"
 
 #=================================================
 # CONFIGURE DATA DIRECTORY
 #=================================================
 ynh_script_progression --message="Initializing data directory..." --weight=1
 
-mv $install_dir/_data $data_dir/_data
-mv $install_dir/upload $data_dir/upload
-mv $install_dir/galleries $data_dir/galleries
+mv "$install_dir/_data" "$data_dir/_data"
+mv "$install_dir/upload" "$data_dir/upload"
+mv "$install_dir/galleries" "$data_dir/galleries"
 
-chmod 750 "$data_dir"
 chmod -R o-rwx "$data_dir"
-chown -R $app:www-data "$data_dir"
+chown -R "$app:www-data" "$data_dir"
 
 #=================================================
 # SYSTEM CONFIGURATIONS
@@ -47,8 +51,9 @@ ynh_add_nginx_config
 ynh_script_progression --message="Setuping application with CURL..." --weight=5
 
 # Installation with cURL
-mail="$(ynh_user_get_info --username=$admin --key=mail)"
-ynh_local_curl "/install.php?language=$language" "install=true" "dbhost=127.0.0.1" "dbuser=$db_user" "dbpasswd=$db_pwd" "dbname=$db_name" "prefix=" "admin_name=$admin" "admin_pass1=$password" "admin_pass2=$password" "admin_mail=$mail"
+ynh_local_curl "/install.php?language=$language" \
+    "install=true" "dbhost=127.0.0.1" "dbuser=$db_user" "dbpasswd=$db_pwd" "dbname=$db_name" \
+    "prefix=" "admin_name=$admin" "admin_pass1=$password" "admin_pass2=$password" "admin_mail=$mail"
 
 #=================================================
 # CONFIGURE PIWIGO
@@ -61,9 +66,8 @@ ynh_add_config --template="config.inc.php" --destination="$install_dir/local/con
 # Setup database in local/config/database.inc.php
 ynh_add_config --template="database.inc.php" --destination="$install_dir/local/config/database.inc.php"
 
-chmod 750 "$install_dir"
 chmod -R o-rwx "$install_dir"
-chown -R $app:www-data "$install_dir"
+chown -R "$app:www-data" "$install_dir"
 
 #=================================================
 # ADD LDAP PLUGIN
@@ -76,7 +80,7 @@ ynh_script_progression --message="Configuring LDAP plugin..." --weight=2
 ynh_local_curl "/ws.php?format=json" "method=pwg.session.login" "username=$admin" "password=$password"
 # Get session token
 status=$(ynh_local_curl "/ws.php?format=json" "method=pwg.session.getStatus")
-pwg_token=$(jq --raw-output .result.pwg_token <<< $status)
+pwg_token=$(jq --raw-output .result.pwg_token <<< "$status")
 # Install the Ldap_Login plugin
 ynh_local_curl "/ws.php?format=json" "method=pwg.plugins.performAction" "action=install" "plugin=Ldap_Login" "pwg_token=$pwg_token"
 # Activate the Ldap_Login plugin
@@ -85,7 +89,7 @@ ynh_local_curl "/ws.php?format=json" "method=pwg.plugins.performAction" "action=
 ynh_local_curl "/ws.php?format=json" "method=pwg.session.logout"
 
 # Edit Ldap_Login plugin configuration
-ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name <<< "UPDATE piwigo_ldap_login_config SET value='ou=users,dc=yunohost,dc=org' WHERE param = 'ld_basedn';
+ynh_mysql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" <<< "UPDATE piwigo_ldap_login_config SET value='ou=users,dc=yunohost,dc=org' WHERE param = 'ld_basedn';
 UPDATE piwigo_ldap_login_config SET value='uid' WHERE param = 'ld_user_attr';
 UPDATE piwigo_ldap_login_config SET value='' WHERE param = 'ld_binddn';
 UPDATE piwigo_ldap_login_config SET value='0' WHERE param = 'allow_new_users';
@@ -99,11 +103,11 @@ UPDATE piwigo_ldap_login_config SET value='0' WHERE param = 'ld_group_user_activ
 ynh_script_progression --message="Configuring Fail2Ban..." --weight=6
 
 # Configure and activate log_failed_logins plugin
-ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name <<< "INSERT INTO plugins (id,state,version) VALUES ('log_failed_logins','active','1.2');"
-ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name <<< "INSERT INTO config (param, value) VALUES ('logFailedLoginsFilename','/var/log/${app}FailedLogins.log');"
+ynh_mysql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" <<< "INSERT INTO plugins (id,state,version) VALUES ('log_failed_logins','active','1.2');"
+ynh_mysql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" <<< "INSERT INTO config (param, value) VALUES ('logFailedLoginsFilename','/var/log/${app}FailedLogins.log');"
 
 touch "/var/log/${app}FailedLogins.log"
-chown $app: "/var/log/${app}FailedLogins.log"
+chown "$app:" "/var/log/${app}FailedLogins.log"
 
 ynh_add_fail2ban_config --logpath="/var/log/${app}FailedLogins.log" --failregex="ip=<HOST>" --max_retry=6
 

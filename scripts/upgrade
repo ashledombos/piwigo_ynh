@@ -3,6 +3,11 @@
 source _common.sh
 source /usr/share/yunohost/helpers
 
+#=================================================
+# ENSURE DOWNWARD COMPATIBILITY
+#=================================================
+ynh_script_progression --message="Ensuring downward compatibility..." --weight=1
+
 # Boring backward compatibility
 if [ "${language:-}" == "fr" ] ; then
   language="fr_FR"
@@ -10,58 +15,47 @@ else
   language="en_UK"
 fi
 
-if [ -z "${password:-}" ];
-then
-    password="${admin_pwd}"
+if [ -z "${password:-}" ]; then
+    password="$admin_pwd"
     ynh_app_setting_set --app=$app --key=password --value="$password"
 fi
 
-#=================================================
-# CHECK VERSION
-#=================================================
-
-upgrade_type=$(ynh_check_app_version_changed)
+# Get rid of legacy symlinks
+if [ -L "$install_dir/_data" ]; then
+    ynh_secure_remove "$install_dir/_data"
+fi
+if [ -L "$install_dir/galleries" ]; then
+    ynh_secure_remove "$install_dir/galleries"
+fi
+if [ -L "$install_dir/upload" ]; then
+    ynh_secure_remove "$install_dir/upload"
+fi
 
 #=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
+ynh_script_progression --message="Upgrading source files..." --weight=3
 
-# Get rid of legacy symlinks
-[ -L "$install_dir/_data" ] && ynh_secure_remove "$install_dir/_data" || true
-[ -L "$install_dir/galleries" ] && ynh_secure_remove "$install_dir/galleries" || true
-[ -L "$install_dir/upload" ] && ynh_secure_remove "$install_dir/upload" || true
+ynh_setup_source --dest_dir="$install_dir"
+ynh_setup_source --dest_dir="$install_dir/plugins/Ldap_Login" --source_id=ldap_plugin
+ynh_setup_source --dest_dir="$install_dir/plugins" --source_id=log_failed_logins_plugin
 
-if [ "$upgrade_type" == "UPGRADE_APP" ]
-then
-	ynh_script_progression --message="Upgrading source files..." --weight=3
-
-	ynh_setup_source --dest_dir="$install_dir"
-	ynh_setup_source --dest_dir="$install_dir/plugins/Ldap_Login" --source_id=ldap_plugin
-	ynh_setup_source --dest_dir="$install_dir/plugins" --source_id=log_failed_logins_plugin
-
-    # We don't want to keep those in the install dir, they already are in $data_dir
-    if [ -d "$install_dir/_data" ] && [ ! -L "$install_dir/_data" ]
-    then
-        ynh_secure_remove "$install_dir/_data"
-    fi
-    if [ -d "$install_dir/galleries" ] && [ ! -L "$install_dir/galleries" ]
-    then
-        ynh_secure_remove "$install_dir/galleries"
-    fi
-    if [ -d "$install_dir/upload" ] && [ ! -L "$install_dir/upload" ]
-    then
-        ynh_secure_remove "$install_dir/upload"
-    fi
-
+# We don't want to keep those in the install dir, they already are in $data_dir
+if [ -d "$install_dir/_data" ] && [ ! -L "$install_dir/_data" ]; then
+    ynh_secure_remove "$install_dir/_data"
+fi
+if [ -d "$install_dir/galleries" ] && [ ! -L "$install_dir/galleries" ]; then
+    ynh_secure_remove "$install_dir/galleries"
+fi
+if [ -d "$install_dir/upload" ] && [ ! -L "$install_dir/upload" ]; then
+    ynh_secure_remove "$install_dir/upload"
 fi
 
-chmod 750 "$data_dir"
 chmod -R o-rwx "$data_dir"
-chown -R $app:www-data "$data_dir"
+chown -R "$app:www-data" "$data_dir"
 
-chmod 750 "$install_dir"
 chmod -R o-rwx "$install_dir"
-chown -R $app:www-data "$install_dir"
+chown -R "$app:www-data" "$install_dir"
 
 #=================================================
 # PHP-FPM CONFIGURATION
@@ -72,8 +66,6 @@ ynh_add_fpm_config
 
 ynh_add_nginx_config
 
-#=================================================
-# SPECIFIC UPGRADE
 #=================================================
 # UPGRADE APPLICATION WITH CURL
 #=================================================
@@ -94,9 +86,8 @@ ynh_add_config --template="config.inc.php" --destination="$install_dir/local/con
 # Setup database in local/config/database.inc.php
 ynh_add_config --template="database.inc.php" --destination="$install_dir/local/config/database.inc.php"
 
-chmod 750 "$install_dir"
 chmod -R o-rwx "$install_dir"
-chown -R $app:www-data "$install_dir"
+chown -R "$app:www-data" "$install_dir"
 
 #=================================================
 # CONFIGURE LDAP PLUGIN
@@ -104,7 +95,7 @@ chown -R $app:www-data "$install_dir"
 ynh_script_progression --message="Configuring LDAP plugin..." --weight=2
 
 # Disable LDAP plugin to avoid warning messages during API call
-ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name <<< "DELETE FROM plugins WHERE id='Ldap_Login';"
+ynh_mysql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" <<< "DELETE FROM plugins WHERE id='Ldap_Login';"
 
 # Activate the LDAP plugin using the WS API
 
@@ -114,36 +105,39 @@ ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name <<< 
 ynh_local_curl "/ws.php?format=json" "method=pwg.session.login" "username=$admin" "password=$password"
 # Get session token
 status=$(ynh_local_curl "/ws.php?format=json" "method=pwg.session.getStatus")
-pwg_token=$(jq --raw-output .result.pwg_token <<< $status)
+pwg_token=$(jq --raw-output .result.pwg_token <<< "$status")
 # Activate the Ldap_Login plugin
 ynh_local_curl "/ws.php?format=json" "method=pwg.plugins.performAction" "action=activate" "plugin=Ldap_Login" "pwg_token=$pwg_token"
 # Log out
 ynh_local_curl "/ws.php?format=json" "method=pwg.session.logout"
 
 # Edit Ldap_Login plugin configuration
-ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name <<< "UPDATE piwigo_ldap_login_config SET value='ou=users,dc=yunohost,dc=org' WHERE param = 'ld_basedn';
+ynh_mysql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" <<< "UPDATE piwigo_ldap_login_config SET value='ou=users,dc=yunohost,dc=org' WHERE param = 'ld_basedn';
 UPDATE piwigo_ldap_login_config SET value='uid' WHERE param = 'ld_user_attr';
 UPDATE piwigo_ldap_login_config SET value='' WHERE param = 'ld_binddn';
 UPDATE piwigo_ldap_login_config SET value='0' WHERE param = 'allow_new_users';
 UPDATE piwigo_ldap_login_config SET value='0' WHERE param = 'ld_group_user_active';"
+
 # Remove configuration file for older plugin version
-if [ -f $install_dir/plugins/Ldap_Login/data.dat ] ; then
-	ynh_secure_remove --file=$install_dir/plugins/Ldap_Login/data.dat
+if [ -f "$install_dir/plugins/Ldap_Login/data.dat" ] ; then
+    ynh_secure_remove --file="$install_dir/plugins/Ldap_Login/data.dat"
 fi
 
-#=================================================
-# GENERIC FINALIZATION
 #=================================================
 # UPGRADE FAIL2BAN
 #=================================================
 ynh_script_progression --message="Reconfiguring Fail2Ban..." --weight=8
 
 # Configure and activate log_failed_logins plugin
-ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name <<< "INSERT INTO plugins (id,state,version) VALUES ('log_failed_logins','active','1.2');" 2>&1 > /dev/null || ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name <<< "UPDATE plugins SET state='active' WHERE id='log_failed_logins';"
-ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name <<< "INSERT INTO config (param, value) VALUES ('logFailedLoginsFilename','/var/log/${app}FailedLogins.log');" 2>&1 > /dev/null || ynh_mysql_connect_as --user=$db_name --password=$db_pwd --database=$db_name <<< "UPDATE config SET value='/var/log/${app}FailedLogins.log' WHERE param='logFailedLoginsFilename';"
+if ! ynh_mysql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" <<< "INSERT INTO plugins (id,state,version) VALUES ('log_failed_logins','active','1.2');" 2>&1 > /dev/null; then
+    ynh_mysql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" <<< "UPDATE plugins SET state='active' WHERE id='log_failed_logins';"
+fi
+if ! ynh_mysql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" <<< "INSERT INTO config (param, value) VALUES ('logFailedLoginsFilename','/var/log/${app}FailedLogins.log');" 2>&1 > /dev/null; then
+    ynh_mysql_connect_as --user="$db_name" --password="$db_pwd" --database="$db_name" <<< "UPDATE config SET value='/var/log/${app}FailedLogins.log' WHERE param='logFailedLoginsFilename';"
+fi
 
 touch "/var/log/${app}FailedLogins.log"
-chown $app: "/var/log/${app}FailedLogins.log"
+chown "$app:" "/var/log/${app}FailedLogins.log"
 
 ynh_add_fail2ban_config --logpath="/var/log/${app}FailedLogins.log" --failregex="ip=<HOST>" --max_retry=6
 
