@@ -29,9 +29,22 @@ chown -R "$app:www-data" "$install_dir"
 #=================================================
 ynh_script_progression --message="Initializing data directory..." --weight=1
 
-mv "$install_dir/_data" "$data_dir/_data"
-mv "$install_dir/upload" "$data_dir/upload"
-mv "$install_dir/galleries" "$data_dir/galleries"
+# Move data dirs to $data_dir unless they already exist
+if [ -d "$install_dir/_data" ]; then
+    ynh_secure_remove "$install_dir/_data"
+else
+    mv "$install_dir/_data" "$data_dir/_data"
+fi
+if [ -d "$install_dir/galleries" ]; then
+    ynh_secure_remove "$install_dir/galleries"
+else
+    mv "$install_dir/galleries" "$data_dir/galleries"
+fi
+if [ -d "$install_dir/upload" ]; then
+    ynh_secure_remove "$install_dir/upload"
+else
+    mv "$install_dir/upload" "$data_dir/upload"
+fi
 
 chmod -R o-rwx "$data_dir"
 chown -R "$app:www-data" "$data_dir"
