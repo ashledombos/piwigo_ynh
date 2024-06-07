@@ -38,7 +38,6 @@ Piwigo is a photo gallery software for the web, built by an active community of 
 
 Please send your pull request to the [testing branch](https://github.com/YunoHost-Apps/piwigo_ynh/tree/testing),
 
-
 To try the testing branch, please proceed like that.
 
 ```bash
