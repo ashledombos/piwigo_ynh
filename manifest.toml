@@ -79,11 +79,9 @@ ram.runtime = "50M"
     format = "zip"
 
     [resources.system_user]
-    allow_email = true
+    #allow_email = true
 
     [resources.install_dir]
-
-    [resources.data_dir]
 
     [resources.permissions]
     main.url = "/"
